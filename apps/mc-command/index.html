@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Bedrock コマンドコンバーター (1.16 → 1.20+)</title>
+    <!-- Tailwind CSSを使用してモダンなデザインを適用します -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* コマンド入力欄には等幅フォントを使用し、見やすくします */
+        textarea {
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+
+    <script>
+        if (!localStorage.getItem('tosAgreed')) {
+            window.location.href = '../../terms.html'; // 2つ上の階層のterms.htmlへ飛ばす
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- ヘッダー部分 -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Minecraft コマンドコンバーター</h1>
+            <p class="text-gray-600">統合版(Bedrock)の古いコマンドを、新しい構文とブロックステートに一括変換します。</p>
+        </header>
+
+        <!-- メインのUIコンテナ -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- 左側：入力エリア -->
+            <div class="bg-white rounded-lg shadow-md p-4 flex flex-col h-full">
+                <div class="flex justify-between items-center mb-2">
+                    <label for="input-commands" class="font-bold text-gray-700">古いコマンド (1.16 - 1.19.40)</label>
+                    <button onclick="loadSample()" class="text-sm text-blue-600 hover:text-blue-800 underline">サンプルを入力</button>
+                </div>
+                <textarea id="input-commands" class="w-full flex-grow p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none h-96" placeholder="/execute @a ~ ~ ~ setblock ~ -1 ~ wool 1&#10;/execute @e[type=zombie] ~ ~ ~ detect ~ -1 ~ stone 0 kill @s"></textarea>
+            </div>
+
+            <!-- 右側：出力エリア -->
+            <div class="bg-white rounded-lg shadow-md p-4 flex flex-col h-full">
+                <div class="flex justify-between items-center mb-2">
+                    <label for="output-commands" class="font-bold text-gray-700">新しいコマンド (1.19.70 - 最新版)</label>
+                    <button onclick="copyToClipboard()" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded transition">コピー</button>
+                </div>
+                <textarea id="output-commands" class="w-full flex-grow p-3 border border-gray-300 rounded bg-gray-50 text-gray-800 focus:outline-none resize-none h-96" readonly placeholder="変換結果がここに表示されます。"></textarea>
+            </div>
+
+        </div>
+
+        <!-- 変換ボタン -->
+        <div class="mt-8 text-center">
+            <button onclick="processConversion()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition hover:scale-105 text-lg">
+                コマンドを変換する
+            </button>
+        </div>
+
+        <!-- 変換ルールの説明 -->
+        <div class="mt-12 bg-blue-50 border-l-4 border-blue-500 p-4 rounded text-gray-700 text-sm">
+            <h3 class="font-bold mb-2">適用される変換ルール:</h3>
+            <ul class="list-disc list-inside space-y-1">
+                <li><strong>execute構文:</strong> <code>/execute &lt;target&gt; &lt;x&gt; &lt;y&gt; &lt;z&gt;</code> を <code>/execute as &lt;target&gt; at @s positioned &lt;x&gt; &lt;y&gt; &lt;z&gt; run</code> に変換。</li>
+                <li><strong>detect構文:</strong> <code>detect &lt;x&gt; &lt;y&gt; &lt;z&gt; &lt;block&gt; &lt;data&gt;</code> を <code>if block &lt;x&gt; &lt;y&gt; &lt;z&gt; &lt;block&gt; &lt;data&gt;</code> に変換。</li>
+                <li><strong>フラットニング対応:</strong> 羊毛、コンクリート等のAux値（例：<code>wool 1</code>）を最新の固有ID（例：<code>orange_wool</code>）に変換。</li>
+                <li><strong>ハーフブロック:</strong> ハーフブロックを固有IDと上下位置プロパティ（例：<code>wooden_slab 9</code> → <code>spruce_slab ["minecraft:vertical_half"="top"]</code>）に変換。</li>
+                <li><strong>自然ブロック:</strong> 石、土、木材などのデータ値を、最新の固有ID（例：<code>stone 1</code> → <code>granite</code>）に変換。</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // サンプルコマンドを入力欄にセットする関数
+        function loadSample() {
+            const sample = `/execute @a ~ ~ ~ setblock ~ -1 ~ wool 1
+/execute @e[type=zombie] ~ ~ ~ detect ~ -1 ~ stone 2 kill @s
+/fill ~ ~ ~ ~5 ~5 ~5 concrete 4
+/execute @p ^ ^ ^3 testforblock ~ ~ ~ planks 2
+/setblock ~ ~ ~ wooden_slab 9
+/fill ~ ~ ~ ~2 ~2 ~2 stone_slab 0
+/setblock ~ ~ ~ dirt 1`;
+            document.getElementById('input-commands').value = sample;
+        }
+
+        // コピー機能
+        function copyToClipboard() {
+            const outputText = document.getElementById('output-commands');
+            outputText.select();
+            document.execCommand('copy');
+            alert('クリップボードにコピーしました！');
+        }
+
+        // メインの変換処理を呼び出す関数
+        function processConversion() {
+            const input = document.getElementById('input-commands').value;
+            const output = convertCommands(input);
+            document.getElementById('output-commands').value = output;
+        }
+
+        // --- ここから下がコアとなる変換ロジックです ---
+
+        function convertCommands(input) {
+            const lines = input.split('\n');
+            const outputLines = lines.map(line => {
+                let l = line.trim();
+                if (!l) return l; // 空行はそのまま返す
+
+                // 1. Execute コマンドの構文を変換
+                l = convertExecute(l);
+
+                // 2. ブロックとデータ値(Aux値)を新しいブロックステートに変換
+                l = convertBlockStates(l);
+
+                return l;
+            });
+            return outputLines.join('\n');
+        }
+
+        function convertExecute(cmd) {
+            // すでに新しい構文（as, at, if などを含む）の場合はスキップ
+            if (cmd.match(/^\/?execute\s+(as|at|if|unless|positioned|align|facing|rotated|run)\s+/)) {
+                return cmd;
+            }
+
+            // パターンA: detect を含む古い execute
+            // 例: /execute @a ~ ~ ~ detect ~ -1 ~ stone 0 kill @s
+            const detectRegex = /^(\/?execute)\s+(@[a-z](?:\[.*?\])?|[^\s]+)\s+([~^0-9.-]+)\s+([~^0-9.-]+)\s+([~^0-9.-]+)\s+detect\s+([~^0-9.-]+)\s+([~^0-9.-]+)\s+([~^0-9.-]+)\s+([a-zA-Z0-9_:]+)\s+(-?[0-9]+)\s+(.+)$/i;
+            let match = cmd.match(detectRegex);
+            if (match) {
+                const [_, slashExe, target, x, y, z, dx, dy, dz, block, data, runCmd] = match;
+                // 座標が「~ ~ ~」の場合は positioned を省略してスッキリさせます
+                let pos = (x === '~' && y === '~' && z === '~') ? '' : ` positioned ${x} ${y} ${z}`;
+                return `${slashExe} as ${target} at @s${pos} if block ${dx} ${dy} ${dz} ${block} ${data} run ${runCmd}`;
+            }
+
+            // パターンB: detect のない通常の古い execute
+            // 例: /execute @a ~ ~ ~ setblock ~ ~ ~ dirt
+            const normalRegex = /^(\/?execute)\s+(@[a-z](?:\[.*?\])?|[^\s]+)\s+([~^0-9.-]+)\s+([~^0-9.-]+)\s+([~^0-9.-]+)\s+(.+)$/i;
+            match = cmd.match(normalRegex);
+            if (match) {
+                const [_, slashExe, target, x, y, z, runCmd] = match;
+                let pos = (x === '~' && y === '~' && z === '~') ? '' : ` positioned ${x} ${y} ${z}`;
+                return `${slashExe} as ${target} at @s${pos} run ${runCmd}`;
+            }
+
+            return cmd; // 変換に該当しない場合はそのまま返す
+        }
+
+        function convertBlockStates(cmd) {
+            // 変換用のデータ辞書（フラットニング対応）
+            const colors = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black"];
+            const woodTypes = ["oak", "spruce", "birch", "jungle", "acacia", "dark_oak"];
+            const stoneTypes = ["stone", "granite", "polished_granite", "diorite", "polished_diorite", "andesite", "polished_andesite"];
+            
+            // ハーフブロック用の種類リスト（資料4.3に基づく固有ID用）
+            const stoneSlabTypes = ["smooth_stone", "sandstone", "petrified_oak", "cobblestone", "brick", "stone_brick", "quartz", "nether_brick"];
+            const stoneSlab2Types = ["red_sandstone", "purpur", "prismarine_rough", "prismarine_dark", "prismarine_brick", "mossy_cobblestone", "smooth_sandstone", "red_nether_brick"];
+            const stoneSlab3Types = ["end_stone_brick", "smooth_red_sandstone", "polished_andesite", "andesite", "diorite", "polished_diorite", "granite", "polished_granite"];
+            const stoneSlab4Types = ["mossy_stone_brick", "smooth_quartz", "stone", "cut_sandstone", "cut_red_sandstone"];
+
+            // データ値からブロックステート文字列を生成するヘルパー関数
+            function getBlockState(block, dataStr) {
+                const data = parseInt(dataStr, 10);
+                if (isNaN(data) || data < 0) return `${block} ${dataStr}`;
+
+                // 4.4 色付きブロック（フラットニング：固有IDへ変換）
+                if (["wool", "concrete", "carpet", "stained_glass", "stained_glass_pane"].includes(block)) {
+                    if (data >= 0 && data <= 15) return `${colors[data]}_${block}`;
+                }
+                if (block === "stained_hardened_clay") {
+                    if (data >= 0 && data <= 15) return `${colors[data]}_terracotta`;
+                }
+
+                // 4.2 木材・原木・葉
+                if (block === "planks") {
+                     if (data >= 0 && data <= 5 && woodTypes[data]) return `${woodTypes[data]}_planks`;
+                }
+                if (block === "log") {
+                     if (data >= 0 && data <= 3 && woodTypes[data]) return `${woodTypes[data]}_log`;
+                }
+                if (block === "log2") {
+                     if (data >= 0 && data <= 1 && woodTypes[data + 4]) return `${woodTypes[data + 4]}_log`;
+                }
+                if (block === "leaves") {
+                     if (data >= 0 && data <= 3 && woodTypes[data]) return `${woodTypes[data]}_leaves ["persistent_bit"=false,"update_bit"=false]`;
+                }
+                if (block === "leaves2") {
+                     if (data >= 0 && data <= 1 && woodTypes[data + 4]) return `${woodTypes[data + 4]}_leaves ["persistent_bit"=false,"update_bit"=false]`;
+                }
+
+                // 4.1 石・土
+                if (block === "stone") {
+                     if (data >= 0 && data <= 6) return stoneTypes[data];
+                }
+                if (block === "dirt") {
+                    if (data === 0) return `dirt ["dirt_type"="normal"]`;
+                    if (data === 1) return `coarse_dirt ["dirt_type"="coarse"]`;
+                    if (data === 2) return `podzol`;
+                }
+                if (block === "sand") {
+                    if (data === 0) return `sand ["sand_type"="normal"]`;
+                    if (data === 1) return `red_sand ["sand_type"="red"]`;
+                }
+                if (block === "bedrock") {
+                    return `bedrock ["infiniburn_bit"=false]`;
+                }
+
+                // 4.3 ハーフブロック（フラットニング固有ID + vertical_half）
+                const isTop = data >= 8;
+                const baseData = data % 8;
+                const halfState = isTop ? "top" : "bottom";
+
+                if (block === "wooden_slab" && baseData >= 0 && baseData <= 5) {
+                    return `${woodTypes[baseData]}_slab ["minecraft:vertical_half"="${halfState}"]`;
+                }
+                if (block === "stone_slab" && baseData >= 0 && baseData <= 7) {
+                    return `${stoneSlabTypes[baseData]}_slab ["minecraft:vertical_half"="${halfState}"]`;
+                }
+                if (block === "stone_slab2" && baseData >= 0 && baseData <= 7) {
+                    return `${stoneSlab2Types[baseData]}_slab ["minecraft:vertical_half"="${halfState}"]`;
+                }
+                if (block === "stone_slab3" && baseData >= 0 && baseData <= 7) {
+                    return `${stoneSlab3Types[baseData]}_slab ["minecraft:vertical_half"="${halfState}"]`;
+                }
+                if (block === "stone_slab4" && baseData >= 0 && baseData <= 4) {
+                    return `${stoneSlab4Types[baseData]}_slab ["minecraft:vertical_half"="${halfState}"]`;
+                }
+
+                // 未対応のブロックはそのまま返す
+                return `${block} ${dataStr}`;
+            }
+
+            // setblock, testforblock への適用
+            cmd = cmd.replace(/(\/?(?:setblock|testforblock))\s+([~^0-9.-]+\s+[~^0-9.-]+\s+[~^0-9.-]+)\s+([a-zA-Z0-9_:]+)\s+([0-9]+)/gi, (match, cmdName, coords, block, data) => {
+                 const stateStr = getBlockState(block, data);
+                 if (stateStr !== `${block} ${data}`) return `${cmdName} ${coords} ${stateStr}`;
+                 return match;
+            });
+
+            // fill への適用（座標引数が6つあるため別処理）
+            cmd = cmd.replace(/(\/?fill)\s+([~^0-9.-]+\s+[~^0-9.-]+\s+[~^0-9.-]+\s+[~^0-9.-]+\s+[~^0-9.-]+\s+[~^0-9.-]+)\s+([a-zA-Z0-9_:]+)\s+([0-9]+)/gi, (match, cmdName, coords, block, data) => {
+                 const stateStr = getBlockState(block, data);
+                 if (stateStr !== `${block} ${data}`) return `${cmdName} ${coords} ${stateStr}`;
+                 return match;
+            });
+
+            // execute ... if block (変換後の新しい構文内) への適用
+            cmd = cmd.replace(/(if block)\s+([~^0-9.-]+\s+[~^0-9.-]+\s+[~^0-9.-]+)\s+([a-zA-Z0-9_:]+)\s+([0-9]+)/gi, (match, cmdName, coords, block, data) => {
+                 const stateStr = getBlockState(block, data);
+                 if (stateStr !== `${block} ${data}`) return `${cmdName} ${coords} ${stateStr}`;
+                 return match;
+            });
+
+            return cmd;
+        }
+    </script>
+</body>
+</html>
