@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCパーツ選択 (ハイブリッド)</title>
+    
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            border-bottom: 2px solid #ddd;
+        }
+        h2 {
+            margin-top: 30px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #007bff;
+        }
+
+        /* --- ▼▼▼ 変更点 (リセットボタンのデザインを追加) ▼▼▼ --- */
+        .reset-button {
+            background-color: #dc3545; /* 赤系の色 */
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            transition: background-color 0.2s ease;
+        }
+        .reset-button:hover {
+            background-color: #c82333; /* 少し濃い赤 */
+        }
+        /* --- ▲▲▲ 変更点ここまで ▲▲▲ --- */
+
+
+        /* --- セレクトボタン (詳細選択) 用のデザイン --- */
+        .parts-container-select {
+            display: flex;
+            flex-direction: column; 
+            gap: 15px;
+            max-width: 500px;
+        }
+        .part-row {
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .part-label {
+            font-size: 16px;
+            font-weight: bold;
+            width: 180px;
+            flex-shrink: 0;
+        }
+        .part-select {
+            font-size: 16px;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* --- クリックボタン (選択/非選択) 用のデザイン --- */
+        .parts-container-click {
+            display: flex;
+            flex-direction: column;
+            gap: 10px; 
+            align-items: flex-start;
+        }
+        .part-button {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 2px solid #007bff;
+            background-color: #ffffff;
+            color: #007bff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 200px; 
+            text-align: center;
+        }
+        .part-button:hover {
+            background-color: #f0f8ff;
+        }
+        .part-button.selected {
+            background-color: #007bff;
+            color: #ffffff;
+            font-weight: bold;
+        }
+    </style>
+
+    <script>
+        if (!localStorage.getItem('tosAgreed')) {
+            window.location.href = '../../terms.html'; // 2つ上の階層のterms.htmlへ飛ばす
+        }
+    </script>
+</head>
+<body>
+
+    <h1>PCパーツ構成を選択</h1>
+
+    <button id="reset-button" class="reset-button">すべての選択をリセット</button>
+    <h2>詳細を選択するパーツ</h2>
+    <div class="parts-container-select">
+        
+        <div class="part-row">
+            <label class="part-label" for="cpu-select">CPU:</label>
+            <select class="part-select" id="cpu-select">
+                <option value="intel">Intel</option>
+                <option value="amd">AMD</option>
+            </select>
+        </div>
+        
+        <div class="part-row">
+            <label class="part-label" for="mb-select">マザーボード:</label>
+            <select class="part-select" id="mb-select">
+                <option value="asus">ASUS</option>
+                <option value="msi">MSI</option>
+                <option value="gigabyte">GIGABYTE</option>
+                <option value="asrock">ASRock</option>
+            </select>
+        </div>
+
+        <div class="part-row">
+            <label class="part-label" for="gpu-select">グラフィックボード:</label>
+            <select class="part-select" id="gpu-select">
+                <option value="nvidia">NVIDIA</option>
+                <option value="radeon">RADEON</option>
+            </select>
+        </div>
+
+        <div class="part-row">
+            <label class="part-label" for="mem1-select">メモリ 1 (GB):</label>
+            <select class="part-select" id="mem1-select">
+                <option value="2">2 GB</option>
+                <option value="4">4 GB</option>
+                <option value="8">8 GB</option>
+                <option value="16">16 GB</option>
+                <option value="32">32 GB</option>
+                <option value="64">64 GB</option>
+            </select>
+        </div>
+        <div class="part-row">
+            <label class="part-label" for="mem2-select">メモリ 2 (GB):</label>
+            <select class="part-select" id="mem2-select">
+                <option value="2">2 GB</option>
+                <option value="4">4 GB</option>
+                <option value="8">8 GB</option>
+                <option value="16">16 GB</option>
+                <option value="32">32 GB</option>
+                <option value="64">64 GB</option>
+            </select>
+        </div>
+        <div class="part-row">
+            <label class="part-label" for="mem3-select">メモリ 3 (GB):</label>
+            <select class="part-select" id="mem3-select">
+                <option value="2">2 GB</option>
+                <option value="4">4 GB</option>
+                <option value="8">8 GB</option>
+                <option value="16">16 GB</option>
+                <option value="32">32 GB</option>
+                <option value="64">64 GB</option>
+            </select>
+        </div>
+        <div class="part-row">
+            <label class="part-label" for="mem4-select">メモリ 4 (GB):</label>
+            <select class="part-select" id="mem4-select">
+                <option value="2">2 GB</option>
+                <option value="4">4 GB</option>
+                <option value="8">8 GB</option>
+                <option value="16">16 GB</option>
+                <option value="32">32 GB</option>
+                <option value="64">64 GB</option>
+            </select>
+        </div>
+
+        <div class="part-row">
+            <label class="part-label" for="storage-select">ストレージ:</label>
+            <select class="part-select" id="storage-select"> 
+                <option value="256g">256 GB (SSD)</option>
+                <option value="500g">500 GB (SSD)</option>
+                <option value="1t_ssd">1 TB (SSD)</option>
+                <option value="2t_ssd">2 TB (SSD)</option>
+                <option value="4t_ssd">4 TB (SSD)</option>
+                
+            </select>
+        </div>
+
+                <div class="part-row">
+            <label class="part-label" for="storage2-select">ストレージ 2:</label>
+            <select class="part-select" id="storage2-select"> 
+                <option value="256g">256 GB (SSD)</option>
+                <option value="500g">500 GB (SSD)</option>
+                <option value="1t_ssd">1 TB (SSD)</option>
+                <option value="2t_ssd">2 TB (SSD)</option>
+                <option value="4t_ssd">4 TB (SSD)</option>
+                
+            </select>
+        </div>
+
+        <div class="part-row">
+            <label class="part-label" for="psu-select">電源 (W):</label>
+            <select class="part-select" id="psu-select">
+                <option value="550">550 W</option>
+                <option value="650">650 W</option>
+                <option value="750">750 W</option>
+                <option value="850">850 W</option>
+                <option value="900">900 W</option>
+                <option value="950">950 W</option>
+                <option value="1050">1050 W</option>
+                <option value="1150">1150 W</option>
+                <option value="1250">1250 W</option>
+            </select>
+        </div>
+    </div>
+
+    <h2>選択するパーツ</h2>
+    <div class="parts-container-click">
+        <button class="part-button">CPU</button>
+        <button class="part-button">GPU</button>
+        <button class="part-button">マザーボード</button>
+        <button class="part-button">メモリ</button>
+        <button class="part-button">メモリ２</button>
+        <button class="part-button">メモリ３</button>
+        <button class="part-button">メモリ４</button>
+        <button class="part-button">ストレージ</button>
+        <button class="part-button">ストレージ２</button>
+        <button class="part-button">電源</button>
+        <button class="part-button">CPUクーラー</button>
+    </div>
+
+
+    
+    <script>
+        // --- 1. クリックボタン (PCケースなど) の処理 ---
+        const buttons = document.querySelectorAll('.part-button');
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                button.classList.toggle('selected');
+            });
+        });
+
+
+        /* ▼▼▼ 変更点 (リセットボタンのJavaScriptを追加) ▼▼▼ */
+
+        // --- 2. リセットボタンの処理 ---
+
+        // A. ID="reset-button" のボタン要素を見つけてくる
+        const resetButton = document.getElementById('reset-button');
+
+        // B. リセットボタンがクリックされたら、以下の処理を実行する
+        resetButton.addEventListener('click', () => {
+            
+            // C. すべてのセレクト (class="part-select") をリセットする
+            const selects = document.querySelectorAll('.part-select');
+            selects.forEach(select => {
+                // selectedIndex を 0 にすると、一番上の選択肢 (例: "Intel" や "なし") に戻ります
+                select.selectedIndex = 0; 
+            });
+
+            // D. すべてのクリックボタン (class="part-button") をリセットする
+            const clickButtons = document.querySelectorAll('.part-button');
+            clickButtons.forEach(button => {
+                // 'selected' クラスを削除して、色を元に戻します
+                button.classList.remove('selected'); 
+            });
+
+        });
+        /* --- ▲▲▲ 変更点ここまで ▲▲▲ --- */
+    </script>
+
+</body>
+</html>

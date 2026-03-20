@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パタパタ掲示板（ドミノ更新・設定付き）</title>
+    <style>
+        /* --- 全体のスタイル --- */
+        body {
+            background-color: #1a1a1a;
+            font-family: "Courier New", monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: white;
+            padding-top: 20px;
+        }
+
+        #clock-display {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #ddd;
+            font-weight: bold;
+            font-family: sans-serif;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        /* --- 掲示板のデザイン --- */
+        .board {
+            background-color: #0d0d0d;
+            padding: 25px;
+            border: 8px solid #333;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+            margin-bottom: 20px;
+            perspective: 1200px; /* 3D効果の深さを強調 */
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* --- パタパタパネルのスタイル --- */
+        .flap {
+            background-color: #222;
+            color: white;
+            padding: 8px 0;
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8); /* 内側の影で奥行き */
+            white-space: nowrap;
+            
+            /* 3D回転の設定 */
+            transform-style: preserve-3d;
+            transform-origin: center center; 
+            backface-visibility: hidden; /* 裏面を見せない */
+        }
+
+        /* パタパタの真ん中の切れ目とヒンジ */
+        .flap::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 1px 0 rgba(255,255,255,0.1);
+            z-index: 10;
+        }
+
+        /* --- アニメーション定義 --- */
+        /* 紙がめくれるような回転と影の変化 */
+        @keyframes flipReal {
+            0% { transform: rotateX(0deg); background-color: #222; }
+            50% { transform: rotateX(90deg); background-color: #111; } /* 垂直になった時に暗くする */
+            100% { transform: rotateX(0deg); background-color: #222; }
+        }
+
+        .flipping {
+            animation: flipReal 0.15s infinite; /* 高速で回す */
+        }
+
+        /* 各項目の幅 */
+        .platform { width: 50px; color: #ffff00; text-shadow: 0 0 5px #ffff00; }
+        .type { width: 150px; }
+        .dest { width: 260px; }
+        .time { width: 110px; color: #adff2f; text-shadow: 0 0 5px #adff2f; }
+        .cars { width: 80px; }
+
+        /* --- 設定エリア --- */
+        #settings-area {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            width: 95%;
+            max-width: 950px;
+            margin-bottom: 50px;
+            border: 1px solid #444;
+            display: none; /* 初期は非表示 */
+        }
+
+        .setting-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            align-items: center;
+            background-color: #333;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .setting-label { width: 40px; font-weight: bold; font-size: 14px; color: #aaa; }
+        
+        select, input { 
+            padding: 6px; 
+            font-size: 14px; 
+            background-color: #ddd; 
+            border: none; 
+            border-radius: 3px; 
+            color: #000;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+        button:hover { background-color: #777; }
+
+        .btn-update-row {
+            padding: 5px 10px;
+            font-size: 12px;
+            background-color: #007bff;
+            margin-left: auto;
+        }
+        .btn-update-row:hover { background-color: #0056b3; }
+
+        .controls-top {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .status-bar {
+            height: 20px;
+            color: #ff8c00;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+    </style>
+
+    <script>
+        if (!localStorage.getItem('tosAgreed')) {
+            window.location.href = '../../terms.html'; // 2つ上の階層のterms.htmlへ飛ばす
+        }
+    </script>
+</head>
+<body>
+
+    <div id="clock-display">--:--:--</div>
+
+    <div class="board" id="train-board"></div>
+    <div class="status-bar" id="status-msg"></div>
+
+    <div class="controls-top">
+        <button onclick="toggleSettings()">⚙ 設定パネル</button>
+        <button onclick="forceShiftUpdate()" style="background-color: #d63031;">強制繰り上げ（デモ）</button>
+        <label style="cursor:pointer; display:flex; align-items:center; gap:5px;">
+            <input type="checkbox" id="auto-mode" checked> 自動更新ON
+        </label>
+    </div>
+
+    <div id="settings-area">
+        <h4 style="margin-top:0; color:#ccc;">各行の内容を個別に変更できます</h4>
+        <div id="controls-container"></div>
+    </div>
+
+    <script>
+        // --- 1. データ定義 ---
+        const destinations = [
+            "無表示", "大　須", "新羽島", "羽島市役所前", "笠　松", "岐　阜", "一　宮", "須ケ口", "[新]須ケ口", "栄　生", 
+            "名古屋", "神宮前", "鳴　海", "豊　明", "知　立", "新安城", "東岡崎", "美　合", "本　宿", "国　府", 
+            "伊　奈", "豊　橋", "豊川稲荷", "犬山経由岐阜", "三柿野", "新鵜沼", "犬　山", "柏　森", "岩　倉", "新可児", 
+            "明　智", "御　嵩", "中部国際空港", "太田川", "大野町", "常　滑", "知多半田", "富　貴", "河　和", "内　海", 
+            "金　山", "森　上", "弥　富", "佐　屋", "津　島", "碧　南", "豊田市", "猿　投", "蒲　郡", "吉良吉田", 
+            "西　尾", "小　牧", "上飯田", "玉ノ井", "津島経由一宮", "栄　町", "大曽根", "喜多山", "尾張旭", "三　郷", 
+            "尾張瀬戸"
+        ];
+
+        const typeColors = {
+            "普通":       { bg: "#000000", text: "#ffffff" },
+            "準急":       { bg: "#00df7f", text: "#ffffff" },
+            "急行":       { bg: "#00bfff", text: "#ffffff" },
+            "快速急行":   { bg: "#ffffff", text: "#00bfff" },
+            "特急":       { bg: "#ff0000", text: "#ffffff" },
+            "快速特急":   { bg: "#ffffff", text: "#ff0000" },
+            "ミュースカイ": { bg: "#ffffff", text: "#ff0000" },
+            "回送":       { bg: "#000000", text: "#ffffff" }
+        };
+        const trainTypes = Object.keys(typeColors);
+
+        // 現在のボード上のデータ
+        let currentTrainData = [];
+        let isProcessing = false; // 処理重複防止
+
+        // --- 2. 初期化 ---
+
+        function init() {
+            // 現在時刻に近いデータを生成
+            const now = new Date();
+            let baseTime = new Date(now.getTime());
+            
+            for(let i=0; i<6; i++) {
+                baseTime.setMinutes(baseTime.getMinutes() + (Math.random() * 10 + 5));
+                currentTrainData.push(generateRandomTrain(baseTime));
+            }
+            
+            renderBoardStatic(); // 描画
+            renderControls();    // 設定パネル描画
+            setInterval(checkTime, 1000); // 時計動作
+        }
+
+        function generateRandomTrain(dateObj) {
+            const timeStr = `${String(dateObj.getHours()).padStart(2,'0')}:${String(dateObj.getMinutes()).padStart(2,'0')}`;
+            return {
+                platform: String(Math.floor(Math.random()*6)+1),
+                type: trainTypes[Math.floor(Math.random() * (trainTypes.length - 1))],
+                dest: destinations[Math.floor(Math.random() * destinations.length)],
+                time: timeStr,
+                cars: ["2両","4両","6両","8両"][Math.floor(Math.random()*4)]
+            };
+        }
+
+        // --- 3. 描画系 ---
+
+        function renderBoardStatic() {
+            const board = document.getElementById('train-board');
+            board.innerHTML = '';
+            currentTrainData.forEach((train, index) => {
+                const row = createRowElement(train, index);
+                board.appendChild(row);
+            });
+        }
+
+        function createRowElement(train, index) {
+            const row = document.createElement('div');
+            row.className = 'row';
+            row.id = `row-${index}`;
+            const colorSetting = typeColors[train.type] || { bg: "#222", text: "#fff" };
+
+            // HTML生成（各項目にIDを振る）
+            row.innerHTML = `
+                <div class="flap platform" id="row-${index}-platform">${train.platform}</div>
+                <div class="flap type" id="row-${index}-type" style="background-color: ${colorSetting.bg}; color: ${colorSetting.text};">${train.type}</div>
+                <div class="flap dest" id="row-${index}-dest">${train.dest}</div>
+                <div class="flap time" id="row-${index}-time">${train.time}</div>
+                <div class="flap cars" id="row-${index}-cars">${train.cars}</div>
+            `;
+            return row;
+        }
+
+        // --- 4. ドミノ式更新ロジック ---
+
+        function forceShiftUpdate() {
+            if(isProcessing) return;
+            isProcessing = true;
+            document.getElementById('status-msg').textContent = "時刻表更新中...";
+
+            // 1. データ上でシフト（先頭削除→末尾追加）
+            currentTrainData.shift(); 
+            
+            // 末尾に新しい電車を追加
+            const lastTrainTimeStr = currentTrainData[currentTrainData.length-1].time;
+            const lastDate = new Date();
+            const [h, m] = lastTrainTimeStr.split(':');
+            lastDate.setHours(h, m, 0, 0);
+            lastDate.setMinutes(lastDate.getMinutes() + 15);
+            currentTrainData.push(generateRandomTrain(lastDate));
+
+            // 設定パネルの値も更新しておく（アニメーション中に値が変わるように）
+            renderControls();
+
+            // 2. 【ドミノ演出】上から順番に遅延実行
+            // 1行目はすぐ開始、2行目は400ms後、3行目は800ms後...
+            for (let i = 0; i < 6; i++) {
+                setTimeout(() => {
+                    animateRow(i, currentTrainData[i]);
+                }, i * 400); // この400msが「波及するウェーブの遅さ」
+            }
+
+            // 全体終了後の処理
+            setTimeout(() => {
+                isProcessing = false;
+                document.getElementById('status-msg').textContent = "";
+            }, 6 * 400 + 3000); 
+        }
+
+        // 行ごとのアニメーション（左から右へのカスケード停止）
+        function animateRow(rowIndex, targetData) {
+            const ids = {
+                platform: `row-${rowIndex}-platform`,
+                type:     `row-${rowIndex}-type`,
+                dest:     `row-${rowIndex}-dest`,
+                time:     `row-${rowIndex}-time`,
+                cars:     `row-${rowIndex}-cars`
+            };
+
+            // 各セルの回転開始
+            // 停止タイミング：左から順に(0ms, 600ms, 1200ms...)
+            scrambleAndStop(ids.platform, targetData.platform, 0,    "text");
+            scrambleAndStop(ids.type,     targetData.type,     600,  "type");
+            scrambleAndStop(ids.dest,     targetData.dest,     1200, "dest");
+            scrambleAndStop(ids.time,     targetData.time,     1800, "time");
+            scrambleAndStop(ids.cars,     targetData.cars,     2400, "text");
+        }
+
+        // パタパタ＆停止処理
+        function scrambleAndStop(elementId, targetValue, stopDelay, mode) {
+            const el = document.getElementById(elementId);
+            if(!el) return;
+
+            el.classList.add('flipping'); // 回転開始
+
+            const intervalId = setInterval(() => {
+                let randomVal = "";
+                let randomColor = null;
+
+                if (mode === "type") {
+                    const rType = trainTypes[Math.floor(Math.random() * trainTypes.length)];
+                    randomVal = rType;
+                    randomColor = typeColors[rType];
+                } else if (mode === "dest") {
+                    randomVal = destinations[Math.floor(Math.random() * destinations.length)];
+                } else if (mode === "time") {
+                     // ありそうな時間を出す
+                    randomVal = `${Math.floor(Math.random()*24).toString().padStart(2,'0')}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}`;
+                } else {
+                    randomVal = Math.floor(Math.random() * 99).toString(); 
+                }
+
+                el.textContent = randomVal;
+                
+                if (randomColor) {
+                    el.style.backgroundColor = randomColor.bg;
+                    el.style.color = randomColor.text;
+                }
+            }, 60); // 書き換え速度
+
+            // 停止処理
+            setTimeout(() => {
+                clearInterval(intervalId);
+                el.classList.remove('flipping'); // 回転停止
+                
+                // 正しい値セット
+                el.textContent = targetValue;
+                if (mode === "type") {
+                    const correctColor = typeColors[targetValue] || {bg:"#222", text:"#fff"};
+                    el.style.backgroundColor = correctColor.bg;
+                    el.style.color = correctColor.text;
+                }
+            }, stopDelay + 500); // 500msは最低回転保証
+        }
+
+        // --- 5. 時間監視 ---
+        function checkTime() {
+            const now = new Date();
+            document.getElementById('clock-display').textContent = now.toLocaleTimeString();
+
+            if(!document.getElementById('auto-mode').checked) return;
+            if(isProcessing) return;
+            if(currentTrainData.length === 0) return;
+
+            const topTrain = currentTrainData[0];
+            const [h, m] = topTrain.time.split(':').map(Number);
+            const trainDate = new Date();
+            trainDate.setHours(h, m, 0, 0);
+
+            // 時刻が過ぎていたら更新
+            if (now >= trainDate) {
+                forceShiftUpdate();
+            }
+        }
+
+        // --- 6. 設定パネル（復活） ---
+        function toggleSettings() {
+            const area = document.getElementById('settings-area');
+            area.style.display = (area.style.display === 'none' || area.style.display === '') ? 'block' : 'none';
+        }
+
+        // 手動更新（個別）
+        function manualUpdateRow(index) {
+            const rowDiv = document.getElementById(`setting-row-${index}`);
+            
+            const newData = {
+                platform: rowDiv.querySelector('.s-plat').value,
+                type: rowDiv.querySelector('.s-type').value,
+                dest: rowDiv.querySelector('.s-dest').value,
+                time: rowDiv.querySelector('.s-time').value,
+                cars: rowDiv.querySelector('.s-cars').value
+            };
+
+            currentTrainData[index] = newData; // データ更新
+            animateRow(index, newData); // その行だけアニメーション
+        }
+
+        function renderControls() {
+            const container = document.getElementById('controls-container');
+            container.innerHTML = ''; // リセット
+
+            currentTrainData.forEach((train, index) => {
+                const div = document.createElement('div');
+                div.className = 'setting-row';
+                div.id = `setting-row-${index}`;
+
+                div.innerHTML = `<div class="setting-label">${index + 1}行</div>`;
+
+                const platSelect = createSelect([1,2,3,4,5,6], train.platform, 's-plat');
+                const typeSelect = createSelect(trainTypes, train.type, 's-type');
+                const destSelect = createSelect(destinations, train.dest, 's-dest');
+                
+                const timeInput = `<input type="text" class="s-time" value="${train.time}" style="width:60px;">`;
+                const carsInput = `<input type="text" class="s-cars" value="${train.cars}" style="width:40px;">`;
+                const updateBtn = `<button class="btn-update-row" onclick="manualUpdateRow(${index})">変更反映</button>`;
+
+                div.appendChild(platSelect);
+                div.appendChild(typeSelect);
+                div.appendChild(destSelect);
+                div.innerHTML += timeInput + carsInput + updateBtn;
+
+                container.appendChild(div);
+            });
+        }
+
+        function createSelect(options, currentVal, className) {
+            const select = document.createElement('select');
+            select.className = className;
+            options.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt;
+                option.textContent = opt;
+                if(opt == currentVal) option.selected = true;
+                select.appendChild(option);
+            });
+            return select;
+        }
+
+        // スタート
+        init();
+
+    </script>
+
+</body>
+</html>

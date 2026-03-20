@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BVE CSV 時間補間ツール</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        if (!localStorage.getItem('tosAgreed')) {
+            window.location.href = '../../terms.html'; // 2つ上の階層のterms.htmlへ飛ばす
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🚃 BVE CSV 時間補間ツール</h1>
+            <p class="subtitle">arrivalTime / departureTime の空白セルを自動補間</p>
+        </header>
+
+        <main class="main-content">
+            <section class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p>CSVファイルをドラッグ＆ドロップ</p>
+                    <p class="upload-hint">または</p>
+                    <label class="upload-btn">
+                        ファイルを選択
+                        <input type="file" id="fileInput" accept=".csv" hidden>
+                    </label>
+                </div>
+            </section>
+
+            <section class="preview-section" id="previewSection" style="display: none;">
+                <div class="section-header">
+                    <h2>📊 プレビュー</h2>
+                    <div class="legend">
+                        <span class="legend-item"><span class="legend-color original"></span>元データ</span>
+                        <span class="legend-item"><span class="legend-color interpolated"></span>補間済み</span>
+                        <span class="legend-item"><span class="legend-color pass"></span>通過駅 (p)</span>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="previewTable">
+                        <thead id="tableHead"></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="actions-section" id="actionsSection" style="display: none;">
+                <button class="action-btn interpolate-btn" id="interpolateBtn">
+                    ⚡ 時間を補間する
+                </button>
+                <button class="action-btn download-btn" id="downloadBtn" disabled>
+                    💾 CSVをダウンロード
+                </button>
+            </section>
+
+            <section class="stats-section" id="statsSection" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalRows">0</div>
+                    <div class="stat-label">総行数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="interpolatedArrival">0</div>
+                    <div class="stat-label">補間した到着時刻</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="interpolatedDeparture">0</div>
+                    <div class="stat-label">補間した発車時刻</div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>BVE Trainsim CSV 時間補間ツール</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
