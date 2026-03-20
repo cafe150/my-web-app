@@ -200,6 +200,71 @@
             display: none !important;
         }
         /* --- ここまで利用規約モーダル用CSS --- */
+
+        /* --- ここからロード画面用CSS --- */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color); /* サイトと同じ背景色 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000; /* 最前面 */
+            transition: opacity 0.5s ease, visibility 0.5s; /* 消える時のアニメーション */
+        }
+
+        .loader-content {
+            text-align: center;
+            animation: fadeInOut 1.5s infinite; /* 全体をふわふわさせる */
+        }
+
+        /* mochaのロゴ（文字）風 */
+        .loader-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        /* 鉄道のパタパタやマイクラのブロックをイメージしたドット */
+        .loader-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--primary-color); /* サイトの青色 */
+            border-radius: 50%;
+            animation: dotFlashing 1.4s infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* 消える時のクラス */
+        #loader.loaded {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* --- アニメーションの定義 --- */
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes dotFlashing {
+            0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1); }
+        }
+        /* --- ここまでロード画面用CSS --- */
     </style>
 </head>
 <script>
@@ -223,6 +288,17 @@
                 詳細は<a href="terms.html" target="_blank" style="color: #007AFF;">利用規約ページ</a>をご確認ください。
             </p>
             <button id="agreeButton" class="modal-button">規約に同意してサイトに入る</button>
+        </div>
+    </div>
+
+    <div id="loader">
+        <div class="loader-content">
+            <div class="loader-logo">mocha</div>
+            <div class="loader-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
         </div>
     </div>
 
@@ -338,6 +414,18 @@
                 modal.classList.add('hidden');
                 document.body.style.overflow = '';
             });
+        });
+    </script>
+
+    <script>
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            
+            // ページ全体の読み込みが完了したら、
+            // 1.5秒後にロード画面を消す（少し余韻を残す）
+            setTimeout(() => {
+                loader.classList.add('loaded');
+            }, 1500);
         });
     </script>
 </html>
