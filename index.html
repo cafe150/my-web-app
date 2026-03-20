@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作成物 | Portfolio</title>
+    <style>
+        :root {
+            --primary-color: #007AFF; /* アクセントカラー（青） */
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1d1d1f;
+            --text-sub: #6e6e73;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            padding: 80px 20px 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto 80px;
+            padding: 0 20px;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 30px;
+        }
+
+        /* カード本体 */
+        .project-card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .project-title {
+            font-size: 1.4rem;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+
+        .project-desc {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+        }
+
+        /* 使用技術のタグ */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tech-tag {
+            background: #eef2f6;
+            color: #444;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* こだわった点 */
+        .highlights {
+            margin-bottom: 25px;
+            padding: 0;
+            list-style: none;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 15px;
+        }
+
+        .highlights li {
+            font-size: 0.85rem;
+            color: #444;
+            margin-bottom: 6px;
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .highlights li::before {
+            content: "・";
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* リンクボタン */
+        .view-link {
+            margin-top: auto;
+            display: inline-block;
+            text-align: center;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+
+        .view-link:hover {
+            opacity: 0.85;
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 2rem; }
+            .project-grid { grid-template-columns: 1fr; }
+        }
+
+        /* --- ここから利用規約モーダル用CSS --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75); /* 背景を暗くする */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* 一番手前に表示 */
+            backdrop-filter: blur(5px); /* 背景を少しぼかす（おしゃれ） */
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 18px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            border-left: none; /* 既存のh2の青線をリセット */
+            padding-left: 0;
+        }
+
+        .modal-content p {
+            text-align: left;
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+            color: var(--text-sub);
+        }
+
+        .modal-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            width: 100%;
+        }
+
+        .modal-button:hover {
+            opacity: 0.85;
+        }
+
+        /* JSで非表示にするためのクラス */
+        .hidden {
+            display: none !important;
+        }
+        /* --- ここまで利用規約モーダル用CSS --- */
+    </style>
+</head>
+<script>
+        // ブラウザに「tosAgreed（同意済み）」の記録がない場合
+        if (!localStorage.getItem('tosAgreed')) {
+            // 強制的に利用規約ページへリダイレクト
+            window.location.href = 'terms.html';
+        }
+    </script>
+</head>
+<body>
+
+    <div id="tosModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>利用規約への同意</h2>
+            <p>
+                本サイトのツールを利用するには、利用規約への同意が必要です。<br><br>
+                ・各ツールは<strong>自己責任</strong>でご利用ください。<br>
+                ・ゲームデータの破損等について開発者は責任を負いません。<br>
+                ・プログラムの無断改変や再配布は禁止します。<br><br>
+                詳細は<a href="terms.html" target="_blank" style="color: #007AFF;">利用規約ページ</a>をご確認ください。
+            </p>
+            <button id="agreeButton" class="modal-button">規約に同意してサイトに入る</button>
+        </div>
+    </div>
+
+    <header>
+        <h1>作成物</h1>
+        <h2>主にGemini等AIで作成した私的に欲しかったツールを公開しています
+        </h2>
+    </header>
+
+    <div class="container">
+        <div class="project-grid">
+            
+<div class="project-card">
+    <h2 class="project-title">BVE CSV 時間補間ツール</h2>
+    <p class="project-desc">BVE Trainsimの駅リストCSVにおいて、未入力（空白）となっている到着・出発時刻を自動計算して補完するWebツールです。</p>
+    
+    <div class="tech-stack">
+        <span class="tech-tag">HTML5 / CSS3</span>
+        <span class="tech-tag">JavaScript (Vanilla JS)</span>
+    </div>
+
+    <ul class="highlights">
+        <li>Shift-JIS形式の解析に対応し、日本語環境のCSVでも文字化けせず読み込み可能</li>
+        <li>ドラッグ&ドロップによる直感的な操作と、補間箇所を視覚的に判別できるプレビュー機能</li>
+        <li>15秒間隔のステップ計算ロジックにより、時刻表作成の工数を大幅に削減</li>
+    </ul>
+
+    <a href="#" class="view-link">アプリを開く</a>
+</div>
+
+            <div class="project-card">
+    <h2 class="project-title">Minecraft コマンドコンバーター (1.16 → 1.20+)</h2>
+    <p class="project-desc">統合版マインクラフト（Bedrock Edition）の古いコマンド構文を、最新のexecute構文やブロックステート形式へ一括変換するツールです。</p>
+    <div class="tech-stack">
+        <span class="tech-tag">HTML5</span>
+        <span class="tech-tag">Tailwind CSS</span>
+        <span class="tech-tag">JavaScript (ES6+)</span>
+    </div>
+
+    <ul class="highlights">
+        <li>旧execute/detect構文を、最新の「as at run」形式のサブコマンド構造へ正確に再構成</li>
+        <li>「フラットニング」仕様に基づき、数字のデータ値（Aux値）を固有のブロックIDやステートへ自動置換</li>
+        <li>正規表現を活用した高度な文字列解析により、fillやsetblock等の複数コマンドを一括処理可能</li>
+    </ul>
+
+    <a href="#" class="view-link">アプリを開く</a>
+</div>
+
+<div class="project-card">
+    <h2 class="project-title">PCBS 構成管理シミュレーター</h2>
+    <p class="project-desc">「PC Building Simulator」でのPCビルドをサポートするために開発した、パーツ構成管理・チェックリストツールです。</p>
+    
+    <div class="tech-stack">
+        <span class="tech-tag">HTML5</span>
+        <span class="tech-tag">CSS3 (Flexbox)</span>
+        <span class="tech-tag">JavaScript</span>
+    </div>
+
+    <ul class="highlights">
+        <li>「詳細選択（ドロップダウン）」と「クイックチェック（ボタン）」を組み合わせたハイブリッドなUI設計</li>
+        <li>複雑なPCパーツ（CPU、GPU、メモリ4枚、ストレージ2基等）の構成を視覚的にミスなく管理可能</li>
+        <li>一括リセット機能を搭載し、複数のオーダーやビルドを効率的に切り替えて作業可能</li>
+    </ul>
+
+    <a href="#" class="view-link">アプリを開く</a>
+</div>
+
+<div class="project-card">
+    <h2 class="project-title">懐かしの鉄道発車標（反転フラップ式）再現</h2>
+    <p class="project-desc">かつて名古屋鉄道（名鉄）などの駅で見られた「パタパタ」こと反転フラップ式発車案内表示機を、最新のWeb技術でブラウザ上にリアルに再現しました。</p>
+    
+    <div class="tech-stack">
+        <span class="tech-tag">HTML5 / CSS3 (3D Transforms & Animation)</span>
+        <span class="tech-tag">JavaScript (DOM & Sequential Control)</span>
+    </div>
+
+    <ul class="highlights">
+        <li>CSSの `perspective` と `rotateX` を駆使し、フラップが裏返る立体的な動きと、リアルな影の表現（グラデーション）を実装</li>
+        <li>名鉄の表示機をオマージュした、特徴的なフォントや配色、レイアウト（種別、行き先、両数、のりば）を忠実に再現</li>
+        <li>JavaScriptによるタイマーとデータ配列の制御により、複数のフラップが連動してパタパタと切り替わるシーケンシャルな表示更新を実現</li>
+    </ul>
+
+    <a href="#" class="view-link">アプリを開く</a>
+</div>
+
+        </div>
+    </div>
+
+<footer style="text-align: center; padding: 40px 0; color: #888; font-size: 0.9rem;">
+    <p>&copy; 2026 mocha</p>
+    <a href="terms.html" style="color: #888; text-decoration: none; margin-right: 15px;">利用規約</a>
+    <a href="privacy.html" style="color: #888; text-decoration: none;">プライバシーポリシー</a>
+</footer>
+
+</body>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('tosModal');
+            const agreeBtn = document.getElementById('agreeButton');
+
+            // ブラウザに「tosAgreed（同意済み）」の記録があるかチェック
+            if (!localStorage.getItem('tosAgreed')) {
+                // 記録がなければモーダルを表示し、裏画面のスクロールをロックする
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            // 「同意する」ボタンが押されたときの処理
+            agreeBtn.addEventListener('click', () => {
+                // ブラウザに「同意した」という記録を保存
+                localStorage.setItem('tosAgreed', 'true');
+                // モーダルを消して、スクロールロックを解除する
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            });
+        });
+    </script>
+</html>
