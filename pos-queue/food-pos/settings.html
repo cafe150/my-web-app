@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>システム設定 - マスター編集 & 精算</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; background: #f0f2f5; display: flex; height: 100vh; overflow: hidden; color: #333; }
+        
+        /* 左：設定・編集エリア */
+        #editor-area { flex: 1.3; padding: 20px; overflow-y: auto; border-right: 2px solid #ddd; display: flex; flex-direction: column; gap: 20px; }
+        
+        /* 右：リアルタイムプレビューエリア */
+        #preview-area { flex: 1; padding: 20px; background: #fff; overflow-y: auto; display: flex; flex-direction: column; }
+        
+        /* カードデザイン */
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        h2 { border-left: 5px solid #3498db; padding-left: 10px; font-size: 1.3rem; margin-top: 0; color: #2c3e50; }
+        h2.warning { border-left-color: #e74c3c; color: #c0392b; }
+        
+        .row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        input[type="text"], input[type="number"], select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
+        input[type="text"] { flex-grow: 1; }
+        .price-input { width: 90px; text-align: right; }
+        
+        button { cursor: pointer; padding: 10px 15px; border: none; border-radius: 5px; background: #3498db; color: white; font-weight: bold; transition: 0.2s; }
+        button:active { transform: scale(0.97); }
+        button.danger { background: #e74c3c; }
+        button.success { background: #2ecc71; width: 100%; padding: 12px; font-size: 1.1rem; }
+        button.save-btn { width: 100%; padding: 20px; font-size: 1.4rem; background: #2c3e50; margin-top: auto; }
+        
+        /* マスター編集用 */
+        .category-block { margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .item-list { margin-left: 15px; border-left: 3px solid #ecf0f1; padding-left: 15px; display: flex; flex-direction: column; gap: 8px; }
+        
+        /* プレビュー用スタイル (admin.htmlと統一) */
+        .preview-header { color: #7f8c8d; font-size: 1.1rem; margin-bottom: 15px; border-bottom: 2px solid #3498db; padding-bottom: 8px; font-weight:bold; }
+        .category-container { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+        .btn-cat { padding: 12px 20px; cursor: pointer; background: #f8f9fa; border: 2px solid #e0e0e0; font-weight: bold; border-radius: 6px; color: #555; }
+        .btn-cat.active { background: #3498db; color: white; border-color: #3498db; box-shadow: 0 4px 6px rgba(52,152,219,0.3); }
+        .item-grid { display: grid; gap: 10px; }
+        .btn-item { height: 100px; background: white; border: 2px solid #3498db; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none; }
+        .item-name { font-weight: bold; font-size: 1.1rem; color: #2c3e50; }
+        .item-price { font-size: 0.9rem; color: #e74c3c; margin-top: 5px; font-weight: bold; }
+
+        /* 精算レポート用 */
+        .report-box { background: #fafafa; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; }
+        .report-summary { display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 15px; }
+        .report-sales { color: #e74c3c; font-size: 2.2rem; }
+        .ranking-list { list-style: none; padding: 0; margin: 0; font-size: 1.1rem; }
+        .ranking-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #ddd; }
+    </style>
+</head>
+<body>
+
+<div id="editor-area">
+    
+    <div class="card" style="border: 2px solid #e74c3c;">
+        <h2 class="warning">💰 日次精算・売上レポート</h2>
+        <div id="sales-report" class="report-box"></div>
+        <button onclick="clearSales()" class="danger" style="width: 100%; padding: 15px; font-size: 1.2rem;">🗑 本日の売上をリセット（精算実行）</button>
+    </div>
+
+    <div class="card">
+        <h2>🔊 呼出の音声設定</h2>
+        <div class="row">
+            <label style="font-weight:bold; width: 80px;">チャイム:</label>
+            <select id="chime-type" style="flex-grow: 1;">
+                <option value="1">タイプ1 (定番のピンポーン)</option>
+                <option value="2">タイプ2 (高音メロディ)</option>
+                <option value="3">タイプ3 (シンプルなベル)</option>
+                <option value="0">なし (音声読み上げのみ)</option>
+            </select>
+        </div>
+        <div class="row">
+            <label style="font-weight:bold; width: 80px;">番号の前:</label>
+            <input type="text" id="prefix" value="番号">
+        </div>
+        <div class="row">
+            <label style="font-weight:bold; width: 80px;">番号の後:</label>
+            <input type="text" id="suffix" value="番のお客様、お待たせしました">
+        </div>
+    </div>
+
+    <div id="master-editor" class="card">
+        <h2>🛠 商品マスター（カテゴリ・メニュー）</h2>
+        <div id="category-list"></div>
+        <button onclick="addCategory()" class="success" style="margin-top: 15px;">➕ 新しいカテゴリを追加（メイン・トッピング等）</button>
+    </div>
+
+    <button onclick="saveAll()" class="save-btn">💾 すべての設定を保存</button>
+</div>
+
+<div id="preview-area">
+    <div class="preview-header">📱 レジ画面のプレビュー（文字を打つと自動で動きます）</div>
+    <div id="preview-tabs" class="category-container"></div>
+    <div id="preview-grid" class="item-grid"></div>
+</div>
+
+<script>
+    // --- データの読み込み ---
+    let master = JSON.parse(localStorage.getItem('masterData')) || { 
+        "メイン": { items: [{name: "牛丼", price: 500}], columns: 4 },
+        "トッピング": { items: [{name: "生卵", price: 80}], columns: 4 }
+    };
+    let audioSettings = JSON.parse(localStorage.getItem('audioSettings')) || { type: "1", prefix: "番号", suffix: "番の方" };
+    
+    document.getElementById('chime-type').value = audioSettings.type;
+    document.getElementById('prefix').value = audioSettings.prefix;
+    document.getElementById('suffix').value = audioSettings.suffix;
+
+    let activePreviewTab = Object.keys(master)[0];
+
+    // --- 🛠 マスター編集エディタの描画 ---
+    function renderEditor() {
+        const container = document.getElementById('category-list');
+        container.innerHTML = '';
+        
+        for (let catName in master) {
+            const cat = master[catName];
+            const catDiv = document.createElement('div');
+            catDiv.className = 'category-block';
+            
+            // 商品リストのHTML生成
+            let itemsHtml = cat.items.map((item, idx) => `
+                <div class="row">
+                    <input type="text" value="${item.name}" oninput="updateItemName('${catName}', ${idx}, this.value)" placeholder="商品名">
+                    <input type="number" class="price-input" value="${item.price}" oninput="updateItemPrice('${catName}', ${idx}, this.value)"> 円
+                    <button class="danger" onclick="deleteItem('${catName}', ${idx})" title="削除">×</button>
+                </div>
+            `).join('');
+
+            // カテゴリ枠のHTML生成
+            catDiv.innerHTML = `
+                <div class="row" style="background:#f8f9fa; padding:10px; border-radius:5px;">
+                    <input type="text" value="${catName}" onchange="renameCategory('${catName}', this.value)" style="font-weight:bold; font-size:1.1rem; border:2px solid #3498db;">
+                    <label style="font-weight:bold; margin-left:10px;">表示列数:</label>
+                    <input type="number" value="${cat.columns}" min="1" max="6" oninput="updateColumns('${catName}', this.value)" style="width:60px;">
+                    <button class="danger" onclick="deleteCategory('${catName}')" style="margin-left:auto;">カテゴリごと削除</button>
+                </div>
+                <div class="item-list">
+                    ${itemsHtml}
+                    <button onclick="addItem('${catName}')" style="background:#95a5a6; margin-top:5px; width:150px;">+ 商品を追加</button>
+                </div>
+            `;
+            container.appendChild(catDiv);
+        }
+        renderPreview();
+    }
+
+    // --- 📱 プレビューエリアの描画 ---
+    function renderPreview() {
+        const tabsContainer = document.getElementById('preview-tabs');
+        const gridContainer = document.getElementById('preview-grid');
+        tabsContainer.innerHTML = ''; 
+        gridContainer.innerHTML = '';
+        
+        const categories = Object.keys(master);
+        if (categories.length === 0) return;
+        if (!categories.includes(activePreviewTab)) activePreviewTab = categories[0];
+        
+        // タブの生成
+        categories.forEach(cat => {
+            const btn = document.createElement('button'); 
+            btn.className = 'btn-cat' + (cat === activePreviewTab ? ' active' : ''); 
+            btn.innerText = cat;
+            btn.onclick = () => { activePreviewTab = cat; renderPreview(); }; 
+            tabsContainer.appendChild(btn);
+        });
+        
+        // グリッド（商品ボタン）の生成
+        if (activePreviewTab && master[activePreviewTab]) {
+            const currentCat = master[activePreviewTab]; 
+            gridContainer.style.gridTemplateColumns = `repeat(${currentCat.columns}, 1fr)`;
+            currentCat.items.forEach(item => {
+                const btn = document.createElement('div'); 
+                btn.className = 'btn-item'; 
+                btn.innerHTML = `<span class="item-name">${item.name || '(未入力)'}</span><span class="item-price">¥${item.price || 0}</span>`; 
+                gridContainer.appendChild(btn);
+            });
+        }
+    }
+
+    // --- 💰 売上・精算レポートの描画 ---
+    function renderSalesReport() {
+        const salesHistory = JSON.parse(localStorage.getItem('salesHistory') || '[]');
+        const reportEl = document.getElementById('sales-report');
+        
+        if (salesHistory.length === 0) {
+            reportEl.innerHTML = '<p style="text-align:center; color:#95a5a6; font-size:1.2rem; margin:0;">本日の売上データはまだありません</p>';
+            return;
+        }
+
+        const totalSales = salesHistory.reduce((sum, order) => sum + order.total, 0);
+        const totalOrders = salesHistory.length;
+
+        // 商品ごとの集計（adminで "牛丼, 生卵" のようにカンマ区切りで保存している前提）
+        const itemCounts = {};
+        salesHistory.forEach(order => {
+            if(order.note) {
+                let items = order.note.split(',');
+                items.forEach(i => {
+                    let name = i.trim();
+                    if(name) itemCounts[name] = (itemCounts[name] || 0) + 1;
+                });
+            }
+        });
+
+        const ranking = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]);
+
+        reportEl.innerHTML = `
+            <div class="report-summary">
+                <span>注文件数: <span style="font-size:1.5rem; color:#2980b9;">${totalOrders}</span> 件</span>
+                <span class="report-sales">総売上: ¥${totalSales.toLocaleString()}</span>
+            </div>
+            <div style="font-weight:bold; margin-bottom:10px; color:#333;">🏆 商品販売数ランキング</div>
+            <ul class="ranking-list">
+                ${ranking.map(([name, count]) => `<li><span>${name}</span><span><strong style="color:#3498db; font-size:1.2rem;">${count}</strong> 個</span></li>`).join('')}
+            </ul>
+        `;
+    }
+
+    // --- 編集用アクション関数 ---
+    function updateItemName(catName, idx, val) { master[catName].items[idx].name = val; renderPreview(); }
+    function updateItemPrice(catName, idx, val) { master[catName].items[idx].price = parseInt(val) || 0; renderPreview(); }
+    function updateColumns(catName, val) { master[catName].columns = parseInt(val) || 4; renderPreview(); }
+
+    function addItem(catName) { master[catName].items.push({name: "", price: 0}); renderEditor(); }
+    function deleteItem(catName, idx) { master[catName].items.splice(idx, 1); renderEditor(); }
+
+    function addCategory() { 
+        const newName = "新カテゴリ" + (Object.keys(master).length + 1);
+        master[newName] = { items: [{name: "商品", price: 0}], columns: 4 }; 
+        activePreviewTab = newName;
+        renderEditor(); 
+    }
+    function renameCategory(oldName, newName) { 
+        if (oldName !== newName && newName.trim() !== '') { 
+            master[newName] = master[oldName]; 
+            delete master[oldName]; 
+            if(activePreviewTab === oldName) activePreviewTab = newName;
+            renderEditor(); 
+        } 
+    }
+    function deleteCategory(name) { 
+        if (confirm(`カテゴリ「${name}」を削除しますか？`)) { delete master[name]; renderEditor(); } 
+    }
+
+    // --- 保存・リセット処理 ---
+    function saveAll() {
+        localStorage.setItem('masterData', JSON.stringify(master));
+        const audio = { 
+            type: document.getElementById('chime-type').value, 
+            prefix: document.getElementById('prefix').value, 
+            suffix: document.getElementById('suffix').value 
+        };
+        localStorage.setItem('audioSettings', JSON.stringify(audio));
+        alert("💾 設定を保存しました！\nレジ画面や呼び出し画面を「再読み込み」すると反映されます。");
+    }
+
+    function clearSales() {
+        if(confirm("【警告】\n本日の売上データと注文履歴を完全にリセットしますか？\n（この操作は取り消せません）")) {
+            localStorage.setItem('sales', '0');
+            localStorage.setItem('salesHistory', '[]');
+            localStorage.setItem('orders', '[]');
+            localStorage.setItem('nextNum', '100');
+            alert("✨ 精算が完了し、データがリセットされました。");
+            location.reload();
+        }
+    }
+
+    // 初期化
+    renderEditor();
+    renderSalesReport();
+
+    // 他のタブ（レジ画面）で売上が上がったらレポートを自動更新
+    window.addEventListener('storage', (e) => { if (e.key === 'salesHistory') renderSalesReport(); });
+</script>
+</body>
+</html>

@@ -145,12 +145,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.75); /* 背景を暗くする */
+            background-color: rgba(0, 0, 0, 0.75); 
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 9999; /* 一番手前に表示 */
-            backdrop-filter: blur(5px); /* 背景を少しぼかす（おしゃれ） */
+            z-index: 9999; 
+            backdrop-filter: blur(5px); 
         }
 
         .modal-content {
@@ -167,7 +167,7 @@
             margin-top: 0;
             margin-bottom: 20px;
             color: var(--text-main);
-            border-left: none; /* 既存のh2の青線をリセット */
+            border-left: none; 
             padding-left: 0;
         }
 
@@ -195,82 +195,30 @@
             opacity: 0.85;
         }
 
-        /* JSで非表示にするためのクラス */
-        .hidden {
-            display: none !important;
-        }
-        /* --- ここまで利用規約モーダル用CSS --- */
+        .hidden { display: none !important; }
 
         /* --- ここからロード画面用CSS --- */
         #loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-color); /* サイトと同じ背景色 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000; /* 最前面 */
-            transition: opacity 0.5s ease, visibility 0.5s; /* 消える時のアニメーション */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color); 
+            display: flex; justify-content: center; align-items: center;
+            z-index: 10000; transition: opacity 0.5s ease, visibility 0.5s; 
         }
 
-        .loader-content {
-            text-align: center;
-            animation: fadeInOut 1.5s infinite; /* 全体をふわふわさせる */
-        }
-
-        /* mochaのロゴ（文字）風 */
-        .loader-logo {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-            color: var(--text-main);
-            margin-bottom: 20px;
-        }
-
-        /* 鉄道のパタパタやマイクラのブロックをイメージしたドット */
-        .loader-dots {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            background-color: var(--primary-color); /* サイトの青色 */
-            border-radius: 50%;
-            animation: dotFlashing 1.4s infinite;
-        }
-
+        .loader-content { text-align: center; animation: fadeInOut 1.5s infinite; }
+        .loader-logo { font-size: 2rem; font-weight: 700; letter-spacing: -1px; color: var(--text-main); margin-bottom: 20px; }
+        .loader-dots { display: flex; justify-content: center; gap: 8px; }
+        .dot { width: 12px; height: 12px; background-color: var(--primary-color); border-radius: 50%; animation: dotFlashing 1.4s infinite; }
         .dot:nth-child(2) { animation-delay: 0.2s; }
         .dot:nth-child(3) { animation-delay: 0.4s; }
 
-        /* 消える時のクラス */
-        #loader.loaded {
-            opacity: 0;
-            visibility: hidden;
-        }
+        #loader.loaded { opacity: 0; visibility: hidden; }
 
-        /* --- アニメーションの定義 --- */
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
-        @keyframes dotFlashing {
-            0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-            40% { opacity: 1; transform: scale(1); }
-        }
-        /* --- ここまでロード画面用CSS --- */
+        @keyframes fadeInOut { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+        @keyframes dotFlashing { 0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
     </style>
-</head>
-<script>
-        // ブラウザに「tosAgreed（同意済み）」の記録がない場合
+    <script>
         if (!localStorage.getItem('tosAgreed')) {
-            // 強制的に利用規約ページへリダイレクト
             window.location.href = 'terms.html';
         }
     </script>
@@ -283,7 +231,7 @@
             <p>
                 本サイトのツールを利用するには、利用規約への同意が必要です。<br><br>
                 ・各ツールは<strong>自己責任</strong>でご利用ください。<br>
-                ・ゲームデータの破損等について開発者は責任を負いません。<br>
+                ・データの破損等について開発者は責任を負いません。<br>
                 ・プログラムの無断改変や再配布は禁止します。<br><br>
                 詳細は<a href="terms.html" target="_blank" style="color: #007AFF;">利用規約ページ</a>をご確認ください。
             </p>
@@ -294,95 +242,93 @@
     <div id="loader">
         <div class="loader-content">
             <div class="loader-logo">mocha</div>
-            <div class="loader-dots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
+            <div class="loader-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         </div>
     </div>
 
     <header>
         <h1>作成物</h1>
-        <h2>主にGemini等AIで作成した私的に欲しかったツールを公開しています
-        </h2>
+        <h2 style="font-size: 1.2rem; color: var(--text-sub); font-weight: normal; margin-top: 10px;">主にGemini等AIで作成した私的に欲しかったツールを公開しています</h2>
     </header>
 
     <div class="container">
         <div class="project-grid">
-            
-<div class="project-card">
-    <h2 class="project-title">BVE CSV 時間補間ツール</h2>
-    <p class="project-desc">BVE Trainsimの駅リストCSVにおいて、未入力（空白）となっている到着・出発時刻を自動計算して補完するWebツールです。</p>
-    
-    <div class="tech-stack">
-        <span class="tech-tag">HTML5 / CSS3</span>
-        <span class="tech-tag">JavaScript (Vanilla JS)</span>
-    </div>
-
-    <ul class="highlights">
-        <li>Shift-JIS形式の解析に対応し、日本語環境のCSVでも文字化けせず読み込み可能</li>
-        <li>ドラッグ&ドロップによる直感的な操作と、補間箇所を視覚的に判別できるプレビュー機能</li>
-        <li>15秒間隔のステップ計算ロジックにより、時刻表作成の工数を大幅に削減</li>
-    </ul>
-
-    <a href="apps\bve-csv\index.html" class="view-link">アプリを開く</a>
-</div>
 
             <div class="project-card">
-    <h2 class="project-title">Minecraft コマンドコンバーター (1.16 → 1.20+)</h2>
-    <p class="project-desc">統合版マインクラフト（Bedrock Edition）の古いコマンド構文を、最新のexecute構文やブロックステート形式へ一括変換するツールです。</p>
-    <div class="tech-stack">
-        <span class="tech-tag">HTML5</span>
-        <span class="tech-tag">Tailwind CSS</span>
-        <span class="tech-tag">JavaScript (ES6+)</span>
-    </div>
+                <h2 class="project-title">ブラウザ完結型 順番待ち＆POSレジ</h2>
+                <p class="project-desc">サーバー不要でブラウザのローカルストレージとAPIを活用した、イベント・飲食店向けのリアルタイム受付・会計システムです。</p>
+                
+                <div class="tech-stack">
+                    <span class="tech-tag">HTML5 / CSS3</span>
+                    <span class="tech-tag">JavaScript (BroadcastChannel API)</span>
+                    <span class="tech-tag">Web Speech API</span>
+                </div>
 
-    <ul class="highlights">
-        <li>旧execute/detect構文を、最新の「as at run」形式のサブコマンド構造へ正確に再構成</li>
-        <li>「フラットニング」仕様に基づき、数字のデータ値（Aux値）を固有のブロックIDやステートへ自動置換</li>
-        <li>正規表現を活用した高度な文字列解析により、fillやsetblock等の複数コマンドを一括処理可能</li>
-    </ul>
+                <ul class="highlights">
+                    <li>バックエンド構築なしで、複数タブ（端末）間の完全リアルタイムデータ同期を実現</li>
+                    <li>体験イベント向けの「順番待ち受付」と「飲食店POSレジ」をポータルから切り替え可能</li>
+                    <li>Web音声合成による自動アナウンスや、独自アルゴリズムによる待ち時間のリアルタイム算出機能</li>
+                </ul>
 
-    <a href="apps\mc-command\index.html" class="view-link">アプリを開く</a>
-</div>
+                <a href="apps/pos-queue/index.html" class="view-link" target="_blank">システムポータルを開く</a>
+            </div>
+            
+            <div class="project-card">
+                <h2 class="project-title">BVE CSV 時間補間ツール</h2>
+                <p class="project-desc">BVE Trainsimの駅リストCSVにおいて、未入力（空白）となっている到着・出発時刻を自動計算して補完するWebツールです。</p>
+                <div class="tech-stack">
+                    <span class="tech-tag">HTML5 / CSS3</span>
+                    <span class="tech-tag">JavaScript (Vanilla JS)</span>
+                </div>
+                <ul class="highlights">
+                    <li>Shift-JIS形式の解析に対応し、日本語環境のCSVでも文字化けせず読み込み可能</li>
+                    <li>ドラッグ&ドロップによる直感的な操作と、補間箇所を視覚的に判別できるプレビュー機能</li>
+                    <li>15秒間隔のステップ計算ロジックにより、時刻表作成の工数を大幅に削減</li>
+                </ul>
+                <a href="apps\bve-csv\index.html" class="view-link" target="_blank">アプリを開く</a>
+            </div>
 
-<div class="project-card">
-    <h2 class="project-title">PCBS 構成管理シミュレーター</h2>
-    <p class="project-desc">「PC Building Simulator」でのPCビルドをサポートするために開発した、パーツ構成管理・チェックリストツールです。</p>
-    
-    <div class="tech-stack">
-        <span class="tech-tag">HTML5</span>
-        <span class="tech-tag">CSS3 (Flexbox)</span>
-        <span class="tech-tag">JavaScript</span>
-    </div>
+            <div class="project-card">
+                <h2 class="project-title">Minecraft コマンドコンバーター</h2>
+                <p class="project-desc">統合版マインクラフト（Bedrock Edition）の古いコマンド構文を、最新のexecute構文やブロックステート形式へ一括変換するツールです。</p>
+                <div class="tech-stack">
+                    <span class="tech-tag">HTML5 / Tailwind CSS</span>
+                    <span class="tech-tag">JavaScript (ES6+)</span>
+                </div>
+                <ul class="highlights">
+                    <li>旧execute/detect構文を、最新の「as at run」形式のサブコマンド構造へ正確に再構成</li>
+                    <li>「フラットニング」仕様に基づき、数字のデータ値（Aux値）を固有のブロックIDやステートへ自動置換</li>
+                </ul>
+                <a href="apps\mc-command\index.html" class="view-link" target="_blank">アプリを開く</a>
+            </div>
 
-    <ul class="highlights">
-        <li>「詳細選択（ドロップダウン）」と「クイックチェック（ボタン）」を組み合わせたハイブリッドなUI設計</li>
-        <li>複雑なPCパーツ（CPU、GPU、メモリ4枚、ストレージ2基等）の構成を視覚的にミスなく管理可能</li>
-        <li>一括リセット機能を搭載し、複数のオーダーやビルドを効率的に切り替えて作業可能</li>
-    </ul>
+            <div class="project-card">
+                <h2 class="project-title">PCBS 構成管理シミュレーター</h2>
+                <p class="project-desc">「PC Building Simulator」でのPCビルドをサポートするために開発した、パーツ構成管理・チェックリストツールです。</p>
+                <div class="tech-stack">
+                    <span class="tech-tag">HTML5 / CSS3 (Flexbox)</span>
+                    <span class="tech-tag">JavaScript</span>
+                </div>
+                <ul class="highlights">
+                    <li>「詳細選択」と「クイックチェック」を組み合わせたハイブリッドなUI設計</li>
+                    <li>複雑なPCパーツの構成を視覚的にミスなく管理可能</li>
+                </ul>
+                <a href="apps\pcbs-sim\index.html" class="view-link" target="_blank">アプリを開く</a>
+            </div>
 
-    <a href="apps\pcbs-sim\index.html" class="view-link">アプリを開く</a>
-</div>
-
-<div class="project-card">
-    <h2 class="project-title">懐かしの鉄道発車標（反転フラップ式）再現</h2>
-    <p class="project-desc">かつて名古屋鉄道（名鉄）などの駅で見られた「パタパタ」こと反転フラップ式発車案内表示機を、最新のWeb技術でブラウザ上にリアルに再現しました。</p>
-    
-    <div class="tech-stack">
-        <span class="tech-tag">HTML5 / CSS3 (3D Transforms & Animation)</span>
-        <span class="tech-tag">JavaScript (DOM & Sequential Control)</span>
-    </div>
-
-    <ul class="highlights">
-        <li>CSSの `perspective` と `rotateX` を駆使し、フラップが裏返る立体的な動きと、リアルな影の表現（グラデーション）を実装</li>
-        <li>名鉄の表示機をオマージュした、特徴的なフォントや配色、レイアウト（種別、行き先、両数、のりば）を忠実に再現</li>
-        <li>JavaScriptによるタイマーとデータ配列の制御により、複数のフラップが連動してパタパタと切り替わるシーケンシャルな表示更新を実現</li>
-    </ul>
-
-    <a href="apps\flap-board\index.html" class="view-link">アプリを開く</a>
-</div>
+            <div class="project-card">
+                <h2 class="project-title">懐かしの鉄道発車標 再現</h2>
+                <p class="project-desc">かつて名古屋鉄道（名鉄）などの駅で見られた「パタパタ」こと反転フラップ式発車案内表示機をブラウザ上にリアルに再現しました。</p>
+                <div class="tech-stack">
+                    <span class="tech-tag">HTML5 / CSS3 (3D Transforms)</span>
+                    <span class="tech-tag">JavaScript (DOM Control)</span>
+                </div>
+                <ul class="highlights">
+                    <li>CSSの `perspective` と `rotateX` を駆使し、立体的な動きとリアルな影を実装</li>
+                    <li>名鉄の表示機をオマージュした、特徴的なフォントや配色、レイアウトを忠実に再現</li>
+                </ul>
+                <a href="apps\flap-board\index.html" class="view-link" target="_blank">アプリを開く</a>
+            </div>
 
         </div>
     </div>
@@ -393,39 +339,29 @@
     <a href="privacy.html" style="color: #888; text-decoration: none;">プライバシーポリシー</a>
 </footer>
 
-</body>
 <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('tosModal');
-            const agreeBtn = document.getElementById('agreeButton');
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('tosModal');
+        const agreeBtn = document.getElementById('agreeButton');
 
-            // ブラウザに「tosAgreed（同意済み）」の記録があるかチェック
-            if (!localStorage.getItem('tosAgreed')) {
-                // 記録がなければモーダルを表示し、裏画面のスクロールをロックする
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
+        if (!localStorage.getItem('tosAgreed')) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
 
-            // 「同意する」ボタンが押されたときの処理
-            agreeBtn.addEventListener('click', () => {
-                // ブラウザに「同意した」という記録を保存
-                localStorage.setItem('tosAgreed', 'true');
-                // モーダルを消して、スクロールロックを解除する
-                modal.classList.add('hidden');
-                document.body.style.overflow = '';
-            });
+        agreeBtn.addEventListener('click', () => {
+            localStorage.setItem('tosAgreed', 'true');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
         });
-    </script>
+    });
 
-    <script>
-        window.addEventListener('load', () => {
-            const loader = document.getElementById('loader');
-            
-            // ページ全体の読み込みが完了したら、
-            // 1.5秒後にロード画面を消す（少し余韻を残す）
-            setTimeout(() => {
-                loader.classList.add('loaded');
-            }, 1500);
-        });
-    </script>
+    window.addEventListener('load', () => {
+        const loader = document.getElementById('loader');
+        setTimeout(() => {
+            loader.classList.add('loaded');
+        }, 1500);
+    });
+</script>
+</body>
 </html>

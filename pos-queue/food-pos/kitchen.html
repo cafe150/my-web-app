@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>キッチンモニター</title>
+    <style>
+        body { font-family: sans-serif; background: #2c3e50; color: white; margin: 0; padding: 20px; height: 100vh; display: flex; flex-direction: column; overflow: hidden;}
+        #start-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44,62,80,0.98); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; cursor: pointer; }
+        h1 { margin-top: 0; color: #f1c40f; border-bottom: 2px solid #f39c12; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 15px; overflow-y: auto; padding: 10px; }
+        
+        /* 通常の注文カード */
+        .order-card { background: #34495e; border-radius: 10px; padding: 20px; border-left: 8px solid #3498db; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
+        
+        /* ★警戒色のカード（3分超え） */
+        .order-card.warning { border-left-color: #e74c3c; background: #c0392b; animation: alertPulse 1.5s infinite; }
+        @keyframes alertPulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+        .number { font-size: 4rem; font-weight: 900; margin: 0; line-height: 1; }
+        .note { font-size: 1.5rem; font-weight: bold; color: #ecf0f1; }
+        .btn-done { background: #2ecc71; color: white; border: none; padding: 15px; font-size: 1.5rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: auto; }
+    </style>
+</head>
+<body>
+
+    <div id="start-overlay" onclick="startSystem()"><h1>👆 タップしてオーダー受信を開始</h1><p>※音を鳴らすために必要です</p></div>
+
+    <h1>🍳 キッチン - 調理待ち</h1>
+    <div id="kitchen-list" class="grid"></div>
+
+<script>
+    const bc = new BroadcastChannel('pos_system');
+    let audioCtx;
+
+    function startSystem() {
+        document.getElementById('start-overlay').style.display = 'none';
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        renderKitchen();
+    }
+
+    // ★オーダーが入った時の通知音（チーン！というベル音）
+    function playOrderBell() {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1200, audioCtx.currentTime); // 高い音
+        gain.gain.setValueAtTime(1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.0); // 余韻を残す
+        osc.start(); osc.stop(audioCtx.currentTime + 1.0);
+    }
+
+    // レジから「NEW_ORDER」を受け取ったら音を鳴らす
+    bc.onmessage = (e) => {
+        if (e.data.type === 'NEW_ORDER') {
+            playOrderBell();
+            renderKitchen(); // 即座に描画更新
+        }
+    };
+
+    function renderKitchen() {
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let waitingOrders = orders.filter(o => o.status === 'waiting');
+        
+        // ★必ず古い順（IDの小さい順）に並び替える
+        waitingOrders.sort((a, b) => a.id - b.id);
+        
+        const list = document.getElementById('kitchen-list');
+        if (waitingOrders.length === 0) {
+            list.innerHTML = '<h3 style="color:#7f8c8d; margin-left:10px;">現在、調理待ちの注文はありません。</h3>';
+            return;
+        }
+
+        const now = new Date();
+        list.innerHTML = waitingOrders.map(o => {
+            const diffMin = Math.floor((now - new Date(o.time)) / 60000);
+            const isWarning = diffMin >= 3; // 3分以上で警戒モード
+            
+            return `
+            <div class="order-card ${isWarning ? 'warning' : ''}">
+                <div class="header">
+                    <div class="number">${o.number}</div>
+                    <div style="font-size:1.5rem; font-weight:bold; background:${isWarning?'#fff':'#7f8c8d'}; color:${isWarning?'#c0392b':'#fff'}; padding:5px 15px; border-radius:5px;">
+                        経過: ${diffMin}分
+                    </div>
+                </div>
+                <div class="note">${o.note}</div>
+                <button class="btn-done" onclick="finishCooking(${o.id})">✔ 調理完了 (呼出へ)</button>
+            </div>
+            `;
+        }).join('');
+    }
+
+    function finishCooking(id) {
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        const idx = orders.findIndex(o => o.id === id);
+        if (idx !== -1) {
+            orders[idx].status = 'ready';
+            localStorage.setItem('orders', JSON.stringify(orders));
+            renderKitchen();
+        }
+    }
+
+    setInterval(renderKitchen, 1000); // 常に最新を監視
+</script>
+</body>
+</html>
