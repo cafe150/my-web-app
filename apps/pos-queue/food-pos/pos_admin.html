@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>レジ専用画面 - POS</title>
+    <style>
+        body { font-family: sans-serif; display: flex; height: 100vh; margin: 0; background: #eef2f5; overflow: hidden; }
+        #left { flex: 1; padding: 20px; display: flex; flex-direction: column; background: #fff; position: relative; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 15px; }
+        
+        /* ★復活：カテゴリタブのスタイル */
+        .category-tabs { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .btn-cat { padding: 12px 20px; cursor: pointer; background: #f8f9fa; border: 2px solid #e0e0e0; font-weight: bold; border-radius: 6px; color: #555; }
+        .btn-cat.active { background: #3498db; color: white; border-color: #3498db; box-shadow: 0 4px 6px rgba(52,152,219,0.3); }
+
+        .grid { display: grid; gap: 10px; margin: 10px 0; overflow-y: auto; flex-shrink: 0; }
+        .btn-item { height: 100px; cursor: pointer; border: 2px solid #3498db; border-radius: 8px; background: #fff; font-weight: bold; font-size: 1.1rem; }
+        .cart { flex-grow: 1; border: 1px solid #ccc; padding: 15px; border-radius: 5px; overflow-y: auto; background: #fafafa; position: relative; }
+        .checkout-btn { width: 100%; padding: 25px; font-size: 1.8rem; background: #2ecc71; color: #fff; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; font-weight: bold; }
+        
+        .modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; justify-content:center; align-items:center; z-index:1000; }
+        .modal-content { background:#fff; padding:30px; border-radius:12px; width:650px; display:flex; gap:20px; }
+        
+        .quick-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .quick-btn { padding: 15px; font-size: 1.2rem; font-weight: bold; background: #ebf5fb; border: 2px solid #3498db; color: #2980b9; border-radius: 8px; cursor: pointer; }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; flex: 1; }
+        .num-btn { padding:20px; font-size:1.5rem; border:none; background:#eee; border-radius:5px; cursor:pointer; font-weight:bold; }
+        
+        #change-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); display:none; flex-direction:column; justify-content:center; align-items:center; font-weight:bold; }
+    </style>
+</head>
+<body>
+
+<div id="left">
+    <div class="header">
+        <h2 style="margin:0; color:#2c3e50;">💰 POSレジ</h2>
+    </div>
+    
+    <div id="category-tabs" class="category-tabs"></div>
+    
+    <div id="item-grid" class="grid"></div>
+    
+    <div class="cart">
+        <ul id="cart-list" style="list-style:none; padding:0; font-size:1.2rem;"></ul>
+        <div id="change-overlay">
+            <div style="font-size:1.5rem; color:#7f8c8d;">お釣り</div>
+            <div id="change-val" style="font-size:5rem; color:#27ae60;">¥0</div>
+            <div style="font-size:1.5rem; color:#e74c3c; margin-top:10px;">呼出番号: <span id="issued-num">--</span></div>
+            <p>商品をタップして次へ</p>
+        </div>
+    </div>
+    <div style="font-size:2.5rem; text-align:right; font-weight:bold; color:#e74c3c;">合計: <span id="cart-total">¥0</span></div>
+    <button class="checkout-btn" onclick="openCheckout()">会計確定へ</button>
+</div>
+
+<div id="checkout-modal" class="modal">
+    <div class="modal-content">
+        <div style="flex:1;">
+            <h2>会計</h2>
+            <div style="font-size:1.5rem;">合計: <span id="m-total">¥0</span></div>
+            <div style="font-size:1.5rem; margin-top:10px;">預り: <span id="m-received">¥0</span></div>
+            <div id="m-change" style="font-size:2rem; font-weight:bold; color:#e74c3c; margin-top:10px;">お釣り: ¥0</div>
+            
+            <div style="margin-top:20px;">
+                <button class="num-btn" style="background:#3498db; color:#fff; width:100%;" onclick="finalize()">会計確定 (キッチンへ)</button>
+                <button onclick="document.getElementById('checkout-modal').style.display='none'" style="width:100%; margin-top:10px; padding:15px; border:none; background:#ccc; border-radius:5px;">戻る</button>
+            </div>
+        </div>
+        <div>
+            <div class="quick-btns">
+                <button class="quick-btn" onclick="quickInput('exact')">ちょうど</button>
+                <button class="quick-btn" onclick="quickInput(1000)">¥1,000</button>
+                <button class="quick-btn" onclick="quickInput(5000)">¥5,000</button>
+                <button class="quick-btn" onclick="quickInput(10000)">¥10,000</button>
+            </div>
+            <div class="numpad">
+                <button class="num-btn" onclick="addNum(7)">7</button><button class="num-btn" onclick="addNum(8)">8</button><button class="num-btn" onclick="addNum(9)">9</button>
+                <button class="num-btn" onclick="addNum(4)">4</button><button class="num-btn" onclick="addNum(5)">5</button><button class="num-btn" onclick="addNum(6)">6</button>
+                <button class="num-btn" onclick="addNum(1)">1</button><button class="num-btn" onclick="addNum(2)">2</button><button class="num-btn" onclick="addNum(3)">3</button>
+                <button class="num-btn" onclick="addNum(0)">0</button><button class="num-btn" onclick="addNum('00')">00</button><button class="num-btn" style="background:#e74c3c; color:#fff;" onclick="clrNum()">C</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const bc = new BroadcastChannel('pos_system');
+    let cart = [];
+    let received = 0;
+    let masterData = {}; // ★全体で使い回せるように変数化
+
+    function loadMaster() {
+        masterData = JSON.parse(localStorage.getItem('masterData')) || {
+            "メイン": {items:[{name:"商品",price:500}], columns:4}
+        };
+        initTabs();
+    }
+
+    // ★復活：タブの初期化
+    function initTabs() {
+        const tabContainer = document.getElementById('category-tabs');
+        tabContainer.innerHTML = '';
+        const categories = Object.keys(masterData);
+        
+        categories.forEach((cat, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-cat' + (idx === 0 ? ' active' : '');
+            btn.innerText = cat;
+            btn.onclick = () => switchTab(cat);
+            tabContainer.appendChild(btn);
+        });
+        
+        if (categories.length > 0) switchTab(categories[0]);
+    }
+
+    // ★復活：タブ切り替え処理
+    function switchTab(catName) {
+        document.querySelectorAll('.btn-cat').forEach(b => {
+            b.classList.toggle('active', b.innerText === catName);
+        });
+
+        const grid = document.getElementById('item-grid');
+        grid.innerHTML = '';
+        
+        const catData = masterData[catName];
+        if (!catData) return;
+
+        grid.style.gridTemplateColumns = `repeat(${catData.columns}, 1fr)`;
+        
+        catData.items.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-item';
+            btn.innerHTML = `${item.name}<br><span style="color:#e74c3c">¥${item.price}</span>`;
+            btn.onclick = () => { 
+                document.getElementById('change-overlay').style.display='none'; 
+                cart.push(item); 
+                renderCart(); 
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    function renderCart() {
+        const list = document.getElementById('cart-list');
+        const total = cart.reduce((s, i) => s + i.price, 0);
+        list.innerHTML = cart.map((i, idx) => `<li style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px dashed #ccc; padding-bottom:5px;">${i.name} <span>¥${i.price} <button onclick="cart.splice(${idx},1); renderCart();" style="background:#e74c3c;color:white;border:none;border-radius:50%;cursor:pointer;">×</button></span></li>`).join('');
+        document.getElementById('cart-total').innerText = `¥${total.toLocaleString()}`;
+    }
+
+    function openCheckout() {
+        if(cart.length === 0) return;
+        document.getElementById('m-total').innerText = document.getElementById('cart-total').innerText;
+        received = 0; clrNum();
+        document.getElementById('checkout-modal').style.display='flex';
+    }
+    
+    function quickInput(val) {
+        const total = cart.reduce((s, i) => s + i.price, 0);
+        received = (val === 'exact') ? total : val;
+        updateChange();
+    }
+
+    function addNum(n) { 
+        received = parseInt(received.toString() + n);
+        updateChange();
+    }
+    function clrNum() { received = 0; updateChange(); }
+
+    function updateChange() {
+        const total = cart.reduce((s, i) => s + i.price, 0);
+        document.getElementById('m-received').innerText = `¥${received.toLocaleString()}`;
+        document.getElementById('m-change').innerText = `お釣り: ¥${(received - total).toLocaleString()}`;
+    }
+
+    function finalize() {
+        const total = cart.reduce((s, i) => s + i.price, 0);
+        if (received < total) return alert("預り金が不足しています");
+        
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let nextNum = parseInt(localStorage.getItem('nextNum') || '100');
+        
+        const newOrder = { id:Date.now(), number:nextNum, note:cart.map(i=>i.name).join(', '), time:new Date(), total:total, status:'waiting' };
+        orders.push(newOrder);
+        localStorage.setItem('orders', JSON.stringify(orders));
+        
+        let salesHistory = JSON.parse(localStorage.getItem('salesHistory') || '[]');
+        salesHistory.push(newOrder);
+        localStorage.setItem('salesHistory', JSON.stringify(salesHistory));
+        localStorage.setItem('nextNum', nextNum + 1);
+
+        bc.postMessage({ type: 'NEW_ORDER' });
+
+        document.getElementById('change-val').innerText = `¥${(received - total).toLocaleString()}`;
+        document.getElementById('issued-num').innerText = `${nextNum} 番`;
+        document.getElementById('change-overlay').style.display='flex';
+        cart = []; renderCart(); document.getElementById('checkout-modal').style.display='none';
+    }
+
+    loadMaster(); 
+    
+    // 設定画面で保存したときにリアルタイムで反映させる
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'masterData') {
+            loadMaster();
+        }
+    });
+</script>
+</body>
+</html>
