@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Workspace</title>
+    <style>
+        /* Notion風のカラーパレットとベース設定 */
+        :root {
+            --text-main: #37352f;
+            --text-muted: rgba(55, 53, 47, 0.65);
+            --bg-main: #ffffff;
+            --bg-hover: rgba(55, 53, 47, 0.08);
+            --border-color: rgba(55, 53, 47, 0.16);
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+            
+            --tag-blue-bg: rgba(225, 243, 253, 1);
+            --tag-blue-text: rgba(11, 110, 153, 1);
+            --tag-red-bg: rgba(253, 235, 236, 1);
+            --tag-red-text: rgba(151, 10, 10, 1);
+            --tag-gray-bg: rgba(227, 226, 224, 1);
+            --tag-gray-text: rgba(50, 48, 44, 1);
+            --tag-orange-bg: rgba(250, 223, 203, 1);
+            --tag-orange-text: rgba(212, 76, 71, 1);
+            --tag-purple-bg: rgba(232, 222, 238, 1);
+            --tag-purple-text: rgba(105, 64, 165, 1);
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 8vh 40px 10vh;
+        }
+
+        .page-icon { font-size: 78px; margin-bottom: 20px; line-height: 1.1; user-select: none; }
+        .page-title { font-size: 40px; font-weight: 700; margin: 0 0 8px 0; letter-spacing: -0.02em; }
+        .page-desc { color: var(--text-muted); font-size: 16px; margin-bottom: 32px; }
+
+        .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 24px; }
+        .tab { padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; color: var(--text-muted); transition: background 0.1s ease-in; user-select: none; display: flex; align-items: center; gap: 8px; }
+        .tab:hover { background-color: var(--bg-hover); }
+        .tab.active { color: var(--text-main); font-weight: 600; background-color: rgba(55, 53, 47, 0.04); }
+
+        .system-group { display: none; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; animation: fadeIn 0.2s ease-out; margin-bottom: 40px; }
+        .system-group.active { display: grid; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { display: flex; flex-direction: column; padding: 16px; border: 1px solid var(--border-color); border-radius: 6px; text-decoration: none; color: inherit; background: transparent; transition: background 0.1s ease-in; }
+        .card:hover { background: rgba(55, 53, 47, 0.03); cursor: pointer; }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .card-icon { font-size: 24px; }
+        .card-title { font-weight: 600; font-size: 16px; }
+        .card-desc { color: var(--text-muted); font-size: 14px; margin-bottom: 16px; flex-grow: 1; }
+
+        .tag { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 3px; font-size: 12px; line-height: 120%; white-space: nowrap; align-self: flex-start; }
+        .tag-blue { background: var(--tag-blue-bg); color: var(--tag-blue-text); }
+        .tag-red { background: var(--tag-red-bg); color: var(--tag-red-text); }
+        .tag-gray { background: var(--tag-gray-bg); color: var(--tag-gray-text); }
+        .tag-orange { background: var(--tag-orange-bg); color: var(--tag-orange-text); }
+        .tag-purple { background: var(--tag-purple-bg); color: var(--tag-purple-text); }
+
+        /* ★ 新規追加: Notion風のコールアウト（注意書きブロック） */
+        .callout {
+            display: flex;
+            gap: 12px;
+            padding: 16px 16px 16px 20px;
+            background-color: rgba(241, 241, 239, 1);
+            border-radius: 4px;
+            margin-top: 40px;
+            border: 1px solid rgba(55, 53, 47, 0.09);
+        }
+        .callout-icon {
+            font-size: 20px;
+            line-height: 1.2;
+        }
+        .callout-content {
+            font-size: 14px;
+            color: var(--text-main);
+        }
+        .callout-title {
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            font-size: 15px;
+        }
+        .callout-list {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--text-muted);
+        }
+        .callout-list li {
+            margin-bottom: 6px;
+        }
+        .callout-list strong {
+            color: var(--text-main);
+        }
+        
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-icon">💻</div>
+    <h1 class="page-title">Workspace</h1>
+    <p class="page-desc">各業務システムへのポータルです。タブを切り替えてアクセスしてください。</p>
+
+    <div class="tabs">
+        <div class="tab active" id="tab-event" onclick="switchTab('event')">
+            <span>🎪</span> 順番待ち・受付
+        </div>
+        <div class="tab" id="tab-food" onclick="switchTab('food')">
+            <span>🍔</span> 飲食店POS
+        </div>
+    </div>
+
+    <div id="group-event" class="system-group active">
+        <a href="admin.html" target="_blank" class="card">
+            <div class="card-header"><span class="card-icon">📋</span><span class="card-title">受付・発券</span></div>
+            <div class="card-desc">お客様の情報と希望体験を入力し、整理券を発券します。</div>
+            <span class="tag tag-blue">お客様・受付用</span>
+        </a>
+        <a href="display.html" target="_blank" class="card">
+            <div class="card-header"><span class="card-icon">📺</span><span class="card-title">呼出モニター</span></div>
+            <div class="card-desc">リアルタイムの待ち時間と呼び出し番号を表示します。</div>
+            <span class="tag tag-purple">モニター用</span>
+        </a>
+        <a href="caller.html" target="_blank" class="card">
+            <div class="card-header"><span class="card-icon">📢</span><span class="card-title">案内管理ボード</span></div>
+            <div class="card-desc">体験ごとの待ち列を管理し、呼出・案内完了の操作を行います。</div>
+            <span class="tag tag-orange">スタッフ用</span>
+        </a>
+        <a href="settings.html" target="_blank" class="card">
+            <div class="card-header"><span class="card-icon">⚙️</span><span class="card-title">受付設定</span></div>
+            <div class="card-desc">体験メニューの編集や、音声アナウンスのカスタマイズを行います。</div>
+            <span class="tag tag-gray">管理者用</span>
+        </a>
+    </div>
+
+    <div id="group-food" class="system-group">
+        <a href="pos_admin.html" target="_blank" class="card">
+            <div class="card-header"><span class="card-icon">💰</span><span class="card-title">POSレジシステム</span></div>
+            <div class="card-desc">商品の注文を受け付け、会計処理とキッチンへの送信を行います。</div>
+            <span class="tag tag-red">レジ・ホール用</span>
+        </a>
+        <a href="kitchen.html" target="_blank" class="card">
+            <div class="card-header"><span class="card-icon">🍳</span><span class="card-title">キッチンモニター</span></div>
+            <div class="card-desc">オーダーを調理順に表示し、調理完了をレジへ通知します。</div>
+            <span class="tag tag-orange">厨房スタッフ用</span>
+        </a>
+        <a href="pos_caller.html" target="_blank" class="card">
+            <div class="card-header"><span class="card-icon">🔔</span><span class="card-title">お渡し管理</span></div>
+            <div class="card-desc">調理完了した番号を呼び出し、商品の受け渡しを管理します。</div>
+            <span class="tag tag-blue">お渡し口用</span>
+        </a>
+        <a href="pos_settings.html" target="_blank" class="card">
+            <div class="card-header"><span class="card-icon">🛠</span><span class="card-title">マスター・売上</span></div>
+            <div class="card-desc">商品メニューの編集と、本日の売上データ確認を行います。</div>
+            <span class="tag tag-gray">管理者用</span>
+        </a>
+    </div>
+
+    <div class="callout">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+            <p class="callout-title">ご利用にあたっての注意事項（Terms of Use）</p>
+            <ul class="callout-list">
+                <li><strong>業務利用の禁止:</strong> 本システムは学習・ポートフォリオ用のプロトタイプです。実際の店舗や商業施設等での本格的な業務利用は固くお断りいたします。</li>
+                <li><strong>免責事項（自己責任）:</strong> 本システムの利用に伴うトラブルや損害、および無保証（バグ修正等の義務）について、開発者は一切の責任を負いません。</li>
+                <li><strong>データの揮発性:</strong> データはブラウザ内（ローカル）に保存されます。キャッシュの消去やシークレットモードでの利用によりデータは完全に消失します。</li>
+                <li><strong>教育機関での利用:</strong> 授業や学内イベント等の教育目的で使用される場合は、事前にGitHubのIssue等にてご連絡をお願いいたします。</li>
+                <li><strong>クレジット明記:</strong> 本システムをベースに改変・利用する場合は、必ず本ホームページ（またはリポジトリURL）の明記をお願いいたします。</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function switchTab(type) {
+        document.getElementById('tab-event').classList.remove('active');
+        document.getElementById('tab-food').classList.remove('active');
+        document.getElementById('tab-' + type).classList.add('active');
+
+        document.getElementById('group-event').classList.remove('active');
+        document.getElementById('group-food').classList.remove('active');
+        document.getElementById('group-' + type).classList.add('active');
+    }
+</script>
+
+</body>
+</html>
