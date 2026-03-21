@@ -113,14 +113,20 @@
         <h2>第5条（規約の変更）</h2>
         <p>開発者は、必要と判断した場合には、利用者に通知することなくいつでも本規約を変更することができるものとします。</p>
 
+        <h2>第6条（順番待ち・POSレジ等 業務ツールの特記事項）</h2>
+        <p>
+            本サービスのうち、POSレジや順番待ち管理等の業務ツールとして提供されるシステムについて、以下の特記事項が適用されます。<br>
+            1. <strong>非実稼働の原則：</strong>本システムは学習・ポートフォリオ用のプロトタイプであり、実際の店舗運営や商業業務での本格的な利用を保証するものではありません。<br>
+            2. <strong>損害の免責：</strong>計算エラーによる金銭的損失、案内ミス等による顧客トラブル、売上データの消失など、本システムの利用によって生じたいかなる業務上・営業上の損害についても、開発者は一切の責任を負いません。<br>
+            3. <strong>データの揮発性：</strong>データはすべて利用者のブラウザ（ローカルストレージ）に保存されます。キャッシュクリアやシークレットモードでの利用によりデータは完全に消失するため、必要な記録・バックアップは利用者の責任において行ってください。<br>
+            4. <strong>個人情報の取り扱い：</strong>顧客の氏名等を入力する場合、データの管理は利用者の責任において行うものとし、情報漏洩やプライバシーに関するトラブルについて開発者は関与いたしません。
+        </p>
+
         <p style="margin-top: 50px; text-align: right; color: var(--text-sub); font-size: 0.85rem;">
             制定日：2026年3月21日<br>
+            改定日：2026年3月21日<br>
             開発者：mocha
         </p>
-    </div>
-
-</body>
-</html>
 
         <div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid #eee; text-align: center;">
             <p style="margin-bottom: 20px; font-weight: bold; color: var(--text-main);">
@@ -137,21 +143,15 @@
         </div>
 
         <script>
-            // 「同意する」ボタンの処理
             document.getElementById('agreeBtn').addEventListener('click', () => {
-                // 同意した記録を保存
                 localStorage.setItem('tosAgreed', 'true');
-                // トップページ（index.html）へ戻す
                 window.location.href = 'index.html';
             });
 
-            // 「同意しない」ボタンの処理
             document.getElementById('disagreeBtn').addEventListener('click', () => {
                 alert('ツールの利用には利用規約への同意が必要です。同意されない場合はブラウザのタブを閉じてください。');
             });
         </script>
-
-        
     </div>
 
 </body>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>システム設定 - 順番待ち・受付</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; color: #333; max-width: 800px; margin: 0 auto; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2 { border-left: 5px solid #3498db; padding-left: 10px; font-size: 1.3rem; margin-top: 0; }
+        .row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+        input[type="text"], input[type="number"], select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; flex-grow: 1; }
+        .time-input { width: 80px; flex-grow: 0; text-align: right; }
+        button { cursor: pointer; padding: 10px 15px; border: none; border-radius: 5px; background: #3498db; color: white; font-weight: bold; }
+        button.danger { background: #e74c3c; }
+        button.success { background: #2ecc71; width: 100%; padding: 15px; font-size: 1.2rem; }
+        .note { color: #7f8c8d; font-size: 0.9rem; margin-bottom: 15px; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>🔊 呼出の音声設定</h2>
+    <span class="note">※ {number} には番号が、{name} には名前が自動で入ります。</span>
+    <div class="row">
+        <label style="font-weight:bold; width: 120px;">チャイム:</label>
+        <select id="chime-type">
+            <option value="1">タイプ1 (定番のピンポーン)</option>
+            <option value="2">タイプ2 (高音メロディ)</option>
+            <option value="3">タイプ3 (シンプルなベル)</option>
+            <option value="0">なし (音声読み上げのみ)</option>
+        </select>
+    </div>
+    <div class="row">
+        <label style="font-weight:bold; width: 120px;">読上げ文章:</label>
+        <input type="text" id="announce-template" value="{number}ばんの、{name}さま、ごあんないいたします">
+    </div>
+    <button onclick="testAudio()" style="background:#f39c12; margin-top:10px; width:100%;">🔊 テスト再生 (現在の設定を鳴らす)</button>
+</div>
+
+<div class="card">
+    <h2>🛠 体験項目・所要時間マスター</h2>
+    <span class="note">「所要時間（分）」を入力してください。これが順番ごとの待ち時間ベースになります。</span>
+    <div id="exp-list"></div>
+    <button onclick="addExp()" style="background:#95a5a6; margin-top:10px;">➕ 項目を追加</button>
+</div>
+
+<div class="card">
+    <button onclick="saveAll()" class="success">💾 すべての設定を保存</button>
+    <button onclick="clearData()" class="danger" style="width:100%; margin-top:15px; padding:15px;">🗑 本日の受付データをリセット</button>
+</div>
+
+<script>
+    let rawExp = JSON.parse(localStorage.getItem('expMaster')) || [{name: "プログラミング", duration: 5}, {name: "学校説明", duration: 10}];
+    if (rawExp.length > 0 && typeof rawExp[0] === 'string') rawExp = rawExp.map(e => ({ name: e, duration: 5 }));
+    let expMaster = rawExp;
+    
+    let audioSettings = JSON.parse(localStorage.getItem('audioSettings')) || {};
+    document.getElementById('chime-type').value = audioSettings.type || "1";
+    document.getElementById('announce-template').value = audioSettings.template || "{number}ばんの、{name}さま、ごあんないいたします";
+
+    function renderEditor() {
+        const container = document.getElementById('exp-list');
+        container.innerHTML = expMaster.map((exp, idx) => `
+            <div class="row">
+                <input type="text" value="${exp.name}" oninput="updateExpName(${idx}, this.value)" placeholder="体験名">
+                <input type="number" class="time-input" value="${exp.duration}" oninput="updateExpTime(${idx}, this.value)"> 分
+                <button class="danger" onclick="deleteExp(${idx})">×</button>
+            </div>
+        `).join('');
+    }
+
+    function updateExpName(idx, val) { expMaster[idx].name = val; }
+    function updateExpTime(idx, val) { expMaster[idx].duration = parseInt(val) || 0; }
+    function addExp() { expMaster.push({name: "", duration: 5}); renderEditor(); }
+    function deleteExp(idx) { expMaster.splice(idx, 1); renderEditor(); }
+
+    function saveAll() {
+        const cleanMaster = expMaster.filter(e => e.name.trim() !== "");
+        localStorage.setItem('expMaster', JSON.stringify(cleanMaster));
+        const audio = { type: document.getElementById('chime-type').value, template: document.getElementById('announce-template').value };
+        localStorage.setItem('audioSettings', JSON.stringify(audio));
+        alert("💾 設定を保存しました！\nモニター画面をリロードすると反映されます。");
+        renderEditor();
+    }
+
+    function clearData() {
+        if(confirm("本日の受付待ちリストや発券番号をすべてリセットしますか？")) {
+            localStorage.setItem('orders', '[]'); localStorage.setItem('nextNum', '1'); alert("リセットしました。");
+        }
+    }
+
+    // ★テスト音声再生機能
+    function testAudio() {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const type = document.getElementById('chime-type').value;
+        const t = audioCtx.currentTime;
+        if (type !== "0") {
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if (type === "1") { osc.type='sine'; osc.frequency.setValueAtTime(880,t); gain.gain.setValueAtTime(0.5,t); gain.gain.linearRampToValueAtTime(0,t+0.5); osc.frequency.setValueAtTime(659.25,t+0.5); gain.gain.setValueAtTime(0.5,t+0.5); gain.gain.exponentialRampToValueAtTime(0.01,t+1.5); osc.start(t); osc.stop(t+2); }
+            else if (type === "2") { osc.type='triangle'; osc.frequency.setValueAtTime(1046.5,t); osc.frequency.setValueAtTime(1318.5,t+0.15); osc.frequency.setValueAtTime(1567.9,t+0.3); gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.01,t+0.8); osc.start(t); osc.stop(t+0.8); }
+            else if (type === "3") { osc.type='sine'; osc.frequency.setValueAtTime(783.9,t); gain.gain.setValueAtTime(0.6,t); gain.gain.exponentialRampToValueAtTime(0.01,t+1.5); osc.start(t); osc.stop(t+1.5); }
+        }
+        setTimeout(() => {
+            let template = document.getElementById('announce-template').value || "{number}ばんの、{name}さま";
+            let text = template.replace('{number}', '12').replace('{name}', 'ヤマダ');
+            const uttr = new SpeechSynthesisUtterance(text);
+            uttr.lang = 'ja-JP';
+            speechSynthesis.speak(uttr);
+        }, 1000);
+    }
+    renderEditor();
+</script>
+</body>
+</html>
