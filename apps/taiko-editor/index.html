@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>太鼓の達人 創作譜面エディタ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header-left">
+            <div class="course-tabs" id="course-tabs">
+                <div class="tab" data-course="Easy">かんたん</div>
+                <div class="tab" data-course="Normal">ふつう</div>
+                <div class="tab" data-course="Hard">むずかしい</div>
+                <div class="tab active" data-course="Oni">おに</div>
+                <div class="tab ura" data-course="Ura">裏鬼</div>
+            </div>
+            <div class="branch-toggles">
+                <button class="branch-btn active" data-branch="normal">普</button>
+                <button class="branch-btn" data-branch="expert">玄</button>
+                <button class="branch-btn" data-branch="master">達</button>
+            </div>
+        </div>
+        <div class="header-right status-bar">
+            <span id="status-timeline" class="status-badge">小節: -</span>
+            <span id="status-mode" class="status-badge">モード: 音符 | サイズ: 小 | スナップ: ON</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar" id="sidebar">
+            <h3>曲情報</h3><br>
+            <div class="setting-group">
+                <label>TITLE（曲名）</label>
+                <input type="text" id="cfg-title" value="New Song">
+            </div>
+            <div class="setting-group">
+                <label>SUBTITLE（サブタイトル）</label>
+                <input type="text" id="cfg-subtitle" value="" placeholder="--アーティスト名">
+            </div>
+            <div class="setting-group">
+                <label>WAVE（音源ファイル名）</label>
+                <input type="text" id="cfg-wave" value="" placeholder="song.ogg">
+            </div>
+            <div class="setting-group">
+                <label>BPM</label>
+                <input type="number" id="cfg-bpm" value="120" step="0.01">
+            </div>
+            <div class="setting-group">
+                <label>OFFSET（譜面開始ズレ）</label>
+                <input type="number" id="cfg-offset" value="0" step="0.001">
+            </div>
+            <div class="setting-group">
+                <label>DEMOSTART（試聴開始秒）</label>
+                <input type="number" id="cfg-demostart" value="0" step="0.01">
+            </div>
+            <div class="setting-group">
+                <label>SONGVOL（音源音量 0〜100）</label>
+                <input type="number" id="cfg-songvol" value="100" min="0" max="100">
+            </div>
+            <div class="setting-group">
+                <label>SEVOL（音色音量 0〜100）</label>
+                <input type="number" id="cfg-sevol" value="100" min="0" max="100">
+            </div>
+            <div class="setting-group">
+                <label>SCOREMODE（配点方式）</label>
+                <select id="cfg-scoremode">
+                    <option value="0">0: ドンダフル配点</option>
+                    <option value="1" selected>1: 旧配点</option>
+                    <option value="2">2: 新配点</option>
+                </select>
+            </div>
+
+            <hr style="border-color:#444; margin:15px 0;"><br>
+            <h3>難易度レベル</h3><br>
+            <div class="setting-group">
+                <label>裏鬼 (Ura) レベル</label>
+                <input type="number" id="cfg-level-ura" value="1" min="1" max="10">
+            </div>
+            <div class="setting-group">
+                <label>鬼 (Oni) レベル</label>
+                <input type="number" id="cfg-level-oni" value="1" min="1" max="10">
+            </div>
+            <div class="setting-group">
+                <label>むずかしい (Hard) レベル</label>
+                <input type="number" id="cfg-level-hard" value="1" min="1" max="10">
+            </div>
+            <div class="setting-group">
+                <label>ふつう (Normal) レベル</label>
+                <input type="number" id="cfg-level-normal" value="1" min="1" max="10">
+            </div>
+            <div class="setting-group">
+                <label>かんたん (Easy) レベル</label>
+                <input type="number" id="cfg-level-easy" value="1" min="1" max="10">
+            </div>
+
+            <hr style="border-color:#444; margin:15px 0;"><br>
+            <h3>小節設定</h3><br>
+            <div class="setting-group">
+                <label>拍子（分子 / 分母）</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="number" id="cfg-meas-num" value="4"> / <input type="number" id="cfg-meas-den"
+                        value="4">
+                </div>
+            </div>
+
+            <hr style="border-color:#444; margin:15px 0;"><br>
+            <h3>ショートカットキー</h3><br>
+            <div class="setting-group">
+                <label>ドン</label>
+                <input type="text" id="sc-don" value="j,f">
+            </div>
+            <div class="setting-group">
+                <label>カッ</label>
+                <input type="text" id="sc-ka" value="k,d">
+            </div>
+            <div class="setting-group">
+                <label>連打開始</label>
+                <input type="text" id="sc-roll" value="r">
+            </div>
+            <div class="setting-group">
+                <label>連打終了</label>
+                <input type="text" id="sc-roll-end" value="e,8">
+            </div>
+            <div class="setting-group">
+                <label>休符 / 削除</label>
+                <input type="text" id="sc-delete" value="0,backspace,delete">
+            </div>
+        </aside>
+        <div class="resizer" id="sidebar-resizer"></div>
+
+        <main class="workspace">
+            <div class="canvas-wrapper" id="canvas-wrapper">
+                <canvas id="editor-canvas"></canvas>
+                <div id="num-input-popup">
+                    <input type="number" id="note-value-input" placeholder="打数">
+                </div>
+
+                <!-- テンプレートパネル -->
+                <div id="template-panel">
+                    <div class="template-section">
+                        <h4>2打 (2 Hits)</h4>
+                        <div class="template-grid">
+                            <button class="tool-btn tpl-btn" data-key="tpl_dd">🔴🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kk">🔵🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_dk">🔴🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kd">🔵🔴</button>
+                        </div>
+                    </div>
+
+                    <div class="template-section">
+                        <h4>3打 (3 Hits)</h4>
+                        <div class="template-grid">
+                            <button class="tool-btn tpl-btn" data-key="tpl_ddd">🔴🔴🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkk">🔵🔵🔵</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_ddk">🔴🔴🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkd">🔵🔵🔴</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkk">🔴🔵🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kdd">🔵🔴🔴</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkd">🔴🔵🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kdk">🔵🔴🔵</button>
+                        </div>
+                    </div>
+
+                    <div class="template-section">
+                        <h4>4打 (4 Hits)</h4>
+                        <div class="template-grid">
+                            <button class="tool-btn tpl-btn" data-key="tpl_dddd">🔴🔴🔴🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkkk">🔵🔵🔵🔵</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_dddk">🔴🔴🔴🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkkd">🔵🔵🔵🔴</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_ddkk">🔴🔴🔵🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkdd">🔵🔵🔴🔴</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_ddkd">🔴🔴🔵🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkdk">🔵🔵🔴🔵</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkkk">🔴🔵🔵🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kddd">🔵🔴🔴🔴</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkkd">🔴🔵🔵🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kddk">🔵🔴🔴🔵</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkdd">🔴🔵🔴🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kdkk">🔵🔴🔵🔵</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkdk">🔴🔵🔴🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kdkd">🔵🔴🔵🔴</button>
+                        </div>
+                    </div>
+
+                    <div class="template-section">
+                        <h4>5打 (5 Hits)</h4>
+                        <div class="template-grid" style="grid-template-columns: repeat(4, 1fr);">
+                            <button class="tool-btn tpl-btn" data-key="tpl_ddddd">🔴🔴🔴🔴🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkddd">🔴🔵🔴🔴🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kdddd">🔵🔴🔴🔴🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkddd">🔵🔵🔴🔴🔴</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_ddddk">🔴🔴🔴🔴🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkddk">🔴🔵🔴🔴🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kdddk">🔵🔴🔴🔴🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkddk">🔵🔵🔴🔴🔵</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_dddkd">🔴🔴🔴🔵🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkdkd">🔴🔵🔴🔵🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kddkd">🔵🔴🔴🔵🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkdkd">🔵🔵🔴🔵🔴</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_dddkk">🔴🔴🔴🔵🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkdkk">🔴🔵🔴🔵🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kddkk">🔵🔴🔴🔵🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkdkk">🔵🔵🔴🔵🔵</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_ddkdd">🔴🔴🔵🔴🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkkdd">🔴🔵🔵🔴🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kdkdd">🔵🔴🔵🔴🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkkdd">🔵🔵🔵🔴🔴</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_ddkdk">🔴🔴🔵🔴🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkkdk">🔴🔵🔵🔴🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kdkdk">🔵🔴🔵🔴🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkkdk">🔵🔵🔵🔴🔵</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_ddkkd">🔴🔴🔵🔵🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkkkd">🔴🔵🔵🔵🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kdkkd">🔵🔴🔵🔵🔴</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkkkd">🔵🔵🔵🔵🔴</button>
+
+                            <button class="tool-btn tpl-btn" data-key="tpl_ddkkk">🔴🔴🔵🔵🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_dkkkk">🔴🔵🔵🔵🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kdkkk">🔵🔴🔵🔵🔵</button>
+                            <button class="tool-btn tpl-btn" data-key="tpl_kkkkk">🔵🔵🔵🔵🔵</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="tool-group">
+            <button class="tool-btn active-tool" data-key="1">ドン(j/f)</button>
+            <button class="tool-btn" data-key="2">カッ(k/d)</button>
+            <button class="tool-btn" data-key="3">大ドン(3)</button>
+            <button class="tool-btn" data-key="4">大カッ(4)</button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" data-key="5">連打(5/r)</button>
+            <button class="tool-btn" data-key="6">大連打(6)</button>
+            <button class="tool-btn" data-key="7">風船(7)</button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" data-key="0">休符/削除(0)</button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn btn-continuous" id="btn-continuous" title="ショートカットキーで配置後、自動で1マス進みます">🔄
+                連続配置(C)</button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn btn-import" id="btn-import-tja" style="background:#2c3e50;">📄 TJA読込</button>
+            <button class="tool-btn btn-import" id="btn-import-audio">🎵 音源読込</button>
+            <button class="tool-btn btn-play" id="btn-play">▶ 再生 (Space)</button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn btn-gimmick" id="btn-gimmick">⚙ ギミック設定</button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" id="btn-tja-preview">TJAプレビュー</button>
+            <button class="tool-btn" id="btn-export">TJA出力</button>
+        </div>
+        <input type="file" id="audio-file-input" accept="audio/*" style="display:none;">
+        <input type="file" id="tja-file-input" accept=".tja,.txt" style="display:none;">
+    </footer>
+
+    <!-- ギミック設定モーダル -->
+    <div id="gimmick-overlay" class="tja-overlay">
+        <div class="gimmick-modal">
+            <div class="gimmick-header">
+                <h3>⚙ ギミック設定</h3>
+                <div class="gimmick-target-container">
+                    <label>対象小節:</label>
+                    <input type="number" id="gimmick-target-start" min="1" step="0.1" placeholder="開始">
+                    <span>〜</span>
+                    <input type="number" id="gimmick-target-end" min="1" step="0.1" placeholder="終了">
+                </div>
+                <button class="tja-action-btn tja-close" id="gimmick-close">✕</button>
+            </div>
+            <div class="gimmick-body">
+                <div class="gimmick-section">
+                    <h4>🎵 BPM変化</h4>
+                    <div class="gimmick-row">
+                        <label><input type="checkbox" id="gimmick-bpm-enable"> BPMを変更する</label>
+                    </div>
+                    <div class="gimmick-row">
+                        <input type="number" id="gimmick-bpm-val" step="0.01" placeholder="BPM値 (例: 120)" disabled>
+                    </div>
+                </div>
+
+                <div class="gimmick-section">
+                    <h4>📐 拍子・音符分割</h4>
+                    <div class="gimmick-row">
+                        <label>拍子:</label>
+                        <div style="display:flex; align-items:center; gap:5px; flex:1;">
+                            <input type="number" id="gimmick-sig-num" min="1" max="16" value="4">
+                            <span>/</span>
+                            <input type="number" id="gimmick-sig-den" min="1" max="16" value="4">
+                        </div>
+                    </div>
+                    <div class="gimmick-row">
+                        <label>分割:</label>
+                        <div style="display:flex; gap:5px; flex:1;">
+                            <select id="gimmick-subdivision-preset">
+                                <option value="2">2分</option>
+                                <option value="4">4分</option>
+                                <option value="8">8分</option>
+                                <option value="12">12分</option>
+                                <option value="16" selected>16分</option>
+                                <option value="20">20分</option>
+                                <option value="24">24分</option>
+                                <option value="32">32分</option>
+                                <option value="48">48分</option>
+                            </select>
+                            <input type="number" id="gimmick-subdivision" value="16" min="1" max="192" title="任意の数値を手入力">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gimmick-section">
+                    <h4>🏎 スクロール速度 (HS)</h4>
+                    <div class="gimmick-row">
+                        <label><input type="checkbox" id="gimmick-scroll-enable"> HSを変更する</label>
+                    </div>
+                    <div class="gimmick-row">
+                        <input type="number" id="gimmick-scroll-val" step="0.1" placeholder="倍率 (例: 1.2)" disabled>
+                    </div>
+                </div>
+
+                <div class="gimmick-section">
+                    <h4>🔥 ゴーゴータイム</h4>
+                    <div class="gimmick-row">
+                        <label><input type="checkbox" id="gimmick-gogo-start"> 開始点でGO!</label>
+                    </div>
+                    <div class="gimmick-row">
+                        <label><input type="checkbox" id="gimmick-gogo-end"> 終了点でEND</label>
+                    </div>
+                </div>
+            </div>
+            <div class="gimmick-footer">
+                <button class="gimmick-apply-btn" id="gimmick-apply">✅ 適用</button>
+                <button class="gimmick-reset-btn" id="gimmick-reset">🗑 リセット</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TJAプレビューモーダル -->
+    <div id="tja-preview-overlay" class="tja-overlay">
+        <div class="tja-modal">
+            <div class="tja-modal-header">
+                <h3>TJAプレビュー</h3>
+                <div class="tja-modal-actions">
+                    <button id="tja-copy-btn" class="tja-action-btn">📋 コピー</button>
+                    <button id="tja-download-btn" class="tja-action-btn">💾 ダウンロード</button>
+                    <button id="tja-close-btn" class="tja-action-btn tja-close">✕ 閉じる</button>
+                </div>
+            </div>
+            <pre id="tja-preview-content" class="tja-content"></pre>
+        </div>
+    </div>
+
+    <!-- TJA出力ポップアップ -->
+    <div id="tja-export-overlay" class="tja-overlay">
+        <div class="tja-export-modal">
+            <h3>📄 TJA出力</h3>
+            <p>ファイル形式を選択してください</p>
+            <div class="export-btn-group">
+                <button class="export-format-btn" id="export-tja">.tja（太鼓シミュレーター用）</button>
+                <button class="export-format-btn" id="export-txt">.txt（テキストファイル）</button>
+            </div>
+            <button class="tja-action-btn tja-close" id="export-cancel">キャンセル</button>
+        </div>
+    </div>
+
+    <!-- 数値入力ポップアップ (風船の打数など) -->
+    <div id="num-input-popup" style="display:none; position:fixed; background:#2c3e50; border:1px solid #3498db; padding:10px; border-radius:8px; z-index:2000; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+        <label style="color:#bdc3c7; font-size:11px; display:block; margin-bottom:5px; font-weight:bold;">打数入力:</label>
+        <input type="number" id="note-value-input" style="width:80px; padding:8px; background:#1a1a2e; color:#fff; border:1px solid #34495e; border-radius:4px; font-size:16px;">
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
