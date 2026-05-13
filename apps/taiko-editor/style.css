@@ -682,6 +682,110 @@ canvas {
     transition: all 0.2s;
 }
 
+/* モバイルメニューボタン (通常は非表示) */
+.mobile-menu-btn {
+    display: none;
+    background: #2c3e50;
+    border: 1px solid #34495e;
+    color: white;
+    font-size: 24px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mobile-menu-btn:hover {
+    background: #34495e;
+}
+
+/* ========== レスポンシブ対応 (Mobile) ========== */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .header {
+        padding: 8px 10px;
+    }
+
+    .header-left {
+        gap: 10px;
+        overflow-x: auto;
+        white-space: nowrap;
+        flex: 1;
+        padding-bottom: 4px; /* スクロールバー用の微調整 */
+    }
+
+    .course-tabs {
+        display: flex; /* 非表示を解除 */
+        gap: 6px;
+    }
+
+    .tab {
+        padding: 6px 12px;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .branch-btn {
+        padding: 6px 12px;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .status-bar {
+        font-size: 13px;
+        gap: 5px;
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+    }
+
+    /* サイドバーをモバイルではオーバーレイ形式に */
+    .sidebar {
+        position: absolute;
+        top: 0;
+        left: -320px; /* 初期値は隠す */
+        height: 100%;
+        z-index: 1001;
+        transition: left 0.3s ease;
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+        width: 300px;
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    .resizer {
+        display: none; /* モバイルではリサイズ無効 */
+    }
+
+    /* フッターの調整 */
+    .footer {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .tool-group {
+        padding: 4px;
+        gap: 5px;
+        border-right: none;
+    }
+
+    .tool-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    /* テンプレートパネルをモバイルでは非表示か縮小 */
+    #template-panel {
+        display: none;
+    }
+}
+
 .gimmick-apply-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);

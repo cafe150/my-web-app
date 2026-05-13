@@ -31,7 +31,14 @@ const state = {
     selectEndX: 0,
     selectedNotes: [],
     // 最後にアクティブだった小節番号
-    lastActiveMeasureIdx: 0
+    lastActiveMeasureIdx: 0,
+    // タッチ操作用
+    touchStartX: 0,
+    touchStartY: 0,
+    touchStartScrollX: 0,
+    touchStartTime: 0,
+    isTouchScrolling: false,
+    lastPinchDist: 0
 };
 
 // --- 2. データ構造 (DataManager) ---
@@ -103,8 +110,21 @@ const JUDGE_X = 150;
 const LANE_Y = 100;
 
 function resizeCanvas() {
-    canvas.width = wrapper.clientWidth;
-    canvas.height = wrapper.clientHeight;
+    const dpr = window.devicePixelRatio || 1;
+    const w = wrapper.clientWidth;
+    const h = wrapper.clientHeight;
+
+    // キャンバスの描画バッファを高解像度に
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+
+    // CSS上のサイズはコンテナに合わせる
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+
+    // 描画コンテキストをスケーリング（以降の描画命令はそのまま使える）
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
     draw();
 }
 window.addEventListener('resize', resizeCanvas);
@@ -154,7 +174,7 @@ function ensureEnoughMeasures() {
     for (const m of measures) {
         totalWidth += (m.signature[0] / m.signature[1]) * 4 * state.basePxPerBeat * state.zoomLevel;
     }
-    const visibleRightEdge = state.scrollX + canvas.width;
+    const visibleRightEdge = state.scrollX + wrapper.clientWidth;
     while (totalWidth < visibleRightEdge + 1000) {
         const newMeasure = createEmptyMeasure();
         measures.push(newMeasure);
@@ -193,13 +213,15 @@ function updateStatusBar() {
 function draw() {
     autoSave();
     ensureEnoughMeasures();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cw = wrapper.clientWidth;
+    const ch = wrapper.clientHeight;
+    ctx.clearRect(0, 0, cw, ch);
     ctx.fillStyle = "#111";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, cw, ch);
 
     // レーン背景
     ctx.fillStyle = "#333";
-    ctx.fillRect(0, LANE_Y - 40, canvas.width, 80);
+    ctx.fillRect(0, LANE_Y - 40, cw, 80);
 
     // 波形表示
     drawWaveform();
@@ -455,8 +477,24 @@ function getSnapPosition(mouseX, positions) {
 
 // --- 5. 操作系 (InputManager) ---
 const sidebar = document.getElementById('sidebar');
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
 const resizer = document.getElementById('sidebar-resizer');
 let isResizing = false;
+
+// モバイルメニューの開閉
+mobileMenuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sidebar.classList.toggle('open');
+});
+
+// 画面のどこかをクリックした時にサイドバーを閉じる（モバイル用）
+window.addEventListener('mousedown', (e) => {
+    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+        if (!sidebar.contains(e.target) && e.target !== mobileMenuBtn) {
+            sidebar.classList.remove('open');
+        }
+    }
+});
 
 // ツール・入力モードの管理
 let currentTool = "1";
@@ -682,6 +720,118 @@ wrapper.addEventListener('wheel', (e) => {
     draw();
     updateStatusBar();
 });
+
+// --- タッチ操作対応 ---
+const TOUCH_TAP_THRESHOLD = 10;   // タップ判定の移動量しきい値(px)
+const TOUCH_TAP_DURATION = 300;   // タップ判定の最大時間(ms)
+
+wrapper.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+        // ピンチ開始
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        state.lastPinchDist = Math.sqrt(dx * dx + dy * dy);
+        e.preventDefault();
+        return;
+    }
+
+    const touch = e.touches[0];
+    const rect = wrapper.getBoundingClientRect();
+
+    state.touchStartX = touch.clientX;
+    state.touchStartY = touch.clientY;
+    state.touchStartScrollX = state.scrollX;
+    state.touchStartTime = Date.now();
+    state.isTouchScrolling = false;
+    state.isInsideCanvas = true;
+
+    // カーソル位置を更新
+    state.cursorX = touch.clientX - rect.left;
+    state.cursorY = touch.clientY - rect.top;
+}, { passive: false });
+
+wrapper.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+        // ピンチズーム
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (state.lastPinchDist > 0) {
+            const scale = dist / state.lastPinchDist;
+            state.zoomLevel *= scale;
+            state.zoomLevel = Math.max(0.5, Math.min(3.0, state.zoomLevel));
+        }
+        state.lastPinchDist = dist;
+        draw();
+        updateStatusBar();
+        return;
+    }
+
+    const touch = e.touches[0];
+    const dx = touch.clientX - state.touchStartX;
+    const dy = touch.clientY - state.touchStartY;
+
+    // 一定以上動いたらスクロールとみなす
+    if (!state.isTouchScrolling && (Math.abs(dx) > TOUCH_TAP_THRESHOLD || Math.abs(dy) > TOUCH_TAP_THRESHOLD)) {
+        state.isTouchScrolling = true;
+    }
+
+    if (state.isTouchScrolling) {
+        e.preventDefault();
+        state.scrollX = state.touchStartScrollX - dx;
+        state.scrollX = Math.max(0, state.scrollX);
+
+        const rect = wrapper.getBoundingClientRect();
+        state.cursorX = touch.clientX - rect.left;
+        state.cursorY = touch.clientY - rect.top;
+
+        draw();
+        updateStatusBar();
+    }
+}, { passive: false });
+
+wrapper.addEventListener('touchend', (e) => {
+    if (e.touches.length > 0) {
+        // まだ指が残っている場合（ピンチ解除中など）
+        state.lastPinchDist = 0;
+        return;
+    }
+    state.lastPinchDist = 0;
+
+    const elapsed = Date.now() - state.touchStartTime;
+
+    // スクロールしていなくて短いタップだった場合 → 音符配置
+    if (!state.isTouchScrolling && elapsed < TOUCH_TAP_DURATION) {
+        // レーン付近でなければ無視
+        if (Math.abs(state.cursorY - LANE_Y) > 80) return;
+
+        if (state.mode === "NUM_INPUT") {
+            cancelNumberInput();
+        } else if (state.mode === "ROLL_END") {
+            placeNoteData("8");
+            state.mode = "NOTE";
+        } else if (currentTool === '7' || currentTool === '9') {
+            startNumberInput(currentTool);
+        } else if (currentTool && currentTool.startsWith('tpl_')) {
+            placeTemplate(currentTool);
+        } else if (currentTool) {
+            placeNoteData(currentTool);
+        }
+
+        draw();
+        updateStatusBar();
+    }
+
+    state.isTouchScrolling = false;
+});
+
+// キャンバスのデフォルトのタッチスクロールを無効化（ページ全体が動くのを防ぐ）
+wrapper.addEventListener('touchmove', (e) => {
+    if (e.target === canvas) {
+        e.preventDefault();
+    }
+}, { passive: false });
 
 window.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
