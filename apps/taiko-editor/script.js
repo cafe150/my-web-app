@@ -1,4 +1,14 @@
-// ========== JavaScript: ロジックと描画 ==========
+// 音符タイプごとの共通設定
+const NOTE_CONFIG = {
+    "1": { color: "#e74c3c", isLarge: false }, // ドン
+    "2": { color: "#3498db", isLarge: false }, // カッ
+    "3": { color: "#e74c3c", isLarge: true },  // 大ドン
+    "4": { color: "#3498db", isLarge: true },  // 大カッ
+    "5": { color: "#f1c40f", isLarge: false }, // 連打
+    "6": { color: "#f1c40f", isLarge: true },  // 大連打
+    "7": { color: "#e67e22", isLarge: false }, // 風船
+    "9": { color: "#e67e22", isLarge: true }   // くすだま
+};
 
 // --- 1. 状態管理 (State) ---
 const state = {
@@ -38,7 +48,11 @@ const state = {
     touchStartScrollX: 0,
     touchStartTime: 0,
     isTouchScrolling: false,
-    lastPinchDist: 0
+    lastPinchDist: 0,
+    // 右サイドバー関連
+    rightSidebarTab: "visual",
+    isRightSidebarCollapsed: false,
+    rightSidebarWidth: "300px"
 };
 
 // --- 2. データ構造 (DataManager) ---
@@ -143,19 +157,21 @@ function calculateMeasurePositions(courseMeasures) {
 
 // 連打の「長い棒」を描画する関数
 function drawRollBar(startX, endX, type, isPreview = false) {
-    if (startX > endX) return; // カーソルが開始位置より左にある場合は描画しない
+    if (startX > endX) return;
 
-    const height = (type === "6" || type === "9") ? 40 : 26; // 大連打は太くする
+    const conf = NOTE_CONFIG[type];
+    const height = (conf && conf.isLarge) ? 40 : 26;
     const y = LANE_Y - height / 2;
     const width = endX - startX;
 
-    // 塗りつぶし（プレビュー時は半透明）
-    if (type === "7" || type === "9") {
-        ctx.fillStyle = isPreview ? "rgba(230, 126, 34, 0.4)" : "#e67e22"; // 風船はオレンジ
-    } else {
-        ctx.fillStyle = isPreview ? "rgba(241, 196, 15, 0.4)" : "#f1c40f"; // 連打は黄色
+    const baseColor = conf ? conf.color : "#f1c40f";
+    ctx.save();
+    if (isPreview) {
+        ctx.globalAlpha = 0.4;
     }
+    ctx.fillStyle = baseColor;
     ctx.fillRect(startX, y, width, height);
+    ctx.restore();
 
     // 上下の枠線
     ctx.strokeStyle = isPreview ? "rgba(255, 255, 255, 0.4)" : "#fff";
@@ -262,7 +278,7 @@ function draw() {
     let isInGogo = false;
     positions.forEach((pos, mIdx) => {
         const drawX = JUDGE_X + pos.startX - state.scrollX;
-        
+
         // 画面外でもゴーゴー状態を追跡
         if (drawX + pos.width < 0 || drawX > wrapper.clientWidth) {
             if (pos.measure.gogoStart !== false) isInGogo = true;
@@ -272,10 +288,10 @@ function draw() {
 
         // ゴーゴータイム中のレーン背景ハイライト
         if (pos.measure.gogoStart !== false) isInGogo = true;
-        
+
         let highlightStartX = drawX;
         let highlightWidth = pos.width;
-        
+
         if (pos.measure.gogoStart !== false) {
             highlightStartX = drawX + (pos.width * pos.measure.gogoStart);
             highlightWidth = pos.width - (pos.width * pos.measure.gogoStart);
@@ -291,7 +307,7 @@ function draw() {
                 ctx.fillRect(highlightStartX, LANE_Y - 50, highlightWidth, 100);
             }
         }
-        
+
         if (pos.measure.gogoEnd !== false) isInGogo = false;
 
         const gridSpacing = pos.width / pos.measure.subdivision;
@@ -392,19 +408,17 @@ function draw() {
         ctx.lineWidth = 1;
         ctx.strokeRect(drawStartX, LANE_Y - 50, drawWidth, 100);
     }
+    updateRightSidebarPreview();
 }
 
 function drawNote(x, y, type, val, isSelected = false) {
-    if (type === "8") return; // 連打の終点(8)は丸としては描画しない（棒のみ）
+    if (type === "8") return;
 
-    let radius = 20;
-    let color = "#000";
-    if (["3", "4", "6"].includes(type)) radius = 30;
+    const conf = NOTE_CONFIG[type];
+    if (!conf) return;
 
-    if (type === "1" || type === "3") color = "#e74c3c";
-    if (type === "2" || type === "4") color = "#3498db";
-    if (type === "5" || type === "6") color = "#f1c40f";
-    if (type === "7" || type === "9") color = "#e67e22";
+    const radius = conf.isLarge ? 30 : 20;
+    const color = conf.color;
 
     // 選択状態のハイライト
     if (isSelected) {
@@ -580,9 +594,97 @@ document.querySelectorAll('.branch-btn').forEach(btn => {
     });
 });
 
+// --- 右サイドバー関連の操作ロジック ---
+const rightSidebar = document.getElementById('right-sidebar');
+const rightResizer = document.getElementById('right-sidebar-resizer');
+const rightSidebarToggle = document.getElementById('right-sidebar-toggle');
+const rightSidebarOpenBtn = document.getElementById('right-sidebar-open-btn');
+let isRightResizing = false;
+
+// タブ切り替え
+document.querySelectorAll('.right-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        if (!tab || tab === state.rightSidebarTab) return;
+
+        state.rightSidebarTab = tab;
+
+        // ボタンのアクティブ切り替え
+        document.querySelectorAll('.right-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // コンテンツのアクティブ切り替え
+        document.querySelectorAll('.right-tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`right-tab-${tab}`).classList.add('active');
+
+        // プレビューの更新
+        updateRightSidebarPreview();
+    });
+});
+
+// サイドバーを閉じる
+function closeRightSidebar() {
+    state.isRightSidebarCollapsed = true;
+
+    // 現在の幅を記憶 (0pxでなければ)
+    if (rightSidebar.style.width && rightSidebar.style.width !== '0px') {
+        state.rightSidebarWidth = rightSidebar.style.width;
+    }
+
+    rightSidebar.style.width = '0px';
+    rightSidebar.style.minWidth = '0px';
+    rightSidebar.classList.add('collapsed');
+
+    rightResizer.style.display = 'none';
+    rightSidebarOpenBtn.style.display = 'block';
+
+    // モバイル用
+    rightSidebar.classList.remove('open');
+
+    // リサイズと再描画
+    setTimeout(() => {
+        resizeCanvas();
+    }, 300);
+}
+
+// サイドバーを開く
+function openRightSidebar() {
+    state.isRightSidebarCollapsed = false;
+    rightSidebar.classList.remove('collapsed');
+
+    // 記憶した幅を復元
+    rightSidebar.style.width = state.rightSidebarWidth || '300px';
+    rightSidebar.style.minWidth = '200px';
+
+    rightResizer.style.display = 'block';
+    rightSidebarOpenBtn.style.display = 'none';
+
+    // モバイル用
+    if (window.innerWidth <= 768) {
+        rightSidebar.classList.add('open');
+        rightSidebar.style.width = '';
+    }
+
+    // リサイズと再描画
+    setTimeout(() => {
+        resizeCanvas();
+        updateRightSidebarPreview();
+    }, 300);
+}
+
+rightSidebarToggle.addEventListener('click', closeRightSidebar);
+rightSidebarOpenBtn.addEventListener('click', openRightSidebar);
+
+// リサイズドラッグ
 resizer.addEventListener('mousedown', (e) => {
     isResizing = true;
     resizer.classList.add('active');
+    document.body.style.cursor = 'col-resize';
+});
+
+rightResizer.addEventListener('mousedown', (e) => {
+    isRightResizing = true;
+    rightResizer.classList.add('active');
     document.body.style.cursor = 'col-resize';
 });
 
@@ -595,12 +697,28 @@ window.addEventListener('mousemove', (e) => {
         }
         return;
     }
+    if (isRightResizing) {
+        const newWidth = window.innerWidth - e.clientX;
+        if (newWidth > 150 && newWidth < window.innerWidth / 2) {
+            rightSidebar.style.width = newWidth + 'px';
+            rightSidebar.style.minWidth = newWidth + 'px';
+            state.rightSidebarWidth = newWidth + 'px';
+            resizeCanvas();
+        }
+        return;
+    }
 });
 
 window.addEventListener('mouseup', (e) => {
     if (isResizing) {
         isResizing = false;
         resizer.classList.remove('active');
+        document.body.style.cursor = 'default';
+        resizeCanvas();
+    }
+    if (isRightResizing) {
+        isRightResizing = false;
+        rightResizer.classList.remove('active');
         document.body.style.cursor = 'default';
         resizeCanvas();
     }
@@ -863,14 +981,25 @@ window.addEventListener('keydown', (e) => {
     let insertType = null;
     let isShortcut = false;
 
-    // 数字キーによる直接入力とモード切り替え（ツール選択のみ）
-    if (key === '1') { insertType = "1"; state.mode = "NOTE"; state.size = "SMALL"; }
-    else if (key === '2') { insertType = "2"; state.mode = "NOTE"; state.size = "SMALL"; }
-    else if (key === '3') { insertType = "3"; state.mode = "NOTE"; state.size = "LARGE"; }
-    else if (key === '4') { insertType = "4"; state.mode = "NOTE"; state.size = "LARGE"; }
-    else if (key === '5') { insertType = "5"; state.mode = "ROLL"; state.size = "SMALL"; }
-    else if (key === '6') { insertType = "6"; state.mode = "ROLL"; state.size = "LARGE"; }
-    else if (key === '7' || key === '9') { setActiveTool(key); state.mode = "NOTE"; }
+    // 数字キーによる直接入力とモード切り替え
+    const KEY_TOOL_MAP = {
+        '1': { type: '1', mode: 'NOTE', size: 'SMALL' },
+        '2': { type: '2', mode: 'NOTE', size: 'SMALL' },
+        '3': { type: '3', mode: 'NOTE', size: 'LARGE' },
+        '4': { type: '4', mode: 'NOTE', size: 'LARGE' },
+        '5': { type: '5', mode: 'ROLL', size: 'SMALL' },
+        '6': { type: '6', mode: 'ROLL', size: 'LARGE' }
+    };
+
+    if (KEY_TOOL_MAP[key]) {
+        const conf = KEY_TOOL_MAP[key];
+        insertType = conf.type;
+        state.mode = conf.mode;
+        state.size = conf.size;
+    } else if (key === '7' || key === '9') {
+        setActiveTool(key);
+        state.mode = "NOTE";
+    }
 
     // カスタムショートカットの判定 (配置アクション)
     if (!insertType) {
@@ -1276,7 +1405,7 @@ let gimmickTargetMeasureIdx = -1;
 function updateGimmickPanelFields() {
     const startVal = parseFloat(document.getElementById('gimmick-target-start').value);
     const startIdx = Math.max(0, Math.floor(startVal) - 1);
-    
+
     if (isNaN(startIdx)) return;
 
     const measures = songData.courses[state.currentCourse];
@@ -1539,10 +1668,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.getElementById('cfg-demostart')) document.getElementById('cfg-demostart').value = songData.header.demostart || "";
     }
 
-    // 入力欄が変更されたら即座に保存予約
-    ['cfg-title', 'cfg-subtitle', 'cfg-bpm', 'cfg-offset', 'cfg-wave', 'cfg-demostart'].forEach(id => {
+    // 入力欄が変更されたら即座に保存予約とプレビュー更新
+    const inputElements = [
+        'cfg-title', 'cfg-subtitle', 'cfg-bpm', 'cfg-offset', 'cfg-wave', 'cfg-demostart',
+        'cfg-songvol', 'cfg-sevol', 'cfg-scoremode',
+        'cfg-level-ura', 'cfg-level-oni', 'cfg-level-hard', 'cfg-level-normal', 'cfg-level-easy'
+    ];
+    inputElements.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.addEventListener('input', autoSave);
+        if (el) {
+            el.addEventListener('input', () => {
+                autoSave();
+                if (['cfg-bpm', 'cfg-offset'].includes(id)) {
+                    draw(); // BPMやOFFSETが変わったら波形のズレやグリッド線を引き直す
+                } else {
+                    updateRightSidebarPreview();
+                }
+            });
+        }
     });
 
     draw();
@@ -1629,27 +1772,23 @@ function generateCourseTja(courseName, measures, level) {
     return lines.join("\n");
 }
 
-// 全難易度分の完全なTJAテキストを生成する
-function generateFullTja() {
-    // サイドバーから最新の値を読み取る
-    const title = document.getElementById('cfg-title').value || "New Song";
-    const subtitle = document.getElementById('cfg-subtitle').value;
-    const wave = document.getElementById('cfg-wave').value;
-    const bpm = document.getElementById('cfg-bpm').value || "120";
-    const offset = document.getElementById('cfg-offset').value || "0";
-    const demostart = document.getElementById('cfg-demostart').value;
-    const songvol = document.getElementById('cfg-songvol').value;
-    const sevol = document.getElementById('cfg-sevol').value;
-    const scoremode = document.getElementById('cfg-scoremode').value;
+// TJAヘッダー情報をサイドバーから取得して生成する共通関数
+function generateTjaHeader() {
+    const getValue = (id, fallback = "") => {
+        const el = document.getElementById(id);
+        return el ? el.value : fallback;
+    };
+    const title = getValue('cfg-title', "New Song");
+    const subtitle = getValue('cfg-subtitle');
+    const wave = getValue('cfg-wave');
+    const bpm = getValue('cfg-bpm', "120");
+    const offset = getValue('cfg-offset', "0");
+    const demostart = getValue('cfg-demostart');
+    const songvol = getValue('cfg-songvol', "100");
+    const sevol = getValue('cfg-sevol', "100");
+    const scoremode = getValue('cfg-scoremode', "1");
 
-    const levelUra = document.getElementById('cfg-level-ura').value || "1";
-    const levelOni = document.getElementById('cfg-level-oni').value || "1";
-    const levelHard = document.getElementById('cfg-level-hard').value || "1";
-    const levelNormal = document.getElementById('cfg-level-normal').value || "1";
-    const levelEasy = document.getElementById('cfg-level-easy').value || "1";
-
-    const headerLines = [];
-    headerLines.push(`TITLE:${title}`);
+    const headerLines = [`TITLE:${title}`];
     if (subtitle) headerLines.push(`SUBTITLE:${subtitle}`);
     if (wave) headerLines.push(`WAVE:${wave}`);
     headerLines.push(`BPM:${bpm}`);
@@ -1660,7 +1799,19 @@ function generateFullTja() {
     headerLines.push(`SCOREMODE:${scoremode}`);
     headerLines.push("");
 
-    const levelMap = { Ura: levelUra, Oni: levelOni, Hard: levelHard, Normal: levelNormal, Easy: levelEasy };
+    return headerLines.join("\n");
+}
+
+// 全難易度分の完全なTJAテキストを生成する
+function generateFullTja() {
+    const header = generateTjaHeader();
+    const levelMap = {
+        Ura: document.getElementById('cfg-level-ura').value || "1",
+        Oni: document.getElementById('cfg-level-oni').value || "1",
+        Hard: document.getElementById('cfg-level-hard').value || "1",
+        Normal: document.getElementById('cfg-level-normal').value || "1",
+        Easy: document.getElementById('cfg-level-easy').value || "1"
+    };
     const courseOrder = ["Ura", "Oni", "Hard", "Normal", "Easy"];
     const courseBlocks = [];
 
@@ -1672,7 +1823,382 @@ function generateFullTja() {
         }
     });
 
-    return headerLines.join("\n") + courseBlocks.join("\n");
+    return header + courseBlocks.join("\n");
+}
+
+// 選択されている難易度のみのTJAテキストを生成する
+function generateActiveCourseTja() {
+    const header = generateTjaHeader();
+    const course = state.currentCourse;
+    const levelEl = document.getElementById(`cfg-level-${course.toLowerCase()}`);
+    const level = levelEl ? levelEl.value : "1";
+
+    const measures = songData.courses[course];
+    let courseBlock = "";
+    if (measures) {
+        courseBlock = generateCourseTja(course, measures, level);
+    }
+
+    return header + courseBlock;
+}
+
+// コピー＆ダウンロードの共通イベントバインド関数
+function setupTextActions(copyBtnId, downloadBtnId, textGetter, filenameGetter) {
+    const copyBtn = document.getElementById(copyBtnId);
+    const downloadBtn = document.getElementById(downloadBtnId);
+
+    if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+            const text = textGetter();
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = copyBtn.textContent;
+                copyBtn.textContent = "✅ コピー完了!";
+                setTimeout(() => copyBtn.textContent = orig, 1500);
+            });
+        });
+    }
+
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', () => {
+            const text = textGetter();
+            const filename = filenameGetter();
+            const blob = new Blob([text], { type: 'text/plain; charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    }
+}
+
+// コピー・ダウンロードのアクション設定
+setupTextActions(
+    'right-tja-copy-btn',
+    'right-tja-download-btn',
+    () => document.getElementById('right-tja-preview-content').textContent,
+    () => {
+        const title = document.getElementById('cfg-title').value || "New Song";
+        return `${title}_${state.currentCourse}.tja`;
+    }
+);
+
+// 右サイドバーのプレビューを更新する関数
+function updateRightSidebarPreview() {
+    if (state.isRightSidebarCollapsed) return;
+
+    if (state.rightSidebarTab === "visual") {
+        drawVisualPreview();
+    } else if (state.rightSidebarTab === "text") {
+        const textContent = document.getElementById('right-tja-preview-content');
+        if (textContent) {
+            textContent.textContent = generateActiveCourseTja();
+        }
+    }
+}
+
+// すべてのデータを初期状態にリセットする関数
+function resetAllData() {
+    // 1. ローカルストレージのデータを削除
+    try {
+        localStorage.removeItem('taikoEditorData');
+    } catch (e) {
+        console.error("Failed to remove saved data from localStorage", e);
+    }
+
+    // 2. メモリ内の songData を初期化（defaultSongDataのディープコピー）
+    songData = JSON.parse(JSON.stringify(defaultSongData));
+
+    // 3. UI入力フォームの値をデフォルト値に戻す
+    const titleEl = document.getElementById('cfg-title');
+    if (titleEl) titleEl.value = songData.header.title || "";
+    const subtitleEl = document.getElementById('cfg-subtitle');
+    if (subtitleEl) subtitleEl.value = songData.header.subtitle || "";
+    const bpmEl = document.getElementById('cfg-bpm');
+    if (bpmEl) bpmEl.value = songData.header.bpm || 120;
+    const offsetEl = document.getElementById('cfg-offset');
+    if (offsetEl) offsetEl.value = songData.header.offset || 0;
+    const waveEl = document.getElementById('cfg-wave');
+    if (waveEl) waveEl.value = songData.header.wave || "";
+    const demostartEl = document.getElementById('cfg-demostart');
+    if (demostartEl) demostartEl.value = songData.header.demostart || "";
+
+    const songvolEl = document.getElementById('cfg-songvol');
+    if (songvolEl) songvolEl.value = 100;
+    const sevolEl = document.getElementById('cfg-sevol');
+    if (sevolEl) sevolEl.value = 100;
+    const scoremodeEl = document.getElementById('cfg-scoremode');
+    if (scoremodeEl) scoremodeEl.value = "1";
+
+    const levelUraEl = document.getElementById('cfg-level-ura');
+    if (levelUraEl) levelUraEl.value = 1;
+    const levelOniEl = document.getElementById('cfg-level-oni');
+    if (levelOniEl) levelOniEl.value = 1;
+    const levelHardEl = document.getElementById('cfg-level-hard');
+    if (levelHardEl) levelHardEl.value = 1;
+    const levelNormalEl = document.getElementById('cfg-level-normal');
+    if (levelNormalEl) levelNormalEl.value = 1;
+    const levelEasyEl = document.getElementById('cfg-level-easy');
+    if (levelEasyEl) levelEasyEl.value = 1;
+
+    // 4. 状態の初期化
+    state.scrollX = 0;
+    stopPlayback();
+    state.selectedNotes = [];
+    state.isSelecting = false;
+    state.audioBuffer = null;
+    state.waveformData = null;
+
+    // 音源読込ボタンの表示を戻す
+    const importAudioBtn = document.getElementById('btn-import-audio');
+    if (importAudioBtn) importAudioBtn.textContent = "🎵 音源読込";
+    const audioFileInput = document.getElementById('audio-file-input');
+    if (audioFileInput) audioFileInput.value = "";
+
+    // 5. 画面とプレビューの再描画
+    draw();
+    updateStatusBar();
+    updateRightSidebarPreview();
+}
+
+// データ削除ボタンのクリックイベント
+const clearDataBtn = document.getElementById('btn-clear-data');
+if (clearDataBtn) {
+    clearDataBtn.addEventListener('click', () => {
+        if (confirm("譜面データをすべて削除し、初期状態にリセットしますか？")) {
+            resetAllData();
+        }
+    });
+}
+
+// 全体プレビュー（ビジュアル）の描画ロジック
+// 全体プレビュー（ビジュアル）の描画ロジック (単一キャンバス版)
+function drawVisualPreview() {
+    const canvas = document.getElementById('visual-preview-canvas');
+    if (!canvas) return;
+
+    const course = state.currentCourse;
+    const branch = state.currentBranch;
+    const measures = songData.courses[course];
+    if (!measures) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.parentElement.clientWidth;
+    const measureHeight = 32;
+    const totalHeight = measures.length * measureHeight;
+
+    // イベントリスナーの一度限りの登録
+    if (!canvas.dataset.listenerAttached) {
+        canvas.dataset.listenerAttached = "true";
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            // クリックされたY座標（キャンバスサイズにスケーリング）
+            const clickY = (e.clientY - rect.top) * (canvas.clientHeight / rect.height);
+            const idx = Math.floor(clickY / measureHeight);
+
+            const activeCourse = state.currentCourse;
+            const activeMeasures = songData.courses[activeCourse];
+            if (activeMeasures && idx >= 0 && idx < activeMeasures.length) {
+                const positions = calculateMeasurePositions(activeMeasures);
+                if (positions[idx]) {
+                    state.scrollX = positions[idx].startX;
+                    draw();
+                    updateStatusBar();
+                }
+            }
+        });
+    }
+
+    // キャンバスサイズ設定
+    if (canvas.width !== w * dpr || canvas.height !== totalHeight * dpr) {
+        canvas.width = w * dpr;
+        canvas.height = totalHeight * dpr;
+        canvas.style.width = w + 'px';
+        canvas.style.height = totalHeight + 'px';
+    }
+
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, totalHeight);
+
+    // 背景
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, w, totalHeight);
+
+    let isInGogo = false;
+
+    measures.forEach((m, idx) => {
+        const yStart = idx * measureHeight;
+        const centerY = yStart + measureHeight / 2;
+
+        // レーン背景
+        ctx.fillStyle = '#222';
+        ctx.fillRect(30, yStart + 4, w - 30, measureHeight - 8);
+
+        // ゴーゴータイムのハイライト
+        if (m.gogoStart !== false) isInGogo = true;
+
+        let gogoStartX = 30;
+        let gogoEndX = w;
+        if (m.gogoStart !== false) {
+            gogoStartX = 30 + m.gogoStart * (w - 30);
+        }
+        if (m.gogoEnd !== false) {
+            gogoEndX = 30 + m.gogoEnd * (w - 30);
+        }
+
+        if (isInGogo || m.gogoStart !== false) {
+            ctx.fillStyle = 'rgba(243, 156, 18, 0.15)';
+            ctx.fillRect(gogoStartX, yStart + 4, gogoEndX - gogoStartX, measureHeight - 8);
+        }
+
+        if (m.gogoEnd !== false) isInGogo = false;
+
+        // 小節の区切り線（下横線）
+        ctx.strokeStyle = '#222';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, yStart + measureHeight - 1);
+        ctx.lineTo(w, yStart + measureHeight - 1);
+        ctx.stroke();
+
+        // 小節番号の描画
+        ctx.fillStyle = '#888';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(idx + 1, 15, centerY + 3);
+
+        const startX = 30; // 判定枠位置
+        const drawW = w - startX;
+
+        // 拍のグリッド線
+        const beats = m.signature[0];
+        const step = drawW / beats;
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 0.5;
+        for (let b = 1; b < beats; b++) {
+            const gx = startX + b * step;
+            ctx.beginPath();
+            ctx.moveTo(gx, yStart + 4);
+            ctx.lineTo(gx, yStart + measureHeight - 4);
+            ctx.stroke();
+        }
+
+        // 小節線（先頭の縦の白線）
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(startX, yStart + 4);
+        ctx.lineTo(startX, yStart + measureHeight - 4);
+        ctx.stroke();
+
+        // 判定枠の簡易表示
+        ctx.beginPath();
+        ctx.arc(startX, centerY, 4, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+
+        // ギミック（ゴーゴー、BPM、HS、拍子）の描画
+        let textOffset = 0;
+        ctx.font = '8px sans-serif';
+        ctx.textAlign = 'left';
+
+        // 拍子変化
+        if (m.signature[0] !== 4 || m.signature[1] !== 4) {
+            ctx.fillStyle = '#2ecc71';
+            ctx.fillText(`${m.signature[0]}/${m.signature[1]}`, startX + 2, yStart + 12 + textOffset);
+            textOffset += 8;
+        }
+
+        // BPM変化
+        if (m.bpmChange !== null) {
+            const markerX = startX + (m.bpmChangeOffset || 0) * drawW;
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillText(`♩${m.bpmChange}`, markerX + 2, yStart + 12 + textOffset);
+            textOffset += 8;
+        }
+
+        // HS（スクロール）変化
+        if (m.scroll !== null) {
+            const markerX = startX + (m.scrollOffset || 0) * drawW;
+            ctx.fillStyle = '#3498db';
+            ctx.fillText(`HS${m.scroll}`, markerX + 2, yStart + 12 + textOffset);
+            textOffset += 8;
+        }
+
+        // ゴーゴーマーカー
+        if (m.gogoStart !== false) {
+            const markerX = startX + m.gogoStart * drawW;
+            ctx.fillStyle = '#f39c12';
+            ctx.fillText('🔥', markerX + 2, yStart + 12 + textOffset);
+            textOffset += 8;
+        }
+        if (m.gogoEnd !== false) {
+            const markerX = startX + m.gogoEnd * drawW;
+            ctx.fillStyle = '#95a5a6';
+            ctx.fillText('⏹', markerX + 2, yStart + 12 + textOffset);
+        }
+
+        // 音符
+        const notes = m.notes[branch] || [];
+        const sortedNotes = [...notes].sort((a, b) => a.posIndex - b.posIndex);
+
+        let activeRollX = null;
+        let activeRollType = null;
+
+        sortedNotes.forEach(note => {
+            const noteX = startX + (note.posIndex / m.subdivision) * drawW;
+
+            if (['5', '6', '7', '9'].includes(note.type)) {
+                activeRollX = noteX;
+                activeRollType = note.type;
+            } else if (note.type === '8' && activeRollX !== null) {
+                drawMiniRollBar(ctx, activeRollX, noteX, centerY, activeRollType);
+                activeRollX = null;
+            } else if (activeRollX !== null) {
+                drawMiniRollBar(ctx, activeRollX, noteX, centerY, activeRollType);
+                activeRollX = null;
+            }
+
+            if (note.type !== '8') {
+                drawMiniNote(ctx, noteX, centerY, note.type);
+            }
+        });
+
+        if (activeRollX !== null) {
+            drawMiniRollBar(ctx, activeRollX, w, centerY, activeRollType);
+        }
+    });
+
+    ctx.restore();
+}
+
+function drawMiniRollBar(ctx, startX, endX, y, type) {
+    if (startX >= endX) return;
+    const height = ['6', '9'].includes(type) ? 8 : 5;
+    const conf = NOTE_CONFIG[type];
+    const color = conf ? conf.color : '#f1c40f';
+    ctx.fillStyle = color;
+    ctx.fillRect(startX, y - height / 2, endX - startX, height);
+}
+
+function drawMiniNote(ctx, x, y, type) {
+    const conf = NOTE_CONFIG[type];
+    if (!conf) return;
+
+    const radius = conf.isLarge ? 4.5 : 3;
+    const color = conf.color;
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
 }
 
 // --- 9. TJAプレビューモーダルの制御 ---
@@ -1861,7 +2387,7 @@ async function detectBPM(audioBuffer) {
         for (let i = 0; i < data.length; i++) {
             if (Math.abs(data[i]) > maxVal) maxVal = Math.abs(data[i]);
         }
-        
+
         // 閾値を設定してピーク位置（サンプルインデックス）を抽出
         const threshold = maxVal * 0.8;
         const peaks = [];
@@ -1881,11 +2407,11 @@ async function detectBPM(audioBuffer) {
         for (let i = 1; i < peaks.length; i++) {
             const interval = peaks[i] - peaks[i - 1];
             let tempo = Math.round(60 / (interval / audioBuffer.sampleRate));
-            
+
             // テンポが遅すぎる場合は倍取り（8分を4分と誤認した場合など）、早すぎる場合は半切り
-            while(tempo < 70) tempo *= 2;
-            while(tempo > 240) tempo /= 2;
-            
+            while (tempo < 70) tempo *= 2;
+            while (tempo > 240) tempo /= 2;
+
             tempo = Math.round(tempo);
             if (tempo >= 70 && tempo <= 240) {
                 intervals[tempo] = (intervals[tempo] || 0) + 1;
@@ -1902,7 +2428,7 @@ async function detectBPM(audioBuffer) {
         }
 
         return bestBpm;
-    } catch(e) {
+    } catch (e) {
         console.error("BPM detection failed:", e);
         return null;
     }
@@ -1981,7 +2507,7 @@ function startPlayback() {
     // 現在のスクロール位置から再生開始時間を計算
     // offsetがプラスなら曲は後から始まるため、スクロール位置から引く
     const currentTime = state.scrollX / pxPerSecond - offset;
-    
+
     let playDelay = 0;
     let audioStartTime = 0;
 
@@ -2100,7 +2626,7 @@ document.getElementById('tja-file-input').addEventListener('change', (e) => {
     reader.onload = (event) => {
         const text = event.target.result;
         parseTJA(text);
-        
+
         // 読み込み完了後にUIを更新
         document.getElementById('cfg-title').value = songData.header.title || "";
         document.getElementById('cfg-subtitle').value = songData.header.subtitle || "";
@@ -2126,7 +2652,7 @@ document.getElementById('tja-file-input').addEventListener('change', (e) => {
 
 function parseTJA(text) {
     const lines = text.split(/\r?\n/);
-    
+
     // 新しいsongDataの雛形を作成
     const newSongData = {
         header: { title: "New Song", subtitle: "", wave: "", bpm: 120, offset: 0, demostart: "" },
@@ -2154,7 +2680,7 @@ function parseTJA(text) {
     const finalizeMeasure = () => {
         const notesOnly = measureTokens.filter(t => t.type === 'note');
         let sub = notesOnly.length;
-        if (sub === 0) sub = 16; 
+        if (sub === 0) sub = 16;
         currentMeasure.subdivision = sub;
 
         let noteIdx = 0;
@@ -2214,7 +2740,7 @@ function parseTJA(text) {
             if (match) {
                 const key = match[1].toUpperCase();
                 const val = match[2].trim();
-                
+
                 if (key === 'TITLE') newSongData.header.title = val;
                 else if (key === 'SUBTITLE') newSongData.header.subtitle = val;
                 else if (key === 'BPM') newSongData.header.bpm = parseFloat(val) || 120;
@@ -2253,8 +2779,8 @@ function parseTJA(text) {
             currentBranch = 'normal';
             targetMeasureIdx = branchStartIdx;
             currentMeasure = createEmptyMeasure(); // リセット
-            if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx-1]) {
-                currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx-1].signature];
+            if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx - 1]) {
+                currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx - 1].signature];
             }
             return;
         } else if (line === '#E') {
@@ -2262,8 +2788,8 @@ function parseTJA(text) {
             currentBranch = 'expert';
             targetMeasureIdx = branchStartIdx;
             currentMeasure = createEmptyMeasure();
-            if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx-1]) {
-                currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx-1].signature];
+            if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx - 1]) {
+                currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx - 1].signature];
             }
             return;
         } else if (line === '#M') {
@@ -2271,8 +2797,8 @@ function parseTJA(text) {
             currentBranch = 'master';
             targetMeasureIdx = branchStartIdx;
             currentMeasure = createEmptyMeasure();
-            if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx-1]) {
-                currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx-1].signature];
+            if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx - 1]) {
+                currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx - 1].signature];
             }
             return;
         }
