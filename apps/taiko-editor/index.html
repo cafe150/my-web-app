@@ -247,6 +247,38 @@
 
             </div>
         </main>
+
+        <div class="resizer" id="right-sidebar-resizer"></div>
+        <aside class="right-sidebar" id="right-sidebar">
+            <div class="right-tab-header">
+                <div class="right-tab-buttons">
+                    <button class="right-tab-btn active" id="tab-btn-visual" data-tab="visual">設定</button>
+                    <button class="right-tab-btn" id="tab-btn-text" data-tab="text">TJAプレビュー</button>
+                </div>
+                <button class="right-sidebar-toggle" id="right-sidebar-toggle" title="サイドバーを閉じる">▶</button>
+            </div>
+            
+            <div class="right-tab-content active" id="right-tab-visual" style="padding: 0; overflow-y: auto; display: flex; flex-direction: column;">
+                <div class="settings-panel">
+                    <div class="settings-panel-title">⚙️ エディタ設定</div>
+                    <button id="btn-clear-data" class="tja-action-btn tja-close" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        🗑️ データ削除
+                    </button>
+                </div>
+                <div style="flex: 1; min-height: 0; overflow-y: auto;">
+                    <canvas id="visual-preview-canvas"></canvas>
+                </div>
+            </div>
+            
+            <div class="right-tab-content" id="right-tab-text">
+                <div class="right-tja-actions">
+                    <button id="right-tja-copy-btn" class="tja-action-btn">📋 コピー</button>
+                    <button id="right-tja-download-btn" class="tja-action-btn">💾 ダウンロード</button>
+                </div>
+                <pre id="right-tja-preview-content" class="right-tja-content"></pre>
+            </div>
+        </aside>
+        <button class="right-sidebar-open-btn" id="right-sidebar-open-btn" title="サイドバーを開く">◀</button>
     </div>
 
     <footer class="footer">
