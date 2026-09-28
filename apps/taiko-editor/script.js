@@ -42,6 +42,12 @@ const state = {
     selectRawStartX: 0,
     selectedMeasureRange: null, // { start: 0, end: 3 }
     selectedNotes: [],
+    // 左クリックスライド選択判定用
+    isLeftMouseDown: false,
+    mouseDownClientX: 0,
+    mouseDownClientY: 0,
+    mouseDownRawWorldX: 0,
+    mouseDownEvent: null,
     // 最後にアクティブだった小節番号
     lastActiveMeasureIdx: 0,
     // タッチ操作用
@@ -280,6 +286,31 @@ function getMeasureIndexAtWorldX(worldX, positions) {
     }
     if (worldX < positions[0].startX) return 0;
     return positions.length - 1;
+}
+
+// ワールドX座標を該当小節内の 1/4（四分の一・拍単位）境界へスナップする
+function snapWorldXToQuarterMeasure(worldX, positions, mode = 'round') {
+    if (!positions || positions.length === 0) return worldX;
+    if (worldX <= positions[0].startX) return positions[0].startX;
+    const lastPos = positions[positions.length - 1];
+    if (worldX >= lastPos.startX + lastPos.width) return lastPos.startX + lastPos.width;
+
+    const mIdx = getMeasureIndexAtWorldX(worldX, positions);
+    const pos = positions[mIdx];
+    const relX = worldX - pos.startX;
+    const step = pos.width / 4; // 1小節の1/4（四分の一）幅
+
+    let stepIdx;
+    if (mode === 'floor') {
+        stepIdx = Math.floor(relX / step);
+    } else if (mode === 'ceil') {
+        stepIdx = Math.ceil(relX / step);
+    } else {
+        stepIdx = Math.round(relX / step);
+    }
+
+    stepIdx = Math.max(0, Math.min(4, stepIdx));
+    return pos.startX + stepIdx * step;
 }
 
 // 連打の「長い棒」を描画する関数
@@ -675,26 +706,194 @@ let isDraggingRoll = false;
 let rollDragStartX = 0;
 let rollStartInfo = null; // 連打の開始位置 { measureIdx, gridIdx, type }
 
-// ショートカット管理
-let shortcuts = {
+// --- 全機能ショートカット管理 ---
+const SHORTCUTS_STORAGE_KEY = 'taikoEditorCustomShortcuts';
+
+const DEFAULT_SHORTCUTS = {
     don: ['j', 'f'],
     ka: ['k', 'd'],
-    roll: ['r'],
-    rollEnd: ['e', '8'],
-    del: ['0', 'backspace', 'delete', ' ', 'space']
+    bigDon: ['3'],
+    bigKa: ['4'],
+    roll: ['5', 'r'],
+    bigRoll: ['6'],
+    balloon: ['7'],
+    rollEnd: ['8', 'e'],
+    del: ['0', 'backspace', 'delete', 'space', ' '],
+    continuous: ['c'],
+    quickMeas: ['m', 's'],
+    gimmick: ['g'],
+    undo: ['ctrl+z'],
+    redo: ['ctrl+y'],
+    play: ['enter'],
+    prevMeas: ['arrowleft'],
+    nextMeas: ['arrowright'],
+    rewind: ['home'],
+    jumpEnd: ['end'],
+    guide: ['?', 'f1']
 };
 
-function updateShortcuts() {
-    shortcuts.don = document.getElementById('sc-don').value.split(',').map(s => s.trim().toLowerCase());
-    shortcuts.ka = document.getElementById('sc-ka').value.split(',').map(s => s.trim().toLowerCase());
-    shortcuts.roll = document.getElementById('sc-roll').value.split(',').map(s => s.trim().toLowerCase());
-    shortcuts.rollEnd = document.getElementById('sc-roll-end').value.split(',').map(s => s.trim().toLowerCase());
-    shortcuts.del = document.getElementById('sc-delete').value.split(',').map(s => s.trim().toLowerCase()).flatMap(s => s === 'space' ? ['space', ' '] : [s]);
+let shortcuts = JSON.parse(JSON.stringify(DEFAULT_SHORTCUTS));
+
+function loadShortcuts() {
+    try {
+        const saved = localStorage.getItem(SHORTCUTS_STORAGE_KEY);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            Object.keys(DEFAULT_SHORTCUTS).forEach(key => {
+                if (Array.isArray(parsed[key]) && parsed[key].length > 0) {
+                    shortcuts[key] = parsed[key].map(s => s.trim().toLowerCase());
+                }
+            });
+        }
+    } catch (e) {
+        console.warn("Failed to load shortcuts from localStorage", e);
+    }
 }
 
-document.querySelectorAll('#sidebar input[id^="sc-"]').forEach(el => {
-    el.addEventListener('change', updateShortcuts);
-});
+function saveShortcuts() {
+    try {
+        localStorage.setItem(SHORTCUTS_STORAGE_KEY, JSON.stringify(shortcuts));
+    } catch (e) {
+        console.warn("Failed to save shortcuts to localStorage", e);
+    }
+}
+
+// キー配列を表示用文字列（例: "J/F", "Space/0"）にフォーマット
+function formatShortcutKeys(keyArr) {
+    if (!keyArr || keyArr.length === 0) return '';
+    const seen = new Set();
+    const formatted = [];
+    keyArr.forEach(k => {
+        let display = k;
+        if (display === ' ' || display === 'space') display = 'Space';
+        else if (display === 'arrowleft') display = '←';
+        else if (display === 'arrowright') display = '→';
+        else if (display === 'enter') display = 'Enter';
+        else if (display === 'backspace') display = 'BS';
+        else if (display === 'delete') display = 'Del';
+        else if (display.length === 1) display = display.toUpperCase();
+        else if (display.startsWith('ctrl+')) display = 'Ctrl+' + display.slice(5).toUpperCase();
+
+        if (!seen.has(display.toLowerCase())) {
+            seen.add(display.toLowerCase());
+            formatted.push(display);
+        }
+    });
+    return formatted.join('/');
+}
+
+// キーイベントとのマッチング判定
+function matchesShortcut(e, keyArr) {
+    if (!keyArr || keyArr.length === 0) return false;
+    const k = e.key.toLowerCase();
+    for (const pattern of keyArr) {
+        const p = pattern.toLowerCase();
+        if (p === 'ctrl+z') {
+            if ((e.ctrlKey || e.metaKey) && !e.shiftKey && k === 'z') return true;
+        } else if (p === 'ctrl+y') {
+            if ((e.ctrlKey || e.metaKey) && k === 'y') return true;
+        } else if (p === 'space' || p === ' ') {
+            if (e.key === ' ' || e.code === 'Space') return true;
+        } else if (p === 'backspace') {
+            if (e.key === 'Backspace') return true;
+        } else if (p === 'delete') {
+            if (e.key === 'Delete') return true;
+        } else if (p === 'enter') {
+            if (e.key === 'Enter') return true;
+        } else if (p === 'home') {
+            if (e.key === 'Home') return true;
+        } else if (p === 'end') {
+            if (e.key === 'End') return true;
+        } else if (p === 'arrowleft') {
+            if (e.key === 'ArrowLeft') return true;
+        } else if (p === 'arrowright') {
+            if (e.key === 'ArrowRight') return true;
+        } else if (p === 'f1') {
+            if (e.key === 'F1') return true;
+        } else if (p === '?') {
+            if (e.key === '?' || (e.shiftKey && e.key === '/')) return true;
+        } else {
+            if (k === p) return true;
+        }
+    }
+    return false;
+}
+
+// 下部ボタン・ヘッダーボタン・操作ガイドの表記を動的に更新
+function applyShortcutLabels() {
+    // 1. 下部ボタンの表記更新
+    const setBtnText = (id, iconTitle, keys) => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            const formatted = formatShortcutKeys(keys);
+            btn.textContent = formatted ? `${iconTitle}(${formatted})` : iconTitle;
+        }
+    };
+    setBtnText('btn-tool-don', '🔴 ドン', shortcuts.don);
+    setBtnText('btn-tool-kat', '🔵 カッ', shortcuts.ka);
+    setBtnText('btn-tool-big-don', '🟠 大ドン', shortcuts.bigDon);
+    setBtnText('btn-tool-big-kat', '🔷 大カッ', shortcuts.bigKa);
+    setBtnText('btn-tool-roll', '🟡 連打', shortcuts.roll);
+    setBtnText('btn-tool-big-roll', '🟡 大連打', shortcuts.bigRoll);
+    setBtnText('btn-tool-balloon', '🎈 風船', shortcuts.balloon);
+    setBtnText('btn-tool-rest', '⬜ 休符/削除', shortcuts.del);
+    setBtnText('btn-continuous', '🔄 連続配置', shortcuts.continuous);
+    setBtnText('btn-gimmick', '⚙ ギミック設定', shortcuts.gimmick);
+
+    // 2. ヘッダーボタンの表記・tooltip更新
+    const playBtn = document.getElementById('btn-play');
+    if (playBtn) {
+        const playKey = formatShortcutKeys(shortcuts.play) || 'Enter';
+        playBtn.textContent = `▶ 再生 (${playKey})`;
+        playBtn.title = `再生 / 停止 (${playKey})`;
+    }
+    const setTooltip = (id, label, keys) => {
+        const el = document.getElementById(id);
+        if (el) {
+            const formatted = formatShortcutKeys(keys);
+            el.title = formatted ? `${label} (${formatted})` : label;
+        }
+    };
+    setTooltip('btn-rewind', '先頭小節へ移動', shortcuts.rewind);
+    setTooltip('btn-prev-measure', '前の小節へ移動', shortcuts.prevMeas);
+    setTooltip('btn-next-measure', '次の小節へ移動', shortcuts.nextMeas);
+    setTooltip('btn-undo', '元に戻す', shortcuts.undo);
+    setTooltip('btn-redo', 'やり直す', shortcuts.redo);
+    setTooltip('btn-guide', '操作ガイド・マニュアルを開く', shortcuts.guide);
+
+    // 3. 操作ガイドモーダル内のショートカット表を動的更新
+    const updateGuideCell = (selector, keyArr) => {
+        document.querySelectorAll(selector).forEach(el => {
+            const keysStr = formatShortcutKeys(keyArr);
+            if (keysStr) {
+                el.innerHTML = keysStr.split('/').map(k => `<kbd>${k}</kbd>`).join(' / ');
+            }
+        });
+    };
+    updateGuideCell('[data-guide-sc="don"]', shortcuts.don);
+    updateGuideCell('[data-guide-sc="ka"]', shortcuts.ka);
+    updateGuideCell('[data-guide-sc="bigDon"]', shortcuts.bigDon);
+    updateGuideCell('[data-guide-sc="bigKa"]', shortcuts.bigKa);
+    updateGuideCell('[data-guide-sc="bigDonKa"]', [...shortcuts.bigDon, ...shortcuts.bigKa]);
+    updateGuideCell('[data-guide-sc="roll"]', shortcuts.roll);
+    updateGuideCell('[data-guide-sc="bigRoll"]', shortcuts.bigRoll);
+    updateGuideCell('[data-guide-sc="balloon"]', shortcuts.balloon);
+    updateGuideCell('[data-guide-sc="rollEtc"]', [...shortcuts.roll, ...shortcuts.bigRoll, ...shortcuts.balloon]);
+    updateGuideCell('[data-guide-sc="delete"]', shortcuts.del);
+    updateGuideCell('[data-guide-sc="continuous"]', shortcuts.continuous);
+    updateGuideCell('[data-guide-sc="undo"]', shortcuts.undo);
+    updateGuideCell('[data-guide-sc="redo"]', shortcuts.redo);
+    updateGuideCell('[data-guide-sc="play"]', shortcuts.play);
+    updateGuideCell('[data-guide-sc="prevNext"]', [...shortcuts.prevMeas, ...shortcuts.nextMeas]);
+    updateGuideCell('[data-guide-sc="homeEnd"]', [...shortcuts.rewind, ...shortcuts.jumpEnd]);
+    updateGuideCell('[data-guide-sc="quickMeas"]', shortcuts.quickMeas);
+    updateGuideCell('[data-guide-sc="gimmick"]', shortcuts.gimmick);
+    updateGuideCell('[data-guide-sc="guide"]', shortcuts.guide);
+}
+
+// 起動時に保存済みショートカットをロードしてUIに反映
+loadShortcuts();
+applyShortcutLabels();
 
 function setActiveTool(key) {
     currentTool = key;
@@ -894,11 +1093,32 @@ window.addEventListener('mouseup', (e) => {
         document.body.style.cursor = 'default';
         resizeCanvas();
     }
-    // 右ドラッグ終了処理
+    // 右クリックによる範囲選択終了
     if (e.button === 2 && state.isSelecting) {
         state.isSelecting = false;
         updateSelection();
         draw();
+        return;
+    }
+    // 左クリック処理
+    if (e.button === 0) {
+        if (state.isSelecting) {
+            // 左クリックスライドによる選択完了
+            state.isSelecting = false;
+            state.isLeftMouseDown = false;
+            state.mouseDownEvent = null;
+            updateSelection();
+            draw();
+            return;
+        }
+        if (state.isLeftMouseDown) {
+            // スライドしなかった場合（通常の左クリック）
+            state.isLeftMouseDown = false;
+            const clickEvt = state.mouseDownEvent || e;
+            state.mouseDownEvent = null;
+            handleCanvasLeftClick(clickEvt);
+            return;
+        }
     }
     // 連打のドラッグ終了処理
     if (isDraggingRoll && e.button === 0) {
@@ -934,58 +1154,26 @@ wrapper.addEventListener('mouseenter', () => {
 wrapper.addEventListener('mouseleave', () => {
     state.cursorY = 9999; // 画面外へ
     state.isInsideCanvas = false;
+    if (state.isLeftMouseDown && !state.isSelecting) {
+        state.isLeftMouseDown = false;
+        state.mouseDownEvent = null;
+    }
     draw();
     updateStatusBar();
 });
 
-wrapper.addEventListener('mousedown', (e) => {
-    if (e.button === 2) {
-        // 右クリックで範囲選択開始
-        state.isSelecting = true;
-        const rect = wrapper.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const rawWorldX = mouseX + state.scrollX - JUDGE_X;
-        state.selectRawStartX = rawWorldX;
-
-        const measures = songData.courses[state.currentCourse];
-        const positions = calculateMeasurePositions(measures);
-
-        if (e.shiftKey) {
-            // Shift押下: 自由選択（ピクセル/音符単位）
-            state.selectStartX = rawWorldX;
-            state.selectEndX = rawWorldX;
-        } else {
-            // 通常: 小節単位で止まる（1節・4/4境界スナップ）
-            const mIdx = getMeasureIndexAtWorldX(rawWorldX, positions);
-            state.selectStartX = positions[mIdx].startX;
-            state.selectEndX = positions[mIdx].startX + positions[mIdx].width;
-        }
-        state.selectedNotes = [];
-        updateSelection();
-        draw();
-        return;
-    }
-
-    if (e.button !== 0) return; // 左クリックと右クリック以外は無視
-    if (e.target !== canvas) {
-        // UIパネル等をクリックした場合は選択解除する
-        if (state.selectedNotes.length > 0 || state.selectedMeasureRange) {
-            state.selectedNotes = [];
-            state.selectedMeasureRange = null;
-            draw();
-        }
-        return;
-    }
-
+// 通常の左クリック時の音符配置・小節クイック設定等の処理
+function handleCanvasLeftClick(e) {
     const rect = wrapper.getBoundingClientRect();
     const mouseY = e.clientY - rect.top;
+    const mouseX = e.clientX - rect.left;
+    const rawWorldX = mouseX + state.scrollX - JUDGE_X;
 
     // レーンの上部（小節番号やギミック領域）をクリックした場合、その小節を選択してクイック設定を開く
     if (mouseY < LANE_Y - 40) {
         const measures = songData.courses[state.currentCourse];
         const positions = calculateMeasurePositions(measures);
-        const clickWorldX = (e.clientX - rect.left) + state.scrollX - JUDGE_X;
-        const mIdx = getMeasureIndexAtWorldX(clickWorldX, positions);
+        const mIdx = getMeasureIndexAtWorldX(rawWorldX, positions);
         if (mIdx >= 0 && mIdx < positions.length) {
             state.lastActiveMeasureIdx = mIdx;
             state.selectStartX = positions[mIdx].startX;
@@ -1010,8 +1198,6 @@ wrapper.addEventListener('mousedown', (e) => {
 
     if (state.mode === "NUM_INPUT") {
         cancelNumberInput();
-        // ここでreturnせず続行すると、クリックした場所に新しい音符が置かれる
-        // ユーザーの「どっか押した時に消える」という要望には「消してそのまま別の操作ができる」のが自然
     }
 
     if (state.mode === "ROLL_END") {
@@ -1019,12 +1205,11 @@ wrapper.addEventListener('mousedown', (e) => {
         const positions = calculateMeasurePositions(measures);
         const snap = getSnapPosition(state.cursorX, positions);
         if (snap.measureIdx !== -1) {
-            // 始点より後ろをクリックした時のみ終了点8を配置
             if (rollStartInfo) {
                 const isAfterStart = (snap.measureIdx > rollStartInfo.measureIdx) ||
                     (snap.measureIdx === rollStartInfo.measureIdx && snap.gridIdx > rollStartInfo.gridIdx);
                 if (!isAfterStart) {
-                    return; // 始点と同じか前の位置は無視して連打プレビューを継続
+                    return;
                 }
             }
             placeNoteData("8");
@@ -1043,7 +1228,7 @@ wrapper.addEventListener('mousedown', (e) => {
         const snap = getSnapPosition(state.cursorX, positions);
         if (snap.measureIdx !== -1) {
             placeNoteData(currentTool);
-            state.mode = "ROLL_END"; // ★連打終了待ちに移行！
+            state.mode = "ROLL_END";
             rollStartInfo = { measureIdx: snap.measureIdx, gridIdx: snap.gridIdx, type: currentTool };
             isDraggingRoll = true;
             rollDragStartX = e.clientX;
@@ -1059,6 +1244,80 @@ wrapper.addEventListener('mousedown', (e) => {
         placeNoteData(currentTool);
     }
     draw();
+}
+
+wrapper.addEventListener('mousedown', (e) => {
+    const rect = wrapper.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const rawWorldX = mouseX + state.scrollX - JUDGE_X;
+
+    if (e.button === 2) {
+        // 右クリックでも範囲選択開始（1/4小節スナップ）
+        state.isSelecting = true;
+        state.selectRawStartX = rawWorldX;
+        state.selectedNotes = [];
+
+        const measures = songData.courses[state.currentCourse];
+        const positions = calculateMeasurePositions(measures);
+
+        if (e.shiftKey) {
+            // Shift押下: 自由選択（ピクセル/音符単位）
+            state.selectStartX = rawWorldX;
+            state.selectEndX = rawWorldX;
+        } else {
+            // 通常: 1/4小節境界スナップ
+            const snapStart = snapWorldXToQuarterMeasure(rawWorldX, positions, 'floor');
+            const mIdx = getMeasureIndexAtWorldX(rawWorldX, positions);
+            const step = positions[mIdx].width / 4;
+            state.selectStartX = snapStart;
+            state.selectEndX = snapStart + step;
+        }
+        updateSelection();
+        draw();
+        return;
+    }
+
+    if (e.button !== 0) return; // 左クリック以外は無視
+    if (e.target !== canvas) {
+        // UIパネル等をクリックした場合は選択解除する
+        if (state.selectedNotes.length > 0 || state.selectedMeasureRange) {
+            state.selectedNotes = [];
+            state.selectedMeasureRange = null;
+            draw();
+        }
+        return;
+    }
+
+    // 連打ツール使用中は連打のドラッグ伸長を優先
+    if ((currentTool === '5' || currentTool === '6') && state.mode !== "ROLL_END") {
+        const measures = songData.courses[state.currentCourse];
+        const positions = calculateMeasurePositions(measures);
+        const snap = getSnapPosition(state.cursorX, positions);
+        if (snap.measureIdx !== -1) {
+            placeNoteData(currentTool);
+            state.mode = "ROLL_END";
+            rollStartInfo = { measureIdx: snap.measureIdx, gridIdx: snap.gridIdx, type: currentTool };
+            isDraggingRoll = true;
+            rollDragStartX = e.clientX;
+            draw();
+            updateStatusBar();
+            return;
+        }
+    }
+
+    // 連打終了点待ちの場合はクリック即時処理
+    if (state.mode === "ROLL_END") {
+        handleCanvasLeftClick(e);
+        return;
+    }
+
+    // 通常の左クリック：スライド（ドラッグ）判定の準備
+    state.isLeftMouseDown = true;
+    state.mouseDownClientX = e.clientX;
+    state.mouseDownClientY = e.clientY;
+    state.mouseDownRawWorldX = rawWorldX;
+    state.mouseDownEvent = e;
 });
 
 wrapper.addEventListener('mousemove', (e) => {
@@ -1067,6 +1326,16 @@ wrapper.addEventListener('mousemove', (e) => {
     state.cursorX = e.clientX - rect.left;
     state.cursorY = e.clientY - rect.top;
 
+    // 左ボタンスライドによる範囲選択の開始判定（約6px以上動いたら選択モードへ移行）
+    if (state.isLeftMouseDown && !state.isSelecting && !isDraggingRoll) {
+        const moveDist = Math.hypot(e.clientX - state.mouseDownClientX, e.clientY - state.mouseDownClientY);
+        if (moveDist > 6) {
+            state.isSelecting = true;
+            state.selectRawStartX = state.mouseDownRawWorldX;
+            state.selectedNotes = [];
+        }
+    }
+
     if (state.isSelecting) {
         const rawCurrentX = state.cursorX + state.scrollX - JUDGE_X;
         const measures = songData.courses[state.currentCourse];
@@ -1074,17 +1343,29 @@ wrapper.addEventListener('mousemove', (e) => {
 
         if (e.shiftKey) {
             // Shift押下: 自由選択（ピクセル/音符単位）
-            state.selectStartX = state.selectRawStartX;
-            state.selectEndX = rawCurrentX;
+            state.selectStartX = Math.min(state.selectRawStartX, rawCurrentX);
+            state.selectEndX = Math.max(state.selectRawStartX, rawCurrentX);
         } else {
-            // 通常: 小節単位で止まる（1節・4/4単位スナップ）
-            const startMIdx = getMeasureIndexAtWorldX(state.selectRawStartX, positions);
-            const currentMIdx = getMeasureIndexAtWorldX(rawCurrentX, positions);
-            const minM = Math.min(startMIdx, currentMIdx);
-            const maxM = Math.max(startMIdx, currentMIdx);
+            // 通常: 1小節内の1/4（四分の一・拍単位）ごとにスナップ
+            const minRaw = Math.min(state.selectRawStartX, rawCurrentX);
+            const maxRaw = Math.max(state.selectRawStartX, rawCurrentX);
 
-            state.selectStartX = positions[minM].startX;
-            state.selectEndX = positions[maxM].startX + positions[maxM].width;
+            let snapStart = snapWorldXToQuarterMeasure(minRaw, positions, 'floor');
+            let snapEnd = snapWorldXToQuarterMeasure(maxRaw, positions, 'ceil');
+
+            // 同一位置の場合は最低1/4区間を確保
+            if (snapStart === snapEnd) {
+                const mIdx = getMeasureIndexAtWorldX(minRaw, positions);
+                const step = positions[mIdx].width / 4;
+                if (rawCurrentX >= state.selectRawStartX) {
+                    snapEnd = Math.min(positions[positions.length - 1].startX + positions[positions.length - 1].width, snapStart + step);
+                } else {
+                    snapStart = Math.max(positions[0].startX, snapEnd - step);
+                }
+            }
+
+            state.selectStartX = snapStart;
+            state.selectEndX = snapEnd;
         }
         updateSelection();
     }
@@ -1219,95 +1500,99 @@ wrapper.addEventListener('touchmove', (e) => {
 }, { passive: false });
 
 window.addEventListener('keydown', (e) => {
-    const key = e.key.toLowerCase();
     state.isSnapEnabled = !e.shiftKey;
 
-    // Ctrl+Z / Ctrl+Y (Undo / Redo)
-    if ((e.ctrlKey || e.metaKey) && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-        if (key === 'z') {
-            e.preventDefault();
-            if (e.shiftKey) redo();
-            else undo();
-            return;
-        }
-        if (key === 'y') {
-            e.preventDefault();
-            redo();
-            return;
-        }
+    // 入力フォームにフォーカスがある場合はショートカットを無効化
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+    // 1. Undo / Redo
+    if (matchesShortcut(e, shortcuts.undo)) {
+        e.preventDefault();
+        undo();
+        return;
+    }
+    if (matchesShortcut(e, shortcuts.redo)) {
+        e.preventDefault();
+        redo();
+        return;
     }
 
-    // Enterキーで再生/停止（入力フィールドにフォーカスがある場合は除外）
-    if (e.key === 'Enter' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+    // 2. 再生 / 停止
+    if (matchesShortcut(e, shortcuts.play)) {
         e.preventDefault();
         togglePlayback();
         return;
     }
 
-    // スペースキー押下時のブラウザスクロール抑止（入力フィールド以外）
-    if (e.key === ' ' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+    // スペースキー押下時のブラウザスクロール抑止
+    if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault();
     }
 
-    // cキーで連続配置モード切り替え
-    if (key === 'c' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+    // 3. 連続配置モード切り替え
+    if (matchesShortcut(e, shortcuts.continuous)) {
         e.preventDefault();
         toggleContinuousMode();
         return;
     }
 
-    // 左右の矢印キーで選択音符をずらす、または前後の小節へ移動
-    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+    // 4. 前後小節移動（選択音符がある場合はシフト）
+    if (matchesShortcut(e, shortcuts.prevMeas)) {
         e.preventDefault();
-        if (state.selectedNotes.length > 0) {
-            shiftSelectedNotes(e.key === 'ArrowRight' ? 1 : -1);
+        if (state.selectedNotes.length > 0) shiftSelectedNotes(-1);
+        else prevMeasure();
+        return;
+    }
+    if (matchesShortcut(e, shortcuts.nextMeas)) {
+        e.preventDefault();
+        if (state.selectedNotes.length > 0) shiftSelectedNotes(1);
+        else nextMeasure();
+        return;
+    }
+
+    // 5. 先頭 / 末尾小節へ移動
+    if (matchesShortcut(e, shortcuts.rewind)) {
+        e.preventDefault();
+        rewindToStart();
+        return;
+    }
+    if (matchesShortcut(e, shortcuts.jumpEnd)) {
+        e.preventDefault();
+        const measures = songData.courses[state.currentCourse] || [];
+        jumpToMeasure(measures.length - 1);
+        return;
+    }
+
+    // 6. 小節クイック設定 / ギミック一元化ポップアップ
+    if (matchesShortcut(e, shortcuts.quickMeas) || matchesShortcut(e, shortcuts.gimmick)) {
+        e.preventDefault();
+        const popup = document.getElementById('measure-quick-popup');
+        if (popup && popup.style.display !== 'none') {
+            closeMeasureQuickPopup();
         } else {
-            if (e.key === 'ArrowLeft') prevMeasure();
-            else nextMeasure();
+            openMeasureQuickPopup();
         }
         return;
     }
 
-    // Home / End キーで先頭 / 末尾小節へジャンプ
-    if (!['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-        if (e.key === 'Home') {
-            e.preventDefault();
-            rewindToStart();
-            return;
+    // 7. ガイド開閉
+    if (matchesShortcut(e, shortcuts.guide)) {
+        e.preventDefault();
+        const guideOverlay = document.getElementById('guide-overlay');
+        if (guideOverlay) {
+            if (guideOverlay.classList.contains('active') && guideOverlay.style.display !== 'none') {
+                guideOverlay.style.display = 'none';
+                guideOverlay.classList.remove('active');
+            } else {
+                guideOverlay.style.display = 'flex';
+                guideOverlay.classList.add('active');
+            }
         }
-        if (e.key === 'End') {
-            e.preventDefault();
-            const measures = songData.courses[state.currentCourse] || [];
-            jumpToMeasure(measures.length - 1);
-            return;
-        }
+        return;
     }
 
-    // M または S キーで小節クイック設定を開く / 閉じる、G キーでギミック設定モーダルを開く
-    if (!['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-        if (key === 'm' || key === 's') {
-            e.preventDefault();
-            const popup = document.getElementById('measure-quick-popup');
-            if (popup && popup.style.display !== 'none') {
-                closeMeasureQuickPopup();
-            } else {
-                openMeasureQuickPopup();
-            }
-            return;
-        }
-        if (key === 'g') {
-            e.preventDefault();
-            const gimmickOverlay = document.getElementById('gimmick-overlay');
-            if (gimmickOverlay && gimmickOverlay.classList.contains('active')) {
-                gimmickOverlay.classList.remove('active');
-            } else {
-                openGimmickPanel();
-            }
-            return;
-        }
-        if (e.key === 'Escape') {
-            closeMeasureQuickPopup();
-        }
+    if (e.key === 'Escape') {
+        closeMeasureQuickPopup();
     }
 
     if (state.mode === "NUM_INPUT") return;
@@ -1315,40 +1600,43 @@ window.addEventListener('keydown', (e) => {
     let insertType = null;
     let isShortcut = false;
 
-    // 数字キーによる直接入力とモード切り替え
-    const KEY_TOOL_MAP = {
-        '1': { type: '1', mode: 'NOTE', size: 'SMALL' },
-        '2': { type: '2', mode: 'NOTE', size: 'SMALL' },
-        '3': { type: '3', mode: 'NOTE', size: 'LARGE' },
-        '4': { type: '4', mode: 'NOTE', size: 'LARGE' },
-        '5': { type: '5', mode: 'ROLL', size: 'SMALL' },
-        '6': { type: '6', mode: 'ROLL', size: 'LARGE' }
-    };
-
-    if (KEY_TOOL_MAP[key]) {
-        const conf = KEY_TOOL_MAP[key];
-        insertType = conf.type;
-        state.mode = conf.mode;
-        state.size = conf.size;
-    } else if (key === '7' || key === '9') {
-        setActiveTool(key);
+    // 音符入力判定（大音符・風船・連打含む）
+    if (matchesShortcut(e, shortcuts.don)) {
+        insertType = state.size === "SMALL" ? "1" : "3";
+        isShortcut = true;
+    } else if (matchesShortcut(e, shortcuts.ka)) {
+        insertType = state.size === "SMALL" ? "2" : "4";
+        isShortcut = true;
+    } else if (matchesShortcut(e, shortcuts.bigDon)) {
+        insertType = "3";
+        state.size = "LARGE";
         state.mode = "NOTE";
-    }
-
-    // カスタムショートカットの判定 (配置アクション)
-    if (!insertType) {
-        // 入力フォームにフォーカスがある場合はショートカットを無効化
-        if (!['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-            if (shortcuts.don.includes(key)) { insertType = state.size === "SMALL" ? "1" : "3"; isShortcut = true; }
-            else if (shortcuts.ka.includes(key)) { insertType = state.size === "SMALL" ? "2" : "4"; isShortcut = true; }
-            else if (shortcuts.roll.includes(key)) {
-                state.mode = "ROLL";
-                insertType = state.size === "SMALL" ? "5" : "6";
-                isShortcut = true;
-            }
-            else if (shortcuts.rollEnd.includes(key)) { insertType = "8"; isShortcut = true; }
-            else if (shortcuts.del.includes(key) || (key === ' ' && shortcuts.del.includes('space'))) { insertType = "0"; isShortcut = true; }
-        }
+        isShortcut = true;
+    } else if (matchesShortcut(e, shortcuts.bigKa)) {
+        insertType = "4";
+        state.size = "LARGE";
+        state.mode = "NOTE";
+        isShortcut = true;
+    } else if (matchesShortcut(e, shortcuts.roll)) {
+        state.mode = "ROLL";
+        insertType = state.size === "SMALL" ? "5" : "6";
+        isShortcut = true;
+    } else if (matchesShortcut(e, shortcuts.bigRoll)) {
+        state.mode = "ROLL";
+        state.size = "LARGE";
+        insertType = "6";
+        isShortcut = true;
+    } else if (matchesShortcut(e, shortcuts.balloon)) {
+        setActiveTool('7');
+        state.mode = "NOTE";
+        insertType = "7";
+        isShortcut = true;
+    } else if (matchesShortcut(e, shortcuts.rollEnd)) {
+        insertType = "8";
+        isShortcut = true;
+    } else if (matchesShortcut(e, shortcuts.del)) {
+        insertType = "0";
+        isShortcut = true;
     }
 
     updateStatusBar();
@@ -1358,14 +1646,12 @@ window.addEventListener('keydown', (e) => {
         setActiveTool(insertType);
     }
 
-    // カーソルがキャンバス内にある場合のみ、ショートカットキー(jfkd等)によって音符を配置する
+    // カーソルがキャンバス内にある場合のみ、ショートカットキーによって音符を配置する
     if (isShortcut && state.mode !== "NUM_INPUT" && state.isInsideCanvas) {
-        // レーンから離れている場合は配置しない
         if (Math.abs(state.cursorY - LANE_Y) > 80) return;
 
         placeNoteData(insertType);
 
-        // 連続配置モードがONなら、現在のスナップ幅の分だけ右へ自動スクロールする
         if (state.isContinuousMode) {
             const measures = songData.courses[state.currentCourse];
             const positions = calculateMeasurePositions(measures);
@@ -1875,12 +2161,46 @@ function openMeasureQuickPopup() {
     const titleEl = document.getElementById('measure-quick-title');
     if (titleEl) {
         if (startIdx === endIdx) {
-            const curSub = measures[startIdx] ? measures[startIdx].subdivision : 16;
-            const curSig = measures[startIdx] ? measures[startIdx].signature.join('/') : '4/4';
-            titleEl.textContent = `小節設定: 第${startIdx + 1}小節 (現在: ${curSub}分 | ${curSig})`;
+            const m = measures[startIdx];
+            const curSub = m ? m.subdivision : 16;
+            const curSig = m ? m.signature.join('/') : '4/4';
+            const gimmickTags = [];
+            if (m) {
+                if (m.gogoStart !== false) gimmickTags.push('🔥GOGO開始');
+                if (m.gogoEnd !== false) gimmickTags.push('🛑GOGO終了');
+                if (m.scroll !== null) gimmickTags.push(`🏎HS:${m.scroll}x`);
+                if (m.bpmChange !== null) gimmickTags.push(`🎵BPM:${m.bpmChange}`);
+            }
+            const tagStr = gimmickTags.length > 0 ? ` [${gimmickTags.join(' ')}]` : '';
+            titleEl.textContent = `小節設定: 第${startIdx + 1}小節 (${curSub}分 | ${curSig})${tagStr}`;
         } else {
             titleEl.textContent = `小節一括設定: 第${startIdx + 1} 〜 第${endIdx + 1}小節 (${endIdx - startIdx + 1}小節選択中)`;
         }
+    }
+
+    // 現在の小節の設定値を手入力フィールドへ反映
+    const curM = measures[startIdx];
+    const bpmInput = document.getElementById('quick-bpm-custom');
+    if (bpmInput) {
+        if (curM && curM.bpmChange !== null && curM.bpmChange !== undefined) {
+            bpmInput.value = curM.bpmChange;
+        } else {
+            bpmInput.value = '';
+        }
+        const effBpm = getEffectiveBpmAtMeasure(startIdx);
+        bpmInput.placeholder = `現在: ${effBpm || (document.getElementById('cfg-bpm') ? document.getElementById('cfg-bpm').value : 120)}`;
+    }
+    const scrollInput = document.getElementById('quick-scroll-custom');
+    if (scrollInput) {
+        if (curM && curM.scroll !== null && curM.scroll !== undefined) {
+            scrollInput.value = curM.scroll;
+        } else {
+            scrollInput.value = '1.2';
+        }
+    }
+    const subInput = document.getElementById('quick-subdiv-custom');
+    if (subInput) {
+        subInput.value = (curM && curM.subdivision) ? curM.subdivision : 16;
     }
 
     popup.style.display = 'flex';
@@ -1966,6 +2286,155 @@ function applyQuickSignature(num, den) {
     updateRightSidebarPreview();
 }
 
+// ゴーゴータイムを適用する
+function applyQuickGogo(action) {
+    pushHistory();
+    const measures = songData.courses[state.currentCourse] || [];
+    let startIdx = state.lastActiveMeasureIdx;
+    let endIdx = state.lastActiveMeasureIdx;
+
+    if (state.selectedMeasureRange) {
+        startIdx = state.selectedMeasureRange.start;
+        endIdx = state.selectedMeasureRange.end;
+    }
+
+    startIdx = Math.max(0, Math.min(startIdx, measures.length - 1));
+    endIdx = Math.max(startIdx, Math.min(endIdx, measures.length - 1));
+
+    if (action === 'range') {
+        // 範囲を丸ごとゴーゴー化（先頭小節先頭でSTART、末尾小節末尾でEND）
+        for (let mi = startIdx; mi <= endIdx; mi++) {
+            if (measures[mi]) {
+                measures[mi].gogoStart = false;
+                measures[mi].gogoEnd = false;
+            }
+        }
+        measures[startIdx].gogoStart = 0;
+        measures[endIdx].gogoEnd = 1.0;
+    } else if (action === 'start') {
+        measures[startIdx].gogoStart = 0;
+    } else if (action === 'end') {
+        measures[endIdx].gogoEnd = 0;
+    } else if (action === 'clear') {
+        for (let mi = startIdx; mi <= endIdx; mi++) {
+            if (measures[mi]) {
+                measures[mi].gogoStart = false;
+                measures[mi].gogoEnd = false;
+            }
+        }
+    }
+
+    closeMeasureQuickPopup();
+    draw();
+    updateStatusBar();
+    updateRightSidebarPreview();
+}
+
+// スクロール速度（HS）を適用する
+function applyQuickScroll(scrollVal) {
+    pushHistory();
+    const measures = songData.courses[state.currentCourse] || [];
+    let startIdx = state.lastActiveMeasureIdx;
+    let endIdx = state.lastActiveMeasureIdx;
+
+    if (state.selectedMeasureRange) {
+        startIdx = state.selectedMeasureRange.start;
+        endIdx = state.selectedMeasureRange.end;
+    }
+
+    startIdx = Math.max(0, Math.min(startIdx, measures.length - 1));
+    endIdx = Math.max(startIdx, Math.min(endIdx, measures.length - 1));
+
+    const val = (scrollVal !== null && !isNaN(scrollVal)) ? parseFloat(scrollVal) : null;
+
+    if (val !== null) {
+        measures[startIdx].scroll = val;
+        measures[startIdx].scrollOffset = 0;
+    } else {
+        for (let mi = startIdx; mi <= endIdx; mi++) {
+            if (measures[mi]) {
+                measures[mi].scroll = null;
+                measures[mi].scrollOffset = 0;
+            }
+        }
+    }
+
+    closeMeasureQuickPopup();
+    draw();
+    updateStatusBar();
+    updateRightSidebarPreview();
+}
+
+// BPM変化を一括/単一適用する
+function applyQuickBpm(bpmVal) {
+    pushHistory();
+    const measures = songData.courses[state.currentCourse] || [];
+    let startIdx = state.lastActiveMeasureIdx;
+    let endIdx = state.lastActiveMeasureIdx;
+
+    if (state.selectedMeasureRange) {
+        startIdx = state.selectedMeasureRange.start;
+        endIdx = state.selectedMeasureRange.end;
+    }
+
+    startIdx = Math.max(0, Math.min(startIdx, measures.length - 1));
+    endIdx = Math.max(startIdx, Math.min(endIdx, measures.length - 1));
+
+    if (bpmVal === null || bpmVal === undefined || bpmVal === '') {
+        for (let mi = startIdx; mi <= endIdx; mi++) {
+            if (measures[mi]) {
+                measures[mi].bpmChange = null;
+                measures[mi].bpmChangeOffset = 0;
+            }
+        }
+    } else {
+        const val = parseFloat(bpmVal);
+        if (isNaN(val) || val <= 0) return;
+        // 開始小節（または選択先頭小節）にBPM変化を設定
+        if (measures[startIdx]) {
+            measures[startIdx].bpmChange = val;
+            measures[startIdx].bpmChangeOffset = 0;
+        }
+    }
+
+    closeMeasureQuickPopup();
+    draw();
+    updateStatusBar();
+    updateRightSidebarPreview();
+}
+
+// ギミック（BPM変化・HS・ゴーゴー）を一括消去する
+function applyQuickClearAllGimmicks() {
+    pushHistory();
+    const measures = songData.courses[state.currentCourse] || [];
+    let startIdx = state.lastActiveMeasureIdx;
+    let endIdx = state.lastActiveMeasureIdx;
+
+    if (state.selectedMeasureRange) {
+        startIdx = state.selectedMeasureRange.start;
+        endIdx = state.selectedMeasureRange.end;
+    }
+
+    startIdx = Math.max(0, Math.min(startIdx, measures.length - 1));
+    endIdx = Math.max(startIdx, Math.min(endIdx, measures.length - 1));
+
+    for (let mi = startIdx; mi <= endIdx; mi++) {
+        if (measures[mi]) {
+            measures[mi].bpmChange = null;
+            measures[mi].bpmChangeOffset = 0;
+            measures[mi].scroll = null;
+            measures[mi].scrollOffset = 0;
+            measures[mi].gogoStart = false;
+            measures[mi].gogoEnd = false;
+        }
+    }
+
+    closeMeasureQuickPopup();
+    draw();
+    updateStatusBar();
+    updateRightSidebarPreview();
+}
+
 function initMeasureQuickPopup() {
     // プリセット細分数ボタン
     document.querySelectorAll('#quick-subdiv-btns .quick-preset-btn').forEach(btn => {
@@ -2004,6 +2473,95 @@ function initMeasureQuickPopup() {
         });
     });
 
+    // ゴーゴータイムボタン群
+    document.querySelectorAll('#quick-gogo-btns .quick-preset-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const gogoAction = btn.getAttribute('data-gogo');
+            if (gogoAction) applyQuickGogo(gogoAction);
+        });
+    });
+
+    // BPM変化 手入力適用
+    const bpmCustomApplyBtn = document.getElementById('quick-bpm-custom-apply');
+    const bpmCustomInput = document.getElementById('quick-bpm-custom');
+    if (bpmCustomApplyBtn && bpmCustomInput) {
+        bpmCustomApplyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyQuickBpm(bpmCustomInput.value);
+        });
+        bpmCustomInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyQuickBpm(bpmCustomInput.value);
+            }
+        });
+    }
+
+    // 基本BPM反映ボタン
+    const bpmBaseBtn = document.getElementById('quick-bpm-base-btn');
+    if (bpmBaseBtn && bpmCustomInput) {
+        bpmBaseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const defaultBpm = parseFloat(document.getElementById('cfg-bpm') ? document.getElementById('cfg-bpm').value : 120) || 120;
+            bpmCustomInput.value = defaultBpm;
+        });
+    }
+
+    // BPM変化 解除
+    const bpmClearBtn = document.getElementById('quick-bpm-clear');
+    if (bpmClearBtn) {
+        bpmClearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyQuickBpm(null);
+        });
+    }
+
+    // スクロール速度（HS）プリセットボタン群
+    document.querySelectorAll('#quick-scroll-btns .quick-preset-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const scrollVal = btn.getAttribute('data-scroll');
+            if (scrollVal) applyQuickScroll(scrollVal);
+        });
+    });
+
+    // スクロール速度 手入力適用
+    const scrollCustomApplyBtn = document.getElementById('quick-scroll-custom-apply');
+    const scrollCustomInput = document.getElementById('quick-scroll-custom');
+    if (scrollCustomApplyBtn && scrollCustomInput) {
+        scrollCustomApplyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyQuickScroll(scrollCustomInput.value);
+        });
+        scrollCustomInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyQuickScroll(scrollCustomInput.value);
+            }
+        });
+    }
+
+    // スクロール速度 解除
+    const scrollClearBtn = document.getElementById('quick-scroll-clear');
+    if (scrollClearBtn) {
+        scrollClearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyQuickScroll(null);
+        });
+    }
+
+    // ギミック全消去
+    const allGimmickClearBtn = document.getElementById('quick-all-gimmick-clear');
+    if (allGimmickClearBtn) {
+        allGimmickClearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm("選択中の小節のギミック（BPM・HS・ゴーゴー）をすべて消去しますか？")) {
+                applyQuickClearAllGimmicks();
+            }
+        });
+    }
+
     // 閉じるボタン
     const closeBtn = document.getElementById('measure-quick-close');
     const cancelBtn = document.getElementById('quick-cancel-btn');
@@ -2020,15 +2578,12 @@ function initMeasureQuickPopup() {
 
 initMeasureQuickPopup();
 
-// --- 7.5 ギミック設定モーダルの制御 ---
-const gimmickOverlay = document.getElementById('gimmick-overlay');
-let gimmickTargetMeasureIdx = -1;
-
+// --- 7.5 小節ギミック・BPMユーティリティ ---
 // 指定小節時点での有効なBPMを取得（小節にBPM変化がなければ直前小節のBPMを遡って取得）
 function getEffectiveBpmAtMeasure(measureIdx, courseName) {
     const course = courseName || state.currentCourse;
     const measures = songData.courses[course] || [];
-    const defaultBpm = parseFloat(document.getElementById('cfg-bpm').value) || 120;
+    const defaultBpm = parseFloat(document.getElementById('cfg-bpm') ? document.getElementById('cfg-bpm').value : 120) || 120;
     for (let i = Math.min(measureIdx, measures.length - 1); i >= 0; i--) {
         if (measures[i] && measures[i].bpmChange !== null && !isNaN(measures[i].bpmChange) && measures[i].bpmChange > 0) {
             return measures[i].bpmChange;
@@ -2037,211 +2592,18 @@ function getEffectiveBpmAtMeasure(measureIdx, courseName) {
     return defaultBpm;
 }
 
-function updateGimmickPanelFields() {
-    const startVal = parseFloat(document.getElementById('gimmick-target-start').value);
-    const startIdx = Math.max(0, Math.floor(startVal) - 1);
-
-    if (isNaN(startIdx)) return;
-
-    const measures = songData.courses[state.currentCourse];
-    while (measures.length <= startIdx) {
-        measures.push(createEmptyMeasure());
-    }
-
-    const measure = measures[startIdx];
-
-    const bpmEnable = document.getElementById('gimmick-bpm-enable');
-    const bpmVal = document.getElementById('gimmick-bpm-val');
-    bpmEnable.checked = measure.bpmChange !== null;
-    bpmVal.value = measure.bpmChange !== null ? measure.bpmChange : '';
-    bpmVal.disabled = !bpmEnable.checked;
-    bpmVal.placeholder = `現在: ${getEffectiveBpmAtMeasure(startIdx)}`;
-
-    document.getElementById('gimmick-sig-num').value = measure.signature[0];
-    document.getElementById('gimmick-sig-den').value = measure.signature[1];
-
-    const scrollEnable = document.getElementById('gimmick-scroll-enable');
-    const scrollVal = document.getElementById('gimmick-scroll-val');
-    scrollEnable.checked = measure.scroll !== null && measure.scroll !== undefined;
-    scrollVal.value = measure.scroll !== null ? measure.scroll : '';
-    scrollVal.disabled = !scrollEnable.checked;
-
-    document.getElementById('gimmick-gogo-start').checked = measure.gogoStart !== false;
-    document.getElementById('gimmick-gogo-end').checked = measure.gogoEnd !== false;
-
-    // subdivisionを読み込み
-    document.getElementById('gimmick-subdivision').value = measure.subdivision;
-    const presetSelect = document.getElementById('gimmick-subdivision-preset');
-    if (Array.from(presetSelect.options).some(o => o.value == measure.subdivision)) {
-        presetSelect.value = measure.subdivision;
-    }
-}
-
-function openGimmickPanel() {
-    let startVal = state.lastActiveMeasureIdx + 1.0;
-    let endVal = state.lastActiveMeasureIdx + 1.0;
-
-    const measures = songData.courses[state.currentCourse] || [];
-    const m = measures[state.lastActiveMeasureIdx];
-
-    // 範囲選択がある場合、小数の正確な位置を計算する
-    if (state.selectedNotes.length > 0) {
-        let minTime = Infinity;
-        let maxTime = -Infinity;
-        state.selectedNotes.forEach(n => {
-            const sm = measures[n.measureIdx];
-            const time = n.measureIdx + (n.posIndex / sm.subdivision);
-            if (time < minTime) minTime = time;
-            if (time > maxTime) maxTime = time;
-        });
-        startVal = Math.round((minTime + 1) * 10) / 10; // 1-indexed for UI
-        endVal = Math.round((maxTime + 1) * 10) / 10;
-    } else if (m && m.bpmChange !== null && m.bpmChangeOffset > 0) {
-        // 小節内にオフセット付きのBPM変化がある場合は、その位置を開始値に設定
-        startVal = state.lastActiveMeasureIdx + 1.0 + Math.round(m.bpmChangeOffset * 10) / 10;
-        endVal = startVal;
-    }
-
-    document.getElementById('gimmick-target-start').value = startVal;
-    document.getElementById('gimmick-target-end').value = endVal;
-
-    updateGimmickPanelFields();
-    gimmickOverlay.classList.add('active');
-}
-
-// 開始位置が変更されたらフィールドを更新
-document.getElementById('gimmick-target-start').addEventListener('change', () => {
-    updateGimmickPanelFields();
-});
-
-// 分割数プリセットが変更されたら数値枠に反映
-document.getElementById('gimmick-subdivision-preset').addEventListener('change', (e) => {
-    document.getElementById('gimmick-subdivision').value = e.target.value;
-});
-
-// チェックボックスでinputのdisabledを制御
-document.getElementById('gimmick-bpm-enable').addEventListener('change', function () {
-    document.getElementById('gimmick-bpm-val').disabled = !this.checked;
-});
-document.getElementById('gimmick-scroll-enable').addEventListener('change', function () {
-    document.getElementById('gimmick-scroll-val').disabled = !this.checked;
-});
-
-// ボタンからモーダルを開く
-document.getElementById('btn-gimmick').addEventListener('click', () => {
-    openGimmickPanel();
-});
-
-// 閉じる
-document.getElementById('gimmick-close').addEventListener('click', () => {
-    gimmickOverlay.classList.remove('active');
-});
-gimmickOverlay.addEventListener('click', (e) => {
-    if (e.target === gimmickOverlay) gimmickOverlay.classList.remove('active');
-});
-
-// 適用ボタン
-document.getElementById('gimmick-apply').addEventListener('click', () => {
-    pushHistory();
-    const startInput = parseFloat(document.getElementById('gimmick-target-start').value);
-    const endInput = parseFloat(document.getElementById('gimmick-target-end').value);
-
-    if (isNaN(startInput) || isNaN(endInput)) return;
-
-    const startIdx = Math.max(0, Math.floor(startInput) - 1);
-    const startOffset = Math.round((startInput - Math.floor(startInput)) * 10) / 10;
-
-    const endIdx = Math.max(0, Math.floor(endInput) - 1);
-    const endOffset = Math.round((endInput - Math.floor(endInput)) * 10) / 10;
-
-    const measures = songData.courses[state.currentCourse];
-    while (measures.length <= Math.max(startIdx, endIdx)) {
-        measures.push(createEmptyMeasure());
-    }
-
-    const startM = measures[startIdx];
-    const endM = measures[endIdx];
-
-    // BPM
-    const bpmEnable = document.getElementById('gimmick-bpm-enable').checked;
-    const bpmVal = parseFloat(document.getElementById('gimmick-bpm-val').value);
-    if (bpmEnable && !isNaN(bpmVal)) {
-        startM.bpmChange = bpmVal;
-        startM.bpmChangeOffset = startOffset;
-    } else if (!bpmEnable) {
-        startM.bpmChange = null;
-    }
-
-    // Scroll
-    const scrollEnable = document.getElementById('gimmick-scroll-enable').checked;
-    const scrollVal = parseFloat(document.getElementById('gimmick-scroll-val').value);
-    if (scrollEnable && !isNaN(scrollVal)) {
-        startM.scroll = scrollVal;
-        startM.scrollOffset = startOffset;
-    } else if (!scrollEnable) {
-        startM.scroll = null;
-    }
-
-    // Signature and Subdivision (対象範囲の全小節に適用)
-    const sigNum = parseInt(document.getElementById('gimmick-sig-num').value) || 4;
-    const sigDen = parseInt(document.getElementById('gimmick-sig-den').value) || 4;
-    const newSubdivision = parseInt(document.getElementById('gimmick-subdivision').value) || 16;
-
-    for (let mi = startIdx; mi <= endIdx; mi++) {
-        if (mi < measures.length) {
-            const m = measures[mi];
-            m.signature = [sigNum, sigDen];
-            const oldSub = m.subdivision || 16;
-            if (oldSub !== newSubdivision) {
-                m.subdivision = newSubdivision;
-                // 既存音符の相対位置（時間）を保持してスケール変換
-                ['normal', 'expert', 'master'].forEach(b => {
-                    if (m.notes && m.notes[b]) {
-                        m.notes[b].forEach(note => {
-                            note.posIndex = Math.round((note.posIndex / oldSub) * newSubdivision);
-                        });
-                    }
-                });
-            }
+// ツールバーの「⚙ ギミック設定」ボタン（小節クイック設定と一元化）
+const btnGimmick = document.getElementById('btn-gimmick');
+if (btnGimmick) {
+    btnGimmick.addEventListener('click', () => {
+        const popup = document.getElementById('measure-quick-popup');
+        if (popup && popup.style.display !== 'none') {
+            closeMeasureQuickPopup();
+        } else {
+            openMeasureQuickPopup();
         }
-    }
-
-    // Go-Go Start
-    if (document.getElementById('gimmick-gogo-start').checked) {
-        startM.gogoStart = startOffset;
-    }
-    // Go-Go End
-    if (document.getElementById('gimmick-gogo-end').checked) {
-        endM.gogoEnd = endOffset;
-    }
-
-    gimmickOverlay.classList.remove('active');
-    draw();
-});
-
-// リセット
-document.getElementById('gimmick-reset').addEventListener('click', () => {
-    pushHistory();
-    const startInput = parseFloat(document.getElementById('gimmick-target-start').value);
-    const endInput = parseFloat(document.getElementById('gimmick-target-end').value);
-
-    if (!isNaN(startInput) && !isNaN(endInput)) {
-        const startIdx = Math.max(0, Math.floor(startInput) - 1);
-        const endIdx = Math.max(0, Math.floor(endInput) - 1);
-        const measures = songData.courses[state.currentCourse];
-
-        for (let i = startIdx; i <= endIdx; i++) {
-            if (i < measures.length) {
-                measures[i].bpmChange = null;
-                measures[i].scroll = null;
-                measures[i].gogoStart = false;
-                measures[i].gogoEnd = false;
-            }
-        }
-    }
-    gimmickOverlay.classList.remove('active');
-    draw();
-});
+    });
+}
 
 
 
@@ -3902,7 +4264,7 @@ window.addEventListener('mousedown', (e) => {
 }, true);
 
 // --- 11. リリースノート管理 ---
-const CURRENT_RELEASE_VERSION = "2026-09-28-v3";
+const CURRENT_RELEASE_VERSION = "2026-09-29-v4";
 
 function initReleaseNotes() {
     const overlay = document.getElementById('release-notes-overlay');
@@ -4098,3 +4460,112 @@ function initGuideModal() {
 }
 
 initGuideModal();
+
+// --- 13. 環境設定モーダル管理 ---
+function initSettingsModal() {
+    const overlay = document.getElementById('settings-overlay');
+    const openBtn = document.getElementById('btn-settings');
+    const closeBtn = document.getElementById('settings-close-btn');
+    const cancelBtn = document.getElementById('settings-cancel-btn');
+    const saveBtn = document.getElementById('settings-save-btn');
+    const resetBtn = document.getElementById('settings-reset-btn');
+
+    if (!overlay) return;
+
+    const INPUT_MAP = {
+        don: 'sc-set-don',
+        ka: 'sc-set-ka',
+        bigDon: 'sc-set-big-don',
+        bigKa: 'sc-set-big-ka',
+        roll: 'sc-set-roll',
+        bigRoll: 'sc-set-big-roll',
+        balloon: 'sc-set-balloon',
+        rollEnd: 'sc-set-roll-end',
+        del: 'sc-set-delete',
+        continuous: 'sc-set-continuous',
+        quickMeas: 'sc-set-quick-meas',
+        gimmick: 'sc-set-gimmick',
+        undo: 'sc-set-undo',
+        redo: 'sc-set-redo',
+        play: 'sc-set-play',
+        prevMeas: 'sc-set-prev-meas',
+        nextMeas: 'sc-set-next-meas',
+        rewind: 'sc-set-rewind',
+        jumpEnd: 'sc-set-jump-end',
+        guide: 'sc-set-guide'
+    };
+
+    function populateInputs(source) {
+        Object.entries(INPUT_MAP).forEach(([key, inputId]) => {
+            const input = document.getElementById(inputId);
+            if (input && source[key]) {
+                input.value = source[key].filter(k => k !== ' ').join(', ');
+            }
+        });
+    }
+
+    function openSettingsModal() {
+        populateInputs(shortcuts);
+        overlay.style.display = 'flex';
+        overlay.classList.add('active');
+    }
+
+    function closeSettingsModal() {
+        overlay.style.display = 'none';
+        overlay.classList.remove('active');
+    }
+
+    if (openBtn) {
+        openBtn.addEventListener('click', openSettingsModal);
+    }
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeSettingsModal);
+    }
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeSettingsModal);
+    }
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            closeSettingsModal();
+        }
+    });
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            if (confirm("すべてのショートカット設定を初期設定に戻しますか？")) {
+                populateInputs(DEFAULT_SHORTCUTS);
+            }
+        });
+    }
+
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            Object.entries(INPUT_MAP).forEach(([key, inputId]) => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    const rawArr = input.value.split(',').map(s => s.trim().toLowerCase()).filter(s => s.length > 0);
+                    if (rawArr.length > 0) {
+                        shortcuts[key] = rawArr.flatMap(s => s === 'space' ? ['space', ' '] : [s]);
+                    } else if (DEFAULT_SHORTCUTS[key]) {
+                        shortcuts[key] = [...DEFAULT_SHORTCUTS[key]];
+                    }
+                }
+            });
+            saveShortcuts();
+            applyShortcutLabels();
+            closeSettingsModal();
+        });
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (overlay.classList.contains('active') && overlay.style.display !== 'none') {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeSettingsModal();
+            }
+        }
+    });
+}
+
+initSettingsModal();

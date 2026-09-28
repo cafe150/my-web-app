@@ -48,6 +48,7 @@
             <button class="header-action-btn" id="btn-import-audio" style="background:#16a085;">🎵 音源読込</button>
             <button class="header-action-btn" id="btn-tja-preview">📋 プレビュー</button>
             <button class="header-action-btn btn-export" id="btn-export">📤 TJA出力</button>
+            <button class="header-action-btn" id="btn-settings" title="環境設定・ショートカット変更" style="background:#4a5568;">⚙ 設定</button>
             <button class="header-action-btn btn-guide" id="btn-guide" title="操作ガイド・マニュアルを開く (?)">📖 ガイド</button>
             <input type="file" id="audio-file-input" accept="audio/*" style="display:none;">
             <input type="file" id="tja-file-input" accept=".tja,.txt" style="display:none;">
@@ -129,29 +130,6 @@
                     <input type="number" id="cfg-meas-num" value="4"> / <input type="number" id="cfg-meas-den"
                         value="4">
                 </div>
-            </div>
-
-            <hr style="border-color:#444; margin:15px 0;"><br>
-            <h3>ショートカットキー</h3><br>
-            <div class="setting-group">
-                <label>ドン</label>
-                <input type="text" id="sc-don" value="j,f">
-            </div>
-            <div class="setting-group">
-                <label>カッ</label>
-                <input type="text" id="sc-ka" value="k,d">
-            </div>
-            <div class="setting-group">
-                <label>連打開始</label>
-                <input type="text" id="sc-roll" value="r">
-            </div>
-            <div class="setting-group">
-                <label>連打終了</label>
-                <input type="text" id="sc-roll-end" value="e,8">
-            </div>
-            <div class="setting-group">
-                <label>休符 / 削除</label>
-                <input type="text" id="sc-delete" value="0,backspace,delete,space">
             </div>
         </aside>
         <div class="resizer" id="sidebar-resizer"></div>
@@ -304,18 +282,18 @@
 
     <footer class="footer">
         <div class="tool-group">
-            <button class="tool-btn tool-don active-tool" data-key="1">🔴 ドン(j/f)</button>
-            <button class="tool-btn tool-kat" data-key="2">🔵 カッ(k/d)</button>
-            <button class="tool-btn tool-big-don" data-key="3">🟠 大ドン(3)</button>
-            <button class="tool-btn tool-big-kat" data-key="4">🔷 大カッ(4)</button>
+            <button class="tool-btn tool-don active-tool" id="btn-tool-don" data-key="1">🔴 ドン(j/f)</button>
+            <button class="tool-btn tool-kat" id="btn-tool-kat" data-key="2">🔵 カッ(k/d)</button>
+            <button class="tool-btn tool-big-don" id="btn-tool-big-don" data-key="3">🟠 大ドン(3)</button>
+            <button class="tool-btn tool-big-kat" id="btn-tool-big-kat" data-key="4">🔷 大カッ(4)</button>
         </div>
         <div class="tool-group">
-            <button class="tool-btn tool-roll" data-key="5">🟡 連打(5/r)</button>
-            <button class="tool-btn tool-big-roll" data-key="6">🟡 大連打(6)</button>
-            <button class="tool-btn tool-balloon" data-key="7">🎈 風船(7)</button>
+            <button class="tool-btn tool-roll" id="btn-tool-roll" data-key="5">🟡 連打(5/r)</button>
+            <button class="tool-btn tool-big-roll" id="btn-tool-big-roll" data-key="6">🟡 大連打(6)</button>
+            <button class="tool-btn tool-balloon" id="btn-tool-balloon" data-key="7">🎈 風船(7)</button>
         </div>
         <div class="tool-group">
-            <button class="tool-btn tool-rest" data-key="0">⬜ 休符/削除(0/Space)</button>
+            <button class="tool-btn tool-rest" id="btn-tool-rest" data-key="0">⬜ 休符/削除(0/Space)</button>
         </div>
         <div class="tool-group">
             <button class="tool-btn btn-continuous" id="btn-continuous" title="ショートカットキーで配置後、自動で1マス進みます">🔄
@@ -330,85 +308,7 @@
         </div>
     </footer>
 
-    <!-- ギミック設定モーダル -->
-    <div id="gimmick-overlay" class="tja-overlay">
-        <div class="gimmick-modal">
-            <div class="gimmick-header">
-                <h3>⚙ ギミック設定</h3>
-                <div class="gimmick-target-container">
-                    <label>対象小節:</label>
-                    <input type="number" id="gimmick-target-start" min="1" step="0.1" placeholder="開始">
-                    <span>〜</span>
-                    <input type="number" id="gimmick-target-end" min="1" step="0.1" placeholder="終了">
-                </div>
-                <button class="tja-action-btn tja-close" id="gimmick-close">✕</button>
-            </div>
-            <div class="gimmick-body">
-                <div class="gimmick-section">
-                    <h4>🎵 BPM変化</h4>
-                    <div class="gimmick-row">
-                        <label><input type="checkbox" id="gimmick-bpm-enable"> BPMを変更する</label>
-                    </div>
-                    <div class="gimmick-row">
-                        <input type="number" id="gimmick-bpm-val" step="0.01" placeholder="BPM値 (例: 120)" disabled>
-                    </div>
-                </div>
 
-                <div class="gimmick-section">
-                    <h4>📐 拍子・音符分割</h4>
-                    <div class="gimmick-row">
-                        <label>拍子:</label>
-                        <div style="display:flex; align-items:center; gap:5px; flex:1;">
-                            <input type="number" id="gimmick-sig-num" min="1" max="16" value="4">
-                            <span>/</span>
-                            <input type="number" id="gimmick-sig-den" min="1" max="16" value="4">
-                        </div>
-                    </div>
-                    <div class="gimmick-row">
-                        <label>分割:</label>
-                        <div style="display:flex; gap:5px; flex:1;">
-                            <select id="gimmick-subdivision-preset">
-                                <option value="2">2分</option>
-                                <option value="4">4分</option>
-                                <option value="8">8分</option>
-                                <option value="12">12分</option>
-                                <option value="16" selected>16分</option>
-                                <option value="20">20分</option>
-                                <option value="24">24分</option>
-                                <option value="32">32分</option>
-                                <option value="48">48分</option>
-                            </select>
-                            <input type="number" id="gimmick-subdivision" value="16" min="1" max="192" title="任意の数値を手入力">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gimmick-section">
-                    <h4>🏎 スクロール速度 (HS)</h4>
-                    <div class="gimmick-row">
-                        <label><input type="checkbox" id="gimmick-scroll-enable"> HSを変更する</label>
-                    </div>
-                    <div class="gimmick-row">
-                        <input type="number" id="gimmick-scroll-val" step="0.1" placeholder="倍率 (例: 1.2)" disabled>
-                    </div>
-                </div>
-
-                <div class="gimmick-section">
-                    <h4>🔥 ゴーゴータイム</h4>
-                    <div class="gimmick-row">
-                        <label><input type="checkbox" id="gimmick-gogo-start"> 開始点でGO!</label>
-                    </div>
-                    <div class="gimmick-row">
-                        <label><input type="checkbox" id="gimmick-gogo-end"> 終了点でEND</label>
-                    </div>
-                </div>
-            </div>
-            <div class="gimmick-footer">
-                <button class="gimmick-apply-btn" id="gimmick-apply">✅ 適用</button>
-                <button class="gimmick-reset-btn" id="gimmick-reset">🗑 リセット</button>
-            </div>
-        </div>
-    </div>
 
     <!-- TJAプレビューモーダル -->
     <div id="tja-preview-overlay" class="tja-overlay">
@@ -473,10 +373,54 @@
                     <button type="button" class="quick-preset-btn" data-sig="6/8">6/8 拍子</button>
                 </div>
             </div>
+
+            <!-- ゴーゴータイム設定 -->
+            <div class="quick-popup-section">
+                <div class="quick-section-title">🔥 ゴーゴータイム (GOGO TIME):</div>
+                <div class="quick-btn-grid" id="quick-gogo-btns" style="grid-template-columns: repeat(2, 1fr);">
+                    <button type="button" class="quick-preset-btn highlight-gogo" data-gogo="range" title="選択範囲の先頭でSTART、末尾でENDを一括設定">🔥 範囲をゴーゴー化</button>
+                    <button type="button" class="quick-preset-btn highlight-danger" data-gogo="clear" title="選択範囲のゴーゴー設定を解除">🗑️ ゴーゴー解除</button>
+                    <button type="button" class="quick-preset-btn highlight-gogo" data-gogo="start" title="この小節からゴーゴー開始 (#GOGOSTART)">⚡ 開始 (START)</button>
+                    <button type="button" class="quick-preset-btn highlight-gogo-end" data-gogo="end" title="この小節でゴーゴー終了 (#GOGOEND)">🛑 終了 (END)</button>
+                </div>
+            </div>
+
+            <!-- BPM変化設定 -->
+            <div class="quick-popup-section">
+                <div class="quick-section-title">🎵 BPM変化 (BPM CHANGE):</div>
+                <div class="quick-custom-row">
+                    <span class="quick-custom-label">BPM:</span>
+                    <input type="number" id="quick-bpm-custom" step="0.01" min="1" max="999" placeholder="数値">
+                    <button type="button" class="quick-apply-btn" id="quick-bpm-custom-apply">適用</button>
+                    <button type="button" class="quick-preset-btn" id="quick-bpm-base-btn" title="楽曲の基本BPMをセット">基本BPM反映</button>
+                    <button type="button" class="quick-clear-btn" id="quick-bpm-clear" title="BPM変化を解除">解除</button>
+                </div>
+            </div>
+
+            <!-- スクロール速度 (HS) 設定 -->
+            <div class="quick-popup-section">
+                <div class="quick-section-title">🏎 スクロール速度 (HS倍率):</div>
+                <div class="quick-btn-grid" id="quick-scroll-btns" style="grid-template-columns: repeat(5, 1fr);">
+                    <button type="button" class="quick-preset-btn highlight-cyan" data-scroll="0.5">0.5x</button>
+                    <button type="button" class="quick-preset-btn highlight-cyan" data-scroll="1.0">1.0x (等倍)</button>
+                    <button type="button" class="quick-preset-btn highlight-cyan" data-scroll="1.2">1.2x</button>
+                    <button type="button" class="quick-preset-btn highlight-cyan" data-scroll="1.5">1.5x</button>
+                    <button type="button" class="quick-preset-btn highlight-cyan" data-scroll="2.0">2.0x</button>
+                </div>
+                <div class="quick-custom-row">
+                    <span class="quick-custom-label">手入力:</span>
+                    <input type="number" id="quick-scroll-custom" step="0.1" min="0.1" max="10.0" placeholder="倍率" value="1.2">
+                    <button type="button" class="quick-apply-btn" id="quick-scroll-custom-apply">適用</button>
+                    <button type="button" class="quick-clear-btn" id="quick-scroll-clear" title="HS変更を解除">解除</button>
+                </div>
+            </div>
         </div>
         <div class="quick-popup-footer">
-            <span class="quick-hint">ショートカット: <strong>M</strong> または <strong>S</strong> キー</span>
-            <button type="button" class="quick-close-btn" id="quick-cancel-btn">閉じる (Esc)</button>
+            <span class="quick-hint">ショートカット: <strong>M</strong> / <strong>S</strong> / <strong>G</strong> キー (ギミック統合)</span>
+            <div style="display:flex; gap:8px;">
+                <button type="button" class="quick-clear-btn" id="quick-all-gimmick-clear" title="BPM変化・HS・ゴーゴーを全て解除">🗑️ ギミック全消去</button>
+                <button type="button" class="quick-close-btn" id="quick-cancel-btn">閉じる (Esc)</button>
+            </div>
         </div>
     </div>
 
@@ -522,16 +466,55 @@
                 <div class="release-item">
                     <div class="release-item-title">
                         <span class="release-badge latest">最新アップデート</span>
+                        ⚙ ギミック設定を小節クイック設定（M/S/G）に完全一元化
+                    </div>
+                    <ul class="release-item-list">
+                        <li><strong>ギミック設定の統合:</strong> 旧ギミックモーダルを撤廃し、小節クイック設定ポップアップ内に「BPM変化」「音符分割」「拍子」「HS」「ゴーゴー」を完全集約しました。</li>
+                        <li><strong>ショートカット一元化:</strong> <code>M</code> / <code>S</code> / <code>G</code> キー、レーン上部の小節クリック、下部ツールバーの「⚙ ギミック設定」ボタンのいずれからでも素早く開閉可能です。</li>
+                        <li><strong>BPM変化の簡単設定:</strong> 小節クイック設定から直接BPMの変更・楽曲基本BPMの再反映・解除ができるようになりました。</li>
+                    </ul>
+                </div>
+                <div class="release-item">
+                    <div class="release-item-title">
+                        <span class="release-badge">過去の更新</span>
+                        🔥 小節クイック設定（M/S）にゴーゴータイム＆HS設定を追加
+                    </div>
+                    <ul class="release-item-list">
+                        <li><strong>🔥 ゴーゴータイムのワンクリック設定:</strong> <code>M</code> または <code>S</code> キーのポップアップから、選択小節（または選択範囲）の「範囲ゴーゴー化」「開始 (START)」「終了 (END)」「ゴーゴー解除」が瞬時に設定可能になりました。</li>
+                        <li><strong>🏎 スクロール速度（HS）クイック適用:</strong> 0.5x, 1.0x, 1.2x, 1.5x, 2.0x などの定番HS倍率やカスタム倍率を素早く設定・解除できます。</li>
+                        <li><strong>🗑️ ギミック全消去機能:</strong> 選択範囲の小節に設定されたBPM変化・HS・ゴーゴーを一発でまとめて初期化できるボタンを追加しました。</li>
+                    </ul>
+                </div>
+                <div class="release-item">
+                    <div class="release-item-title">
+                        <span class="release-badge">過去の更新</span>
+                        ⚙ 環境設定モーダル新設 ＆ 全機能ショートカット変更・UI完全連動
+                    </div>
+                    <ul class="release-item-list">
+                        <li><strong>左サイドバーの整理:</strong> ショートカット設定欄を左サイドバーから撤去し、純粋な曲情報・難易度設定のみに改善。</li>
+                        <li><strong>⚙ 環境設定モーダルの新設:</strong> 画面右上の「⚙ 設定」ボタンから全機能のキーを自由に割り当て変更・保存可能。</li>
+                        <li><strong>UI完全連動:</strong> 設定キーに合わせて下部ボタンや操作ガイドの表記がリアルタイムに自動更新。</li>
+                    </ul>
+                </div>
+                <div class="release-item">
+                    <div class="release-item-title">
+                        <span class="release-badge">過去の更新</span>
+                        左クリックスライド選択 ＆ 1/4小節単位スナップ対応
+                    </div>
+                    <ul class="release-item-list">
+                        <li><strong>左クリックスライド選択:</strong> 従来の右ドラッグに加え、直感的な左クリックスライドで範囲選択が可能に。短押しクリックでは通常通り音符配置・小節設定が動作。</li>
+                        <li><strong>1/4小節単位スナップ:</strong> スナップ吸着を1小節内の 1/4（四分の一・拍単位）ごとに改良。より細かなフレーズ選択がスムーズに。</li>
+                    </ul>
+                </div>
+                <div class="release-item">
+                    <div class="release-item-title">
+                        <span class="release-badge">過去の更新</span>
                         小節クイック変更 ＆ スナップ選択・操作ガイド新設
                     </div>
                     <ul class="release-item-list">
-                        <li><strong>小節単位スナップ選択:</strong> ドラッグ選択（右ドラッグ）時、<strong>1小節（4/4拍子等）の境界にピタッと吸着</strong>して止まるようになり、小節単位の選択が格段にスムーズになりました。</li>
-                        <li><strong>Shiftキーで自由選択:</strong> <code>Shift</code> キーを押しながらドラッグすると、従来の音符・ピクセル単位での自由選択に切り替わります。</li>
-                        <li><strong>小節クイック変更（ショートカット対応）:</strong> 小節を選択して <strong><code>M</code> または <code>S</code> キー</strong> を押す（または小節番号をクリックする）とクイック設定が出現。<strong>48分・32分・24分・16分</strong>などの分割数や拍子を<strong>ワンクリックで一括変更</strong>できます。既存の音符は時間比率を維持したまま自動で安全に再配置されます。</li>
-                        <li><strong>小節細分数バッジ常時表示:</strong> 各小節の先頭上部に <code>[32分]</code> <code>[48分]</code> などの分割数バッジが表示され、小節の状態が一目で把握できます。</li>
-                        <li><strong>📖 操作ガイド＆マニュアル新設:</strong> 画面右下の「📖 操作ガイド」から、音符入力・連打・小節設定・ショートカット一覧をいつでも見られるマニュアル機能を追加しました。</li>
-                        <li><strong>連打・大連打・風船の入力改善:</strong> 2回目クリックでの連打確定の挙動を安定化し、風船音符のEnter確定操作性を向上、下部ボタンを赤（ドン）・青（カッ）で見やすく色分けしました。</li>
-                        <li><strong>右タブプレビュー描画 & パース強化:</strong> 32分・48分などの細密な音符詰まり表示に対応し、高度トークナイザーによりTJAコマンドの読み込み精度を向上させました。</li>
+                        <li><strong>小節クイック設定（ショートカット対応）:</strong> 小節を選択して <code>M</code> または <code>S</code> キーを押すと、48分・32分・24分・16分などの分割数や拍子をワンクリック変更可能。</li>
+                        <li><strong>小節細分数バッジ常時表示:</strong> 各小節上部に <code>[32分]</code> <code>[48分]</code> などの分割数を表示。</li>
+                        <li><strong>操作ガイド＆マニュアル新設:</strong> 画面右上の「📖 ガイド」から全5ページの詳細ガイドを閲覧可能。</li>
                     </ul>
                 </div>
                 <div class="release-item">
@@ -581,35 +564,35 @@
                             <h5>🎹 音符の種類とキー配置</h5>
                             <table class="guide-shortcut-table">
                                 <tr>
-                                    <td><kbd>J</kbd> または <kbd>F</kbd> / <kbd>1</kbd></td>
+                                    <td data-guide-sc="don"><kbd>J</kbd> または <kbd>F</kbd> / <kbd>1</kbd></td>
                                     <td>🔴 <strong>ドン（面）</strong></td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>K</kbd> または <kbd>D</kbd> / <kbd>2</kbd></td>
+                                    <td data-guide-sc="ka"><kbd>K</kbd> または <kbd>D</kbd> / <kbd>2</kbd></td>
                                     <td>🔵 <strong>カッ（ふち）</strong></td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>3</kbd></td>
+                                    <td data-guide-sc="bigDon"><kbd>3</kbd></td>
                                     <td>🟠 <strong>大ドン</strong></td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>4</kbd></td>
+                                    <td data-guide-sc="bigKa"><kbd>4</kbd></td>
                                     <td>🔷 <strong>大カッ</strong></td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>5</kbd> / <kbd>R</kbd></td>
+                                    <td data-guide-sc="roll"><kbd>5</kbd> / <kbd>R</kbd></td>
                                     <td>🟡 <strong>連打</strong></td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>6</kbd></td>
+                                    <td data-guide-sc="bigRoll"><kbd>6</kbd></td>
                                     <td>🟡 <strong>大連打</strong></td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>7</kbd></td>
+                                    <td data-guide-sc="balloon"><kbd>7</kbd></td>
                                     <td>🎈 <strong>風船連打</strong>（打数指定可）</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>Space</kbd> / <kbd>0</kbd></td>
+                                    <td data-guide-sc="delete"><kbd>Space</kbd> / <kbd>0</kbd></td>
                                     <td>⬜ <strong>休符 / 音符削除</strong></td>
                                 </tr>
                             </table>
@@ -683,13 +666,14 @@
                             </ul>
                         </div>
                         <div class="guide-card">
-                            <h5>🎯 ギミック設定（小節ごとの特殊効果）</h5>
-                            <p>下部の「⚙ ギミック設定」ボタン（または <kbd>G</kbd> キー）でモーダルを開き、対象小節範囲（例: 5〜8）に適用します。</p>
+                            <h5>🎯 小節クイック設定＆ギミック一元化</h5>
+                            <p>小節上部をクリックするか、ショートカットキー（<kbd>M</kbd> / <kbd>S</kbd> / <kbd>G</kbd>）、または下部の「⚙ ギミック設定」ボタンを押すと、音符分割・拍子・BPM・HS・GOGOを1箇所で素早く設定できます。</p>
                             <ul>
-                                <li><strong>🎵 BPM変化:</strong> 途中からのテンポ変更（#BPMCHANGE）を設定します。</li>
-                                <li><strong>📐 拍子・分割数:</strong> 3/4拍子などの変拍子や、16分・24分・32分などの音符グリッド分割数を変更します。</li>
-                                <li><strong>🏎 スクロール速度 (HS):</strong> 譜面の流れる速度倍率（#SCROLL）を設定します。</li>
-                                <li><strong>🔥 ゴーゴータイム:</strong> サビなどでスコアが増加するゴーゴーゾーン（#GOGOSTART / #GOGOEND）を指定します。</li>
+                                <li><strong>🎵 BPM変化:</strong> 途中からのテンポ変更（#BPMCHANGE）や基本BPMの再反映を設定します。</li>
+                                <li><strong>📐 拍子・音符分割:</strong> 3/4拍子などの変拍子や、16分・24分・32分・48分などの細分数をワンクリック適用します。</li>
+                                <li><strong>🏎 スクロール速度 (HS):</strong> 譜面の流れる速度倍率（0.5x〜2.0x等）を設定・解除します。</li>
+                                <li><strong>🔥 ゴーゴータイム:</strong> 範囲選択して「🔥 範囲をゴーゴー化」や開始/終了を設定します。</li>
+                                <li><strong>🗑️ ギミック全消去:</strong> 選択範囲の小節ギミックをまとめて一括リセット可能です。</li>
                             </ul>
                         </div>
                     </div>
@@ -736,35 +720,35 @@
                             <h5>🥁 音符・編集操作</h5>
                             <table class="guide-shortcut-table">
                                 <tr>
-                                    <td><kbd>J</kbd> / <kbd>F</kbd> / <kbd>1</kbd></td>
+                                    <td data-guide-sc="don"><kbd>J</kbd> / <kbd>F</kbd> / <kbd>1</kbd></td>
                                     <td>ドン（面）配置</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>K</kbd> / <kbd>D</kbd> / <kbd>2</kbd></td>
+                                    <td data-guide-sc="ka"><kbd>K</kbd> / <kbd>D</kbd> / <kbd>2</kbd></td>
                                     <td>カッ（ふち）配置</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>3</kbd> / <kbd>4</kbd></td>
+                                    <td data-guide-sc="bigDonKa"><kbd>3</kbd> / <kbd>4</kbd></td>
                                     <td>大ドン / 大カッ 配置</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>5</kbd>(<kbd>R</kbd>) / <kbd>6</kbd> / <kbd>7</kbd></td>
+                                    <td data-guide-sc="rollEtc"><kbd>5</kbd>(<kbd>R</kbd>) / <kbd>6</kbd> / <kbd>7</kbd></td>
                                     <td>連打 / 大連打 / 風船 配置</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>Space</kbd> / <kbd>0</kbd></td>
+                                    <td data-guide-sc="delete"><kbd>Space</kbd> / <kbd>0</kbd></td>
                                     <td>休符 / 現在の音符を削除</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>C</kbd></td>
+                                    <td data-guide-sc="continuous"><kbd>C</kbd></td>
                                     <td>連続配置モード ON/OFF</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>Ctrl</kbd> + <kbd>Z</kbd></td>
+                                    <td data-guide-sc="undo"><kbd>Ctrl</kbd> + <kbd>Z</kbd></td>
                                     <td>元に戻す (Undo)</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>Ctrl</kbd> + <kbd>Y</kbd></td>
+                                    <td data-guide-sc="redo"><kbd>Ctrl</kbd> + <kbd>Y</kbd></td>
                                     <td>やり直す (Redo)</td>
                                 </tr>
                             </table>
@@ -773,35 +757,35 @@
                             <h5>🧭 ナビゲーション・機能ショートカット</h5>
                             <table class="guide-shortcut-table">
                                 <tr>
-                                    <td><kbd>Enter</kbd></td>
+                                    <td data-guide-sc="play"><kbd>Enter</kbd></td>
                                     <td>音源再生 / 停止</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>←</kbd> / <kbd>→</kbd></td>
+                                    <td data-guide-sc="prevNext"><kbd>←</kbd> / <kbd>→</kbd></td>
                                     <td>前後の小節へ移動</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>Home</kbd> / <kbd>End</kbd></td>
+                                    <td data-guide-sc="homeEnd"><kbd>Home</kbd> / <kbd>End</kbd></td>
                                     <td>先頭小節 / 末尾小節へ移動</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>M</kbd> / <kbd>S</kbd></td>
+                                    <td data-guide-sc="quickMeas"><kbd>M</kbd> / <kbd>S</kbd></td>
                                     <td>小節クイック設定（48分/32分/拍子変更）</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>右ドラッグ</kbd></td>
-                                    <td>小節単位で選択（1小節・4/4境界スナップ）</td>
+                                    <td><kbd>左ドラッグ</kbd> / <kbd>右ドラッグ</kbd></td>
+                                    <td>1/4小節（拍単位）でスナップ選択</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>Shift</kbd> + <kbd>右ドラッグ</kbd></td>
+                                    <td><kbd>Shift</kbd> + <kbd>ドラッグ</kbd></td>
                                     <td>自由な範囲選択（音符・ピクセル単位）</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>G</kbd></td>
+                                    <td data-guide-sc="gimmick"><kbd>G</kbd></td>
                                     <td>ギミック設定モーダルを開く</td>
                                 </tr>
                                 <tr>
-                                    <td><kbd>?</kbd> / <kbd>F1</kbd></td>
+                                    <td data-guide-sc="guide"><kbd>?</kbd> / <kbd>F1</kbd></td>
                                     <td>操作ガイドを開く / 閉じる</td>
                                 </tr>
                                 <tr>
@@ -825,6 +809,127 @@
                 <div class="guide-nav-buttons">
                     <button class="guide-nav-btn" id="guide-prev-btn">◀ 前へ</button>
                     <button class="guide-nav-btn primary" id="guide-next-btn">次へ ▶</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 環境設定モーダル -->
+    <div id="settings-overlay" class="tja-overlay" style="display:none;">
+        <div class="settings-modal">
+            <div class="settings-header">
+                <div class="settings-header-title">
+                    <span style="font-size: 20px;">⚙</span>
+                    <h3>環境設定・ショートカット</h3>
+                </div>
+                <button class="tja-action-btn tja-close" id="settings-close-btn" title="閉じる (Esc)">✕ 閉じる</button>
+            </div>
+            <div class="settings-body">
+                <p class="settings-hint">※各機能のキーをカンマ（,）区切りで複数指定できます（例: <code>j, f</code> または <code>space, 0</code>）。大文字小文字は区別されません。</p>
+
+                <div class="settings-section">
+                    <h4>🥁 音符入力ショートカット</h4>
+                    <div class="settings-grid">
+                        <div class="shortcut-row">
+                            <label for="sc-set-don">🔴 ドン（面）</label>
+                            <input type="text" id="sc-set-don" placeholder="例: j, f">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-ka">🔵 カッ（ふち）</label>
+                            <input type="text" id="sc-set-ka" placeholder="例: k, d">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-big-don">🟠 大ドン</label>
+                            <input type="text" id="sc-set-big-don" placeholder="例: 3">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-big-ka">🔷 大カッ</label>
+                            <input type="text" id="sc-set-big-ka" placeholder="例: 4">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-roll">🟡 連打開始</label>
+                            <input type="text" id="sc-set-roll" placeholder="例: 5, r">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-big-roll">🟡 大連打</label>
+                            <input type="text" id="sc-set-big-roll" placeholder="例: 6">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-balloon">🎈 風船</label>
+                            <input type="text" id="sc-set-balloon" placeholder="例: 7">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-roll-end">🛑 連打終了</label>
+                            <input type="text" id="sc-set-roll-end" placeholder="例: 8, e">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-delete">⬜ 休符 / 削除</label>
+                            <input type="text" id="sc-set-delete" placeholder="例: 0, space, backspace, delete">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>🛠️ ツール・編集操作</h4>
+                    <div class="settings-grid">
+                        <div class="shortcut-row">
+                            <label for="sc-set-continuous">🔄 連続配置切替</label>
+                            <input type="text" id="sc-set-continuous" placeholder="例: c">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-quick-meas">📐 小節クイック設定</label>
+                            <input type="text" id="sc-set-quick-meas" placeholder="例: m, s">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-gimmick">⚙ ギミック設定</label>
+                            <input type="text" id="sc-set-gimmick" placeholder="例: g">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-undo">↩ 元に戻す (Undo)</label>
+                            <input type="text" id="sc-set-undo" placeholder="例: ctrl+z">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-redo">↪ やり直す (Redo)</label>
+                            <input type="text" id="sc-set-redo" placeholder="例: ctrl+y">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>🧭 ナビゲーション・再生・ヘルプ</h4>
+                    <div class="settings-grid">
+                        <div class="shortcut-row">
+                            <label for="sc-set-play">▶ 再生 / 停止</label>
+                            <input type="text" id="sc-set-play" placeholder="例: enter">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-prev-meas">◀ 前の小節へ移動</label>
+                            <input type="text" id="sc-set-prev-meas" placeholder="例: arrowleft">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-next-meas">▶ 次の小節へ移動</label>
+                            <input type="text" id="sc-set-next-meas" placeholder="例: arrowright">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-rewind">⏮ 先頭小節へ移動</label>
+                            <input type="text" id="sc-set-rewind" placeholder="例: home">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-jump-end">⏭ 末尾小節へ移動</label>
+                            <input type="text" id="sc-set-jump-end" placeholder="例: end">
+                        </div>
+                        <div class="shortcut-row">
+                            <label for="sc-set-guide">📖 操作ガイド開閉</label>
+                            <input type="text" id="sc-set-guide" placeholder="例: ?, f1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-footer">
+                <button type="button" class="settings-btn reset" id="settings-reset-btn">↺ 初期設定に戻す</button>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" class="settings-btn cancel" id="settings-cancel-btn">キャンセル</button>
+                    <button type="button" class="settings-btn save" id="settings-save-btn">💾 設定を保存</button>
                 </div>
             </div>
         </div>
