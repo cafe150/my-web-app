@@ -26,9 +26,31 @@
                 <button class="branch-btn" data-branch="master">達</button>
             </div>
         </div>
-        <div class="header-right status-bar">
-            <span id="status-timeline" class="status-badge">小節: -</span>
-            <span id="status-mode" class="status-badge">モード: 音符 | サイズ: 小 | スナップ: ON</span>
+
+        <div class="header-center">
+            <!-- トランスポートバー（項番1） -->
+            <div class="header-transport-group">
+                <button class="header-tool-btn" id="btn-rewind" title="先頭小節へ移動 (Home)">⏮</button>
+                <button class="header-tool-btn" id="btn-prev-measure" title="前の小節へ移動 (←)">◀</button>
+                <button class="header-tool-btn btn-play" id="btn-play" title="再生 / 停止 (Enter)">▶ 再生 (Enter)</button>
+                <button class="header-tool-btn" id="btn-next-measure" title="次の小節へ移動 (→)">▶</button>
+            </div>
+            <!-- アンドゥ / リドゥ（項番2） -->
+            <div class="header-history-group">
+                <button class="header-tool-btn" id="btn-undo" title="元に戻す (Ctrl+Z)" disabled>↩</button>
+                <button class="header-tool-btn" id="btn-redo" title="やり直す (Ctrl+Y)" disabled>↪</button>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <!-- ファイル操作・ガイド（項番4） -->
+            <button class="header-action-btn" id="btn-import-tja" style="background:#2c3e50;">📄 TJA読込</button>
+            <button class="header-action-btn" id="btn-import-audio" style="background:#16a085;">🎵 音源読込</button>
+            <button class="header-action-btn" id="btn-tja-preview">📋 プレビュー</button>
+            <button class="header-action-btn btn-export" id="btn-export">📤 TJA出力</button>
+            <button class="header-action-btn btn-guide" id="btn-guide" title="操作ガイド・マニュアルを開く (?)">📖 ガイド</button>
+            <input type="file" id="audio-file-input" accept="audio/*" style="display:none;">
+            <input type="file" id="tja-file-input" accept=".tja,.txt" style="display:none;">
         </div>
     </header>
 
@@ -129,7 +151,7 @@
             </div>
             <div class="setting-group">
                 <label>休符 / 削除</label>
-                <input type="text" id="sc-delete" value="0,backspace,delete">
+                <input type="text" id="sc-delete" value="0,backspace,delete,space">
             </div>
         </aside>
         <div class="resizer" id="sidebar-resizer"></div>
@@ -252,7 +274,7 @@
         <aside class="right-sidebar" id="right-sidebar">
             <div class="right-tab-header">
                 <div class="right-tab-buttons">
-                    <button class="right-tab-btn active" id="tab-btn-visual" data-tab="visual">設定</button>
+                    <button class="right-tab-btn active" id="tab-btn-visual" data-tab="visual">プレビュー</button>
                     <button class="right-tab-btn" id="tab-btn-text" data-tab="text">TJAプレビュー</button>
                 </div>
                 <button class="right-sidebar-toggle" id="right-sidebar-toggle" title="サイドバーを閉じる">▶</button>
@@ -260,7 +282,6 @@
             
             <div class="right-tab-content active" id="right-tab-visual" style="padding: 0; overflow-y: auto; display: flex; flex-direction: column;">
                 <div class="settings-panel">
-                    <div class="settings-panel-title">⚙️ エディタ設定</div>
                     <button id="btn-clear-data" class="tja-action-btn tja-close" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
                         🗑️ データ削除
                     </button>
@@ -283,37 +304,30 @@
 
     <footer class="footer">
         <div class="tool-group">
-            <button class="tool-btn active-tool" data-key="1">ドン(j/f)</button>
-            <button class="tool-btn" data-key="2">カッ(k/d)</button>
-            <button class="tool-btn" data-key="3">大ドン(3)</button>
-            <button class="tool-btn" data-key="4">大カッ(4)</button>
+            <button class="tool-btn tool-don active-tool" data-key="1">🔴 ドン(j/f)</button>
+            <button class="tool-btn tool-kat" data-key="2">🔵 カッ(k/d)</button>
+            <button class="tool-btn tool-big-don" data-key="3">🟠 大ドン(3)</button>
+            <button class="tool-btn tool-big-kat" data-key="4">🔷 大カッ(4)</button>
         </div>
         <div class="tool-group">
-            <button class="tool-btn" data-key="5">連打(5/r)</button>
-            <button class="tool-btn" data-key="6">大連打(6)</button>
-            <button class="tool-btn" data-key="7">風船(7)</button>
+            <button class="tool-btn tool-roll" data-key="5">🟡 連打(5/r)</button>
+            <button class="tool-btn tool-big-roll" data-key="6">🟡 大連打(6)</button>
+            <button class="tool-btn tool-balloon" data-key="7">🎈 風船(7)</button>
         </div>
         <div class="tool-group">
-            <button class="tool-btn" data-key="0">休符/削除(0)</button>
+            <button class="tool-btn tool-rest" data-key="0">⬜ 休符/削除(0/Space)</button>
         </div>
         <div class="tool-group">
             <button class="tool-btn btn-continuous" id="btn-continuous" title="ショートカットキーで配置後、自動で1マス進みます">🔄
                 連続配置(C)</button>
         </div>
         <div class="tool-group">
-            <button class="tool-btn btn-import" id="btn-import-tja" style="background:#2c3e50;">📄 TJA読込</button>
-            <button class="tool-btn btn-import" id="btn-import-audio">🎵 音源読込</button>
-            <button class="tool-btn btn-play" id="btn-play">▶ 再生 (Space)</button>
-        </div>
-        <div class="tool-group">
             <button class="tool-btn btn-gimmick" id="btn-gimmick">⚙ ギミック設定</button>
         </div>
-        <div class="tool-group">
-            <button class="tool-btn" id="btn-tja-preview">TJAプレビュー</button>
-            <button class="tool-btn" id="btn-export">TJA出力</button>
+        <div class="status-bar footer-status">
+            <span id="status-timeline" class="status-badge">小節: -</span>
+            <span id="status-mode" class="status-badge">モード: 音符 | サイズ: 小 | スナップ: ON</span>
         </div>
-        <input type="file" id="audio-file-input" accept="audio/*" style="display:none;">
-        <input type="file" id="tja-file-input" accept=".tja,.txt" style="display:none;">
     </footer>
 
     <!-- ギミック設定モーダル -->
@@ -424,10 +438,396 @@
         </div>
     </div>
 
+    <!-- 小節クイック設定ポップアップ (ショートカット M/S や小節クリックで開く) -->
+    <div id="measure-quick-popup" class="measure-quick-popup" style="display:none;">
+        <div class="quick-popup-header">
+            <span class="quick-popup-icon">📐</span>
+            <span class="quick-popup-title" id="measure-quick-title">小節設定: 第1小節</span>
+            <button type="button" class="quick-popup-close-btn" id="measure-quick-close" title="閉じる (Esc)">✕</button>
+        </div>
+        <div class="quick-popup-body">
+            <div class="quick-popup-section">
+                <div class="quick-section-title">⚡ 音符分割（細分数）を選択して適用:</div>
+                <div class="quick-btn-grid" id="quick-subdiv-btns">
+                    <button type="button" class="quick-preset-btn" data-sub="4">4分</button>
+                    <button type="button" class="quick-preset-btn" data-sub="8">8分</button>
+                    <button type="button" class="quick-preset-btn" data-sub="12">12分</button>
+                    <button type="button" class="quick-preset-btn" data-sub="16">16分</button>
+                    <button type="button" class="quick-preset-btn" data-sub="20">20分</button>
+                    <button type="button" class="quick-preset-btn highlight" data-sub="24">24分</button>
+                    <button type="button" class="quick-preset-btn highlight" data-sub="32">32分</button>
+                    <button type="button" class="quick-preset-btn highlight-accent" data-sub="48">48分</button>
+                </div>
+                <div class="quick-custom-row">
+                    <span class="quick-custom-label">手入力:</span>
+                    <input type="number" id="quick-subdiv-custom" min="1" max="192" placeholder="数値" value="48">
+                    <button type="button" class="quick-apply-btn" id="quick-subdiv-custom-apply">適用</button>
+                </div>
+            </div>
+            <div class="quick-popup-section">
+                <div class="quick-section-title">🎵 拍子を変更:</div>
+                <div class="quick-btn-grid" id="quick-sig-btns">
+                    <button type="button" class="quick-preset-btn" data-sig="4/4">4/4 拍子</button>
+                    <button type="button" class="quick-preset-btn" data-sig="3/4">3/4 拍子</button>
+                    <button type="button" class="quick-preset-btn" data-sig="2/4">2/4 拍子</button>
+                    <button type="button" class="quick-preset-btn" data-sig="6/8">6/8 拍子</button>
+                </div>
+            </div>
+        </div>
+        <div class="quick-popup-footer">
+            <span class="quick-hint">ショートカット: <strong>M</strong> または <strong>S</strong> キー</span>
+            <button type="button" class="quick-close-btn" id="quick-cancel-btn">閉じる (Esc)</button>
+        </div>
+    </div>
+
     <!-- 数値入力ポップアップ (風船の打数など) -->
-    <div id="num-input-popup" style="display:none; position:fixed; background:#2c3e50; border:1px solid #3498db; padding:10px; border-radius:8px; z-index:2000; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
-        <label style="color:#bdc3c7; font-size:11px; display:block; margin-bottom:5px; font-weight:bold;">打数入力:</label>
-        <input type="number" id="note-value-input" style="width:80px; padding:8px; background:#1a1a2e; color:#fff; border:1px solid #34495e; border-radius:4px; font-size:16px;">
+    <div id="num-input-popup" class="balloon-input-popup" style="display:none;">
+        <div class="balloon-input-header">
+            <span class="balloon-icon">🎈</span>
+            <span class="balloon-title" id="num-input-title">風船の打数設定</span>
+            <button type="button" class="balloon-close-btn" id="num-input-cancel-btn" title="閉じる (Esc)">✕</button>
+        </div>
+        <div class="balloon-input-body">
+            <div class="balloon-stepper">
+                <button type="button" class="stepper-btn" id="num-input-dec5" title="5減らす">−5</button>
+                <button type="button" class="stepper-btn" id="num-input-dec1" title="1減らす">−1</button>
+                <input type="number" id="note-value-input" min="1" max="999" value="5" placeholder="打数">
+                <button type="button" class="stepper-btn" id="num-input-inc1" title="1増やす">＋1</button>
+                <button type="button" class="stepper-btn" id="num-input-inc5" title="5増やす">＋5</button>
+            </div>
+            <div class="balloon-presets">
+                <span class="preset-label">クイック選択:</span>
+                <button type="button" class="preset-btn" data-val="3">3</button>
+                <button type="button" class="preset-btn" data-val="5">5</button>
+                <button type="button" class="preset-btn" data-val="7">7</button>
+                <button type="button" class="preset-btn" data-val="10">10</button>
+                <button type="button" class="preset-btn" data-val="15">15</button>
+                <button type="button" class="preset-btn" data-val="20">20</button>
+            </div>
+        </div>
+        <div class="balloon-input-footer">
+            <button type="button" class="balloon-btn cancel" id="num-input-cancel">キャンセル (Esc)</button>
+            <button type="button" class="balloon-btn confirm" id="num-input-ok">✅ 決定 (Enter)</button>
+        </div>
+    </div>
+
+    <!-- リリースノートモーダル -->
+    <div id="release-notes-overlay" class="tja-overlay">
+        <div class="release-notes-modal">
+            <div class="release-notes-header">
+                <h3>📢 アップデート情報</h3>
+                <button class="tja-action-btn tja-close" id="release-notes-close" title="閉じる">✕</button>
+            </div>
+            <div class="release-notes-body">
+                <div class="release-item">
+                    <div class="release-item-title">
+                        <span class="release-badge latest">最新アップデート</span>
+                        小節クイック変更 ＆ スナップ選択・操作ガイド新設
+                    </div>
+                    <ul class="release-item-list">
+                        <li><strong>小節単位スナップ選択:</strong> ドラッグ選択（右ドラッグ）時、<strong>1小節（4/4拍子等）の境界にピタッと吸着</strong>して止まるようになり、小節単位の選択が格段にスムーズになりました。</li>
+                        <li><strong>Shiftキーで自由選択:</strong> <code>Shift</code> キーを押しながらドラッグすると、従来の音符・ピクセル単位での自由選択に切り替わります。</li>
+                        <li><strong>小節クイック変更（ショートカット対応）:</strong> 小節を選択して <strong><code>M</code> または <code>S</code> キー</strong> を押す（または小節番号をクリックする）とクイック設定が出現。<strong>48分・32分・24分・16分</strong>などの分割数や拍子を<strong>ワンクリックで一括変更</strong>できます。既存の音符は時間比率を維持したまま自動で安全に再配置されます。</li>
+                        <li><strong>小節細分数バッジ常時表示:</strong> 各小節の先頭上部に <code>[32分]</code> <code>[48分]</code> などの分割数バッジが表示され、小節の状態が一目で把握できます。</li>
+                        <li><strong>📖 操作ガイド＆マニュアル新設:</strong> 画面右下の「📖 操作ガイド」から、音符入力・連打・小節設定・ショートカット一覧をいつでも見られるマニュアル機能を追加しました。</li>
+                        <li><strong>連打・大連打・風船の入力改善:</strong> 2回目クリックでの連打確定の挙動を安定化し、風船音符のEnter確定操作性を向上、下部ボタンを赤（ドン）・青（カッ）で見やすく色分けしました。</li>
+                        <li><strong>右タブプレビュー描画 & パース強化:</strong> 32分・48分などの細密な音符詰まり表示に対応し、高度トークナイザーによりTJAコマンドの読み込み精度を向上させました。</li>
+                    </ul>
+                </div>
+                <div class="release-item">
+                    <div class="release-item-title">
+                        <span class="release-badge">過去の更新</span>
+                        譜面を一覧で見る機能（右タブ）・可変BPM（ソフラン）対応
+                    </div>
+                    <ul class="release-item-list">
+                        <li><strong>譜面俯瞰プレビュー:</strong> 画面右側に譜面全体を縦スクロールで俯瞰できる「プレビュー」タブを追加。</li>
+                        <li><strong>キー操作改善:</strong> 休符を <code>Space</code> キー、再生/停止を <code>Enter</code> キーに統一。</li>
+                        <li><strong>可変BPM（ソフラン）:</strong> 小節途中の <code>#BPMCHANGE</code> の完全パース＆再生追従に対応。</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="release-notes-footer">
+                <button class="release-notes-ok-btn" id="release-notes-ok">OK（確認しました）</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作ガイドモーダル -->
+    <div id="guide-overlay" class="tja-overlay" style="display:none;">
+        <div class="guide-modal">
+            <div class="guide-header">
+                <div class="guide-header-title">
+                    <span style="font-size: 20px;">📖</span>
+                    <h3 id="guide-title">操作ガイド＆マニュアル</h3>
+                    <span class="guide-page-badge" id="guide-page-badge">5 / 5 操作一覧</span>
+                </div>
+                <div class="guide-header-actions">
+                    <button class="tja-action-btn tja-close" id="guide-close-btn" title="閉じる (Esc)">✕ 閉じる</button>
+                </div>
+            </div>
+
+            <div class="guide-body" id="guide-body">
+                <!-- ページ1: 音符入力 -->
+                <div class="guide-page" id="guide-page-1" data-page="1">
+                    <div class="guide-page-hero">
+                        <div class="guide-page-hero-icon">🎵</div>
+                        <div class="guide-page-hero-text">
+                            <h4>音符入力と基本操作</h4>
+                            <p>キャンバス上のグリッドをクリック、またはキーボードショートカットを押してリズムに合わせた音符を素早く配置できます。</p>
+                        </div>
+                    </div>
+                    <div class="guide-grid-2">
+                        <div class="guide-card">
+                            <h5>🎹 音符の種類とキー配置</h5>
+                            <table class="guide-shortcut-table">
+                                <tr>
+                                    <td><kbd>J</kbd> または <kbd>F</kbd> / <kbd>1</kbd></td>
+                                    <td>🔴 <strong>ドン（面）</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>K</kbd> または <kbd>D</kbd> / <kbd>2</kbd></td>
+                                    <td>🔵 <strong>カッ（ふち）</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>3</kbd></td>
+                                    <td>🟠 <strong>大ドン</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>4</kbd></td>
+                                    <td>🔷 <strong>大カッ</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>5</kbd> / <kbd>R</kbd></td>
+                                    <td>🟡 <strong>連打</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>6</kbd></td>
+                                    <td>🟡 <strong>大連打</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>7</kbd></td>
+                                    <td>🎈 <strong>風船連打</strong>（打数指定可）</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>Space</kbd> / <kbd>0</kbd></td>
+                                    <td>⬜ <strong>休符 / 音符削除</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="guide-card">
+                            <h5>⚡ 効率的な配置テクニック</h5>
+                            <ul>
+                                <li><strong>🔄 連続配置モード (<kbd>C</kbd>):</strong><br>
+                                    ONにすると、音符キーを押した瞬間に自動で次のグリッドへカーソルが進みます。連続入力が圧倒的に高速化します。
+                                </li>
+                                <li><strong>🧩 テンプレートパレット:</strong><br>
+                                    左サイドバーの「テンプレート」から、よく使う複合（🔴🔵、🔴🔴🔵、🔴🔵🔴など）を1クリックで配置可能です。
+                                </li>
+                                <li><strong>↔️ 小節移動:</strong><br>
+                                    キーボードの <kbd>←</kbd> / <kbd>→</kbd> キー、または画面上部のタイムラインをクリックして自由に小節間を移動できます。
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ページ2: プレビュー機能 -->
+                <div class="guide-page" id="guide-page-2" data-page="2">
+                    <div class="guide-page-hero">
+                        <div class="guide-page-hero-icon">👁️</div>
+                        <div class="guide-page-hero-text">
+                            <h4>プレビュー機能（右サイドバー）</h4>
+                            <p>制作中の譜面全体を俯瞰したり、出力されるTJAコードをリアルタイムに確認・コピーできます。</p>
+                        </div>
+                    </div>
+                    <div class="guide-grid-2">
+                        <div class="guide-card">
+                            <h5>📜 プレビュー（全体俯瞰）</h5>
+                            <p>右サイドバーの「<strong>プレビュー</strong>」タブでは、全小節の音符配置が縦スクロールで一覧表示されます。</p>
+                            <ul>
+                                <li>譜面全体の密度バランスや、叩きやすさ・色の偏りを一目で確認できます。</li>
+                                <li>エディタで音符を追加・修正すると、自動でリアルタイム描画されます。</li>
+                                <li>下部の「🗑️ データ削除」ボタンで現在の譜面を安全に初期化できます。</li>
+                            </ul>
+                        </div>
+                        <div class="guide-card">
+                            <h5>📄 TJAプレビュー＆サイドバー調整</h5>
+                            <p>「<strong>TJAプレビュー</strong>」タブでは、現在編集中の譜面がTJAフォーマットのテキストとして常時生成されます。</p>
+                            <ul>
+                                <li><strong>📋 コピー:</strong> 1クリックでTJAコード全体をクリップボードにコピーできます。</li>
+                                <li><strong>💾 ダウンロード:</strong> そのままファイルとしてダウンロード可能です。</li>
+                                <li><strong>📐 幅の調整:</strong> サイドバー左端の境界線をドラッグして、幅を自由に広げたり狭めたりできます。</li>
+                                <li><strong>▶ / ◀ 折りたたみ:</strong> 右上のボタンでワンタッチ開閉可能です。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ページ3: 設定項目・ギミック -->
+                <div class="guide-page" id="guide-page-3" data-page="3">
+                    <div class="guide-page-hero">
+                        <div class="guide-page-hero-icon">⚙️</div>
+                        <div class="guide-page-hero-text">
+                            <h4>設定項目とギミック（ソフラン・変拍子等）</h4>
+                            <p>楽曲のメタデータ設定や、BPM変更、スクロール速度変化、ゴーゴータイムなどの多彩なギミックを小節単位で設定できます。</p>
+                        </div>
+                    </div>
+                    <div class="guide-grid-2">
+                        <div class="guide-card">
+                            <h5>📝 左サイドバー設定（基本情報）</h5>
+                            <ul>
+                                <li><strong>タイトル / サブタイトル:</strong> 楽曲の曲名とサブタイトルを指定します。</li>
+                                <li><strong>BPM:</strong> 楽曲の基本テンポ（1分間の拍数）を設定します。</li>
+                                <li><strong>OFFSET:</strong> 音源とノーツのタイミングのズレ（秒）を微調整します（負数指定可）。</li>
+                                <li><strong>コース・レベル:</strong> 難易度（おに・むずかしい等）と★の数を設定します。</li>
+                            </ul>
+                        </div>
+                        <div class="guide-card">
+                            <h5>🎯 ギミック設定（小節ごとの特殊効果）</h5>
+                            <p>下部の「⚙ ギミック設定」ボタン（または <kbd>G</kbd> キー）でモーダルを開き、対象小節範囲（例: 5〜8）に適用します。</p>
+                            <ul>
+                                <li><strong>🎵 BPM変化:</strong> 途中からのテンポ変更（#BPMCHANGE）を設定します。</li>
+                                <li><strong>📐 拍子・分割数:</strong> 3/4拍子などの変拍子や、16分・24分・32分などの音符グリッド分割数を変更します。</li>
+                                <li><strong>🏎 スクロール速度 (HS):</strong> 譜面の流れる速度倍率（#SCROLL）を設定します。</li>
+                                <li><strong>🔥 ゴーゴータイム:</strong> サビなどでスコアが増加するゴーゴーゾーン（#GOGOSTART / #GOGOEND）を指定します。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ページ4: エクスポート・インポート・再生 -->
+                <div class="guide-page" id="guide-page-4" data-page="4">
+                    <div class="guide-page-hero">
+                        <div class="guide-page-hero-icon">📁</div>
+                        <div class="guide-page-hero-text">
+                            <h4>エクスポート・インポート・音源再生</h4>
+                            <p>既存のTJA譜面を読み込んだり、音源ファイルと合わせて実際にテストプレイ・書き出しができます。</p>
+                        </div>
+                    </div>
+                    <div class="guide-grid-2">
+                        <div class="guide-card">
+                            <h5>📥 譜面・音源の読み込み（インポート）</h5>
+                            <ul>
+                                <li><strong>📄 TJA読込:</strong> お手持ちの <code>.tja</code> または <code>.txt</code> 譜面ファイルを読み込みます。高度なトークナイザーにより小節途中のBPM変化や変拍子も完全再現されます。</li>
+                                <li><strong>🎵 音源読込:</strong> 楽曲の音声ファイル（<code>.mp3</code>, <code>.wav</code>, <code>.ogg</code> 等）を読み込みます。</li>
+                            </ul>
+                        </div>
+                        <div class="guide-card">
+                            <h5>▶️ 再生と書き出し（エクスポート）</h5>
+                            <ul>
+                                <li><strong>▶ 再生 / 停止 (<kbd>Enter</kbd>):</strong> 音源と連動して譜面が自動スクロール再生されます。ソフラン（BPM変化）も正確に同期します。</li>
+                                <li><strong>📤 TJA出力:</strong> 編集した譜面を <code>.tja</code>（太鼓シミュレーター用）または <code>.txt</code> 形式で保存します。各種シミュレーターですぐに遊べます。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ページ5: 全機能＆ショートカット一覧（チートシート） -->
+                <div class="guide-page" id="guide-page-5" data-page="5">
+                    <div class="guide-page-hero">
+                        <div class="guide-page-hero-icon">📋</div>
+                        <div class="guide-page-hero-text">
+                            <h4>全機能＆ショートカット一覧</h4>
+                            <p>制作に役立つすべてのショートカットキーと機能の一覧です。素早く確認したいときにご活用ください。</p>
+                        </div>
+                    </div>
+                    <div class="guide-grid-2">
+                        <div class="guide-card">
+                            <h5>🥁 音符・編集操作</h5>
+                            <table class="guide-shortcut-table">
+                                <tr>
+                                    <td><kbd>J</kbd> / <kbd>F</kbd> / <kbd>1</kbd></td>
+                                    <td>ドン（面）配置</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>K</kbd> / <kbd>D</kbd> / <kbd>2</kbd></td>
+                                    <td>カッ（ふち）配置</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>3</kbd> / <kbd>4</kbd></td>
+                                    <td>大ドン / 大カッ 配置</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>5</kbd>(<kbd>R</kbd>) / <kbd>6</kbd> / <kbd>7</kbd></td>
+                                    <td>連打 / 大連打 / 風船 配置</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>Space</kbd> / <kbd>0</kbd></td>
+                                    <td>休符 / 現在の音符を削除</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>C</kbd></td>
+                                    <td>連続配置モード ON/OFF</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>Ctrl</kbd> + <kbd>Z</kbd></td>
+                                    <td>元に戻す (Undo)</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>Ctrl</kbd> + <kbd>Y</kbd></td>
+                                    <td>やり直す (Redo)</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="guide-card">
+                            <h5>🧭 ナビゲーション・機能ショートカット</h5>
+                            <table class="guide-shortcut-table">
+                                <tr>
+                                    <td><kbd>Enter</kbd></td>
+                                    <td>音源再生 / 停止</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>←</kbd> / <kbd>→</kbd></td>
+                                    <td>前後の小節へ移動</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>Home</kbd> / <kbd>End</kbd></td>
+                                    <td>先頭小節 / 末尾小節へ移動</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>M</kbd> / <kbd>S</kbd></td>
+                                    <td>小節クイック設定（48分/32分/拍子変更）</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>右ドラッグ</kbd></td>
+                                    <td>小節単位で選択（1小節・4/4境界スナップ）</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>Shift</kbd> + <kbd>右ドラッグ</kbd></td>
+                                    <td>自由な範囲選択（音符・ピクセル単位）</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>G</kbd></td>
+                                    <td>ギミック設定モーダルを開く</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>?</kbd> / <kbd>F1</kbd></td>
+                                    <td>操作ガイドを開く / 閉じる</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>Esc</kbd></td>
+                                    <td>開いているモーダルを閉じる</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-footer">
+                <div class="guide-tabs-nav" id="guide-tabs-nav">
+                    <button class="guide-tab-btn" data-target="1">1. 音符入力</button>
+                    <button class="guide-tab-btn" data-target="2">2. プレビュー</button>
+                    <button class="guide-tab-btn" data-target="3">3. 設定・ギミック</button>
+                    <button class="guide-tab-btn" data-target="4">4. 入出力・再生</button>
+                    <button class="guide-tab-btn" data-target="5">5. 全操作一覧</button>
+                </div>
+                <div class="guide-nav-buttons">
+                    <button class="guide-nav-btn" id="guide-prev-btn">◀ 前へ</button>
+                    <button class="guide-nav-btn primary" id="guide-next-btn">次へ ▶</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

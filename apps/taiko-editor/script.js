@@ -39,6 +39,8 @@ const state = {
     isSelecting: false,
     selectStartX: 0,
     selectEndX: 0,
+    selectRawStartX: 0,
+    selectedMeasureRange: null, // { start: 0, end: 3 }
     selectedNotes: [],
     // 最後にアクティブだった小節番号
     lastActiveMeasureIdx: 0,
@@ -94,6 +96,116 @@ try {
     console.error("Failed to load saved data", e);
 }
 
+// --- 履歴管理（Undo / Redo） ---
+const MAX_UNDO_STACK = 40;
+let undoStack = [];
+let redoStack = [];
+
+function pushHistory() {
+    try {
+        const snapshot = JSON.stringify(songData);
+        if (undoStack.length > 0 && undoStack[undoStack.length - 1] === snapshot) {
+            return;
+        }
+        undoStack.push(snapshot);
+        if (undoStack.length > MAX_UNDO_STACK) {
+            undoStack.shift();
+        }
+        redoStack = []; // 新たな変更でRedoスタックをクリア
+        updateUndoRedoButtons();
+    } catch (e) {
+        console.warn("Failed to push history", e);
+    }
+}
+
+function undo() {
+    if (undoStack.length === 0) return;
+    try {
+        const currentSnapshot = JSON.stringify(songData);
+        redoStack.push(currentSnapshot);
+        const prevSnapshot = undoStack.pop();
+        songData = JSON.parse(prevSnapshot);
+        draw();
+        updateStatusBar();
+        updateUndoRedoButtons();
+    } catch (e) {
+        console.warn("Failed to undo", e);
+    }
+}
+
+function redo() {
+    if (redoStack.length === 0) return;
+    try {
+        const currentSnapshot = JSON.stringify(songData);
+        undoStack.push(currentSnapshot);
+        const nextSnapshot = redoStack.pop();
+        songData = JSON.parse(nextSnapshot);
+        draw();
+        updateStatusBar();
+        updateUndoRedoButtons();
+    } catch (e) {
+        console.warn("Failed to redo", e);
+    }
+}
+
+function updateUndoRedoButtons() {
+    const undoBtn = document.getElementById('btn-undo');
+    const redoBtn = document.getElementById('btn-redo');
+    if (undoBtn) {
+        undoBtn.disabled = (undoStack.length === 0);
+        undoBtn.style.opacity = (undoStack.length === 0) ? "0.35" : "1";
+    }
+    if (redoBtn) {
+        redoBtn.disabled = (redoStack.length === 0);
+        redoBtn.style.opacity = (redoStack.length === 0) ? "0.35" : "1";
+    }
+}
+
+// --- 小節ジャンプ・トランスポートコントロール ---
+function jumpToMeasure(mIdx) {
+    const measures = songData.courses[state.currentCourse] || [];
+    if (measures.length === 0) return;
+    const positions = calculateMeasurePositions(measures);
+    const targetIdx = Math.max(0, Math.min(positions.length - 1, mIdx));
+    if (positions[targetIdx]) {
+        state.scrollX = positions[targetIdx].startX;
+        draw();
+        updateStatusBar();
+    }
+}
+
+function prevMeasure() {
+    const measures = songData.courses[state.currentCourse] || [];
+    const positions = calculateMeasurePositions(measures);
+    let curIdx = 0;
+    for (let i = 0; i < positions.length; i++) {
+        if (positions[i].startX <= state.scrollX + 5) {
+            curIdx = i;
+        } else {
+            break;
+        }
+    }
+    jumpToMeasure(curIdx - 1);
+}
+
+function nextMeasure() {
+    const measures = songData.courses[state.currentCourse] || [];
+    const positions = calculateMeasurePositions(measures);
+    let curIdx = 0;
+    for (let i = 0; i < positions.length; i++) {
+        if (positions[i].startX <= state.scrollX + 5) {
+            curIdx = i;
+        } else {
+            break;
+        }
+    }
+    jumpToMeasure(curIdx + 1);
+}
+
+function rewindToStart() {
+    jumpToMeasure(0);
+}
+
 let saveTimeout = null;
 function autoSave() {
     if (saveTimeout) clearTimeout(saveTimeout);
@@ -128,13 +240,15 @@ function resizeCanvas() {
     const w = wrapper.clientWidth;
     const h = wrapper.clientHeight;
 
+    if (w === 0 || h === 0) return;
+
     // キャンバスの描画バッファを高解像度に
     canvas.width = w * dpr;
     canvas.height = h * dpr;
 
-    // CSS上のサイズはコンテナに合わせる
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
+    // CSS上のサイズはコンテナ幅に合わせる（固定pxをセットせず100%にして親の縮小を阻害しない）
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
 
     // 描画コンテキストをスケーリング（以降の描画命令はそのまま使える）
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -153,6 +267,19 @@ function calculateMeasurePositions(courseMeasures) {
         currentX += width;
     }
     return positions;
+}
+
+// ワールドX座標から小節インデックスを検索する
+function getMeasureIndexAtWorldX(worldX, positions) {
+    if (!positions || positions.length === 0) return 0;
+    for (let i = 0; i < positions.length; i++) {
+        const pos = positions[i];
+        if (worldX >= pos.startX && worldX < pos.startX + pos.width) {
+            return i;
+        }
+    }
+    if (worldX < positions[0].startX) return 0;
+    return positions.length - 1;
 }
 
 // 連打の「長い棒」を描画する関数
@@ -255,8 +382,11 @@ function draw() {
             allNotes.push({ ...note, measureIdx: mIdx, absX: drawX + (note.posIndex * gridSpacing) });
         });
     });
-    // 時間順（X座標順）にソート
-    allNotes.sort((a, b) => a.absX - b.absX);
+    // 時間順（小節・位置順）にソート
+    allNotes.sort((a, b) => {
+        if (a.measureIdx !== b.measureIdx) return a.measureIdx - b.measureIdx;
+        return a.posIndex - b.posIndex;
+    });
 
     // --- 連打（黄色い棒）の描画 ---
     let activeRoll = null;
@@ -269,9 +399,13 @@ function draw() {
         }
     });
 
-    // eが押されておらず、連打入力待ち状態ならカーソルまでプレビューを描画
+    // 連打入力・終了待ち状態ならカーソル（またはスナップ位置）までプレビューを描画
     if (activeRoll && (state.mode === "ROLL" || state.mode === "ROLL_END")) {
-        drawRollBar(activeRoll.x, state.cursorX, activeRoll.type, true);
+        const snap = getSnapPosition(state.cursorX, positions);
+        const endX = (snap && snap.exactX !== undefined) ? snap.exactX : state.cursorX;
+        if (endX >= activeRoll.x) {
+            drawRollBar(activeRoll.x, endX, activeRoll.type, true);
+        }
     }
 
     // --- グリッド線の描画（画面内のみ） ---
@@ -319,6 +453,18 @@ function draw() {
             ctx.strokeStyle = (i === 0) ? "#fff" : (i % (pos.measure.subdivision / pos.measure.signature[0]) === 0) ? "#888" : "#444";
             ctx.lineWidth = (i === 0) ? 2 : 1;
             ctx.stroke();
+
+            // 小節番号と細分数の表示 (小節先頭の上部)
+            if (i === 0) {
+                ctx.fillStyle = "#888";
+                ctx.font = "bold 10px sans-serif";
+                ctx.textAlign = "left";
+                let mLabel = `${mIdx + 1}`;
+                if (pos.measure.subdivision !== 16) {
+                    mLabel += ` [${pos.measure.subdivision}分]`;
+                }
+                ctx.fillText(mLabel, lineX + 3, LANE_Y - 44);
+            }
         }
 
         // --- ギミックマーカーの描画 ---
@@ -396,17 +542,30 @@ function draw() {
     }
 
     // --- 選択範囲の矩形描画 ---
-    if (state.isSelecting) {
-        const minWorldX = Math.min(state.selectStartX, state.selectEndX);
-        const maxWorldX = Math.max(state.selectStartX, state.selectEndX);
+    const minWorldX = Math.min(state.selectStartX, state.selectEndX);
+    const maxWorldX = Math.max(state.selectStartX, state.selectEndX);
+    const isRangeActive = state.isSelecting || (state.selectedMeasureRange && minWorldX !== maxWorldX) || (state.selectedNotes.length > 0 && minWorldX !== maxWorldX);
+
+    if (isRangeActive && minWorldX !== maxWorldX) {
         const drawStartX = JUDGE_X + minWorldX - state.scrollX;
         const drawWidth = maxWorldX - minWorldX;
 
-        ctx.fillStyle = "rgba(52, 152, 219, 0.3)";
+        ctx.fillStyle = "rgba(52, 152, 219, 0.22)";
         ctx.fillRect(drawStartX, LANE_Y - 50, drawWidth, 100);
-        ctx.strokeStyle = "rgba(52, 152, 219, 0.8)";
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(52, 152, 219, 0.85)";
+        ctx.lineWidth = 1.5;
         ctx.strokeRect(drawStartX, LANE_Y - 50, drawWidth, 100);
+
+        // 選択された小節範囲のガイドバッジ
+        if (state.selectedMeasureRange) {
+            const sM = state.selectedMeasureRange.start + 1;
+            const eM = state.selectedMeasureRange.end + 1;
+            const label = sM === eM ? `第 ${sM} 小節` : `第 ${sM} 〜 ${eM} 小節 (${eM - sM + 1}小節)`;
+            ctx.fillStyle = "#3498db";
+            ctx.font = "bold 11px sans-serif";
+            ctx.textAlign = "left";
+            ctx.fillText(`📐 ${label} [Mキーで変更]`, Math.max(10, drawStartX + 4), LANE_Y - 56);
+        }
     }
     updateRightSidebarPreview();
 }
@@ -513,6 +672,8 @@ window.addEventListener('mousedown', (e) => {
 // ツール・入力モードの管理
 let currentTool = "1";
 let isDraggingRoll = false;
+let rollDragStartX = 0;
+let rollStartInfo = null; // 連打の開始位置 { measureIdx, gridIdx, type }
 
 // ショートカット管理
 let shortcuts = {
@@ -520,7 +681,7 @@ let shortcuts = {
     ka: ['k', 'd'],
     roll: ['r'],
     rollEnd: ['e', '8'],
-    del: ['0', 'backspace', 'delete']
+    del: ['0', 'backspace', 'delete', ' ', 'space']
 };
 
 function updateShortcuts() {
@@ -528,7 +689,7 @@ function updateShortcuts() {
     shortcuts.ka = document.getElementById('sc-ka').value.split(',').map(s => s.trim().toLowerCase());
     shortcuts.roll = document.getElementById('sc-roll').value.split(',').map(s => s.trim().toLowerCase());
     shortcuts.rollEnd = document.getElementById('sc-roll-end').value.split(',').map(s => s.trim().toLowerCase());
-    shortcuts.del = document.getElementById('sc-delete').value.split(',').map(s => s.trim().toLowerCase());
+    shortcuts.del = document.getElementById('sc-delete').value.split(',').map(s => s.trim().toLowerCase()).flatMap(s => s === 'space' ? ['space', ' '] : [s]);
 }
 
 document.querySelectorAll('#sidebar input[id^="sc-"]').forEach(el => {
@@ -549,6 +710,9 @@ document.querySelectorAll('.tool-btn').forEach(btn => {
         if (!key) return; // エクスポートボタン等を除外
         setActiveTool(key);
 
+        rollStartInfo = null;
+        isDraggingRoll = false;
+
         if (key === '1' || key === '2' || key === '0' || key.startsWith('tpl_')) { state.mode = "NOTE"; state.size = "SMALL"; }
         if (key === '3' || key === '4') { state.mode = "NOTE"; state.size = "LARGE"; }
         if (key === '5') { state.mode = "ROLL"; state.size = "SMALL"; }
@@ -556,6 +720,7 @@ document.querySelectorAll('.tool-btn').forEach(btn => {
         if (key === '7') { state.mode = "NUM_INPUT"; state.size = "SMALL"; }
 
         updateStatusBar();
+        draw();
     });
 });
 
@@ -626,9 +791,10 @@ document.querySelectorAll('.right-tab-btn').forEach(btn => {
 function closeRightSidebar() {
     state.isRightSidebarCollapsed = true;
 
-    // 現在の幅を記憶 (0pxでなければ)
-    if (rightSidebar.style.width && rightSidebar.style.width !== '0px') {
-        state.rightSidebarWidth = rightSidebar.style.width;
+    // 現在の幅を記憶 (有効な幅であれば)
+    const currentW = rightSidebar.getBoundingClientRect().width;
+    if (currentW >= 150) {
+        state.rightSidebarWidth = Math.round(currentW) + 'px';
     }
 
     rightSidebar.style.width = '0px';
@@ -642,9 +808,10 @@ function closeRightSidebar() {
     rightSidebar.classList.remove('open');
 
     // リサイズと再描画
+    resizeCanvas();
     setTimeout(() => {
         resizeCanvas();
-    }, 300);
+    }, 320);
 }
 
 // サイドバーを開く
@@ -652,8 +819,11 @@ function openRightSidebar() {
     state.isRightSidebarCollapsed = false;
     rightSidebar.classList.remove('collapsed');
 
-    // 記憶した幅を復元
-    rightSidebar.style.width = state.rightSidebarWidth || '300px';
+    // 記憶した幅を復元（最低200px、デフォルト300px）
+    const targetW = state.rightSidebarWidth && parseInt(state.rightSidebarWidth, 10) >= 150
+        ? state.rightSidebarWidth
+        : '300px';
+    rightSidebar.style.width = targetW;
     rightSidebar.style.minWidth = '200px';
 
     rightResizer.style.display = 'block';
@@ -666,10 +836,12 @@ function openRightSidebar() {
     }
 
     // リサイズと再描画
+    resizeCanvas();
+    updateRightSidebarPreview();
     setTimeout(() => {
         resizeCanvas();
         updateRightSidebarPreview();
-    }, 300);
+    }, 320);
 }
 
 rightSidebarToggle.addEventListener('click', closeRightSidebar);
@@ -730,9 +902,25 @@ window.addEventListener('mouseup', (e) => {
     }
     // 連打のドラッグ終了処理
     if (isDraggingRoll && e.button === 0) {
-        placeNoteData("8");
+        const dragDist = Math.abs(e.clientX - rollDragStartX);
+        if (dragDist > 15 && rollStartInfo) {
+            const measures = songData.courses[state.currentCourse];
+            const positions = calculateMeasurePositions(measures);
+            const snap = getSnapPosition(state.cursorX, positions);
+            const isAfterStart = snap.measureIdx !== -1 && (
+                (snap.measureIdx > rollStartInfo.measureIdx) ||
+                (snap.measureIdx === rollStartInfo.measureIdx && snap.gridIdx > rollStartInfo.gridIdx)
+            );
+            if (isAfterStart) {
+                placeNoteData("8");
+                state.mode = (currentTool === '5' || currentTool === '6') ? "ROLL" : "NOTE";
+                rollStartInfo = null;
+            }
+        }
+        // クリック＆リリースの場合は8を置かずROLL_ENDモードを維持して2回目のクリック待ちにする
         isDraggingRoll = false;
         draw();
+        updateStatusBar();
     }
 });
 
@@ -756,9 +944,24 @@ wrapper.addEventListener('mousedown', (e) => {
         state.isSelecting = true;
         const rect = wrapper.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
-        state.selectStartX = mouseX + state.scrollX - JUDGE_X;
-        state.selectEndX = state.selectStartX;
+        const rawWorldX = mouseX + state.scrollX - JUDGE_X;
+        state.selectRawStartX = rawWorldX;
+
+        const measures = songData.courses[state.currentCourse];
+        const positions = calculateMeasurePositions(measures);
+
+        if (e.shiftKey) {
+            // Shift押下: 自由選択（ピクセル/音符単位）
+            state.selectStartX = rawWorldX;
+            state.selectEndX = rawWorldX;
+        } else {
+            // 通常: 小節単位で止まる（1節・4/4境界スナップ）
+            const mIdx = getMeasureIndexAtWorldX(rawWorldX, positions);
+            state.selectStartX = positions[mIdx].startX;
+            state.selectEndX = positions[mIdx].startX + positions[mIdx].width;
+        }
         state.selectedNotes = [];
+        updateSelection();
         draw();
         return;
     }
@@ -766,19 +969,40 @@ wrapper.addEventListener('mousedown', (e) => {
     if (e.button !== 0) return; // 左クリックと右クリック以外は無視
     if (e.target !== canvas) {
         // UIパネル等をクリックした場合は選択解除する
-        if (state.selectedNotes.length > 0) {
+        if (state.selectedNotes.length > 0 || state.selectedMeasureRange) {
             state.selectedNotes = [];
+            state.selectedMeasureRange = null;
             draw();
         }
         return;
     }
 
-    // レーン（置くところ）以外をクリックした場合は音符を配置しない
     const rect = wrapper.getBoundingClientRect();
     const mouseY = e.clientY - rect.top;
-    if (Math.abs(mouseY - LANE_Y) > 80) {
-        if (state.selectedNotes.length > 0) {
+
+    // レーンの上部（小節番号やギミック領域）をクリックした場合、その小節を選択してクイック設定を開く
+    if (mouseY < LANE_Y - 40) {
+        const measures = songData.courses[state.currentCourse];
+        const positions = calculateMeasurePositions(measures);
+        const clickWorldX = (e.clientX - rect.left) + state.scrollX - JUDGE_X;
+        const mIdx = getMeasureIndexAtWorldX(clickWorldX, positions);
+        if (mIdx >= 0 && mIdx < positions.length) {
+            state.lastActiveMeasureIdx = mIdx;
+            state.selectStartX = positions[mIdx].startX;
+            state.selectEndX = positions[mIdx].startX + positions[mIdx].width;
+            state.selectedMeasureRange = { start: mIdx, end: mIdx };
+            updateSelection();
+            draw();
+            openMeasureQuickPopup();
+        }
+        return;
+    }
+
+    // レーンの下部をクリックした場合は選択解除
+    if (mouseY > LANE_Y + 40) {
+        if (state.selectedNotes.length > 0 || state.selectedMeasureRange) {
             state.selectedNotes = [];
+            state.selectedMeasureRange = null;
             draw();
         }
         return;
@@ -791,16 +1015,42 @@ wrapper.addEventListener('mousedown', (e) => {
     }
 
     if (state.mode === "ROLL_END") {
-        placeNoteData("8");
-        state.mode = "NOTE";
-        draw();
-        updateStatusBar();
-        return;
+        const measures = songData.courses[state.currentCourse];
+        const positions = calculateMeasurePositions(measures);
+        const snap = getSnapPosition(state.cursorX, positions);
+        if (snap.measureIdx !== -1) {
+            // 始点より後ろをクリックした時のみ終了点8を配置
+            if (rollStartInfo) {
+                const isAfterStart = (snap.measureIdx > rollStartInfo.measureIdx) ||
+                    (snap.measureIdx === rollStartInfo.measureIdx && snap.gridIdx > rollStartInfo.gridIdx);
+                if (!isAfterStart) {
+                    return; // 始点と同じか前の位置は無視して連打プレビューを継続
+                }
+            }
+            placeNoteData("8");
+            state.mode = (currentTool === '5' || currentTool === '6') ? "ROLL" : "NOTE";
+            rollStartInfo = null;
+            isDraggingRoll = false;
+            draw();
+            updateStatusBar();
+            return;
+        }
     }
 
     if (currentTool === '5' || currentTool === '6') {
-        placeNoteData(currentTool);
-        isDraggingRoll = true;
+        const measures = songData.courses[state.currentCourse];
+        const positions = calculateMeasurePositions(measures);
+        const snap = getSnapPosition(state.cursorX, positions);
+        if (snap.measureIdx !== -1) {
+            placeNoteData(currentTool);
+            state.mode = "ROLL_END"; // ★連打終了待ちに移行！
+            rollStartInfo = { measureIdx: snap.measureIdx, gridIdx: snap.gridIdx, type: currentTool };
+            isDraggingRoll = true;
+            rollDragStartX = e.clientX;
+            draw();
+            updateStatusBar();
+            return;
+        }
     } else if (currentTool === '7' || currentTool === '9') {
         startNumberInput(currentTool);
     } else if (currentTool && currentTool.startsWith('tpl_')) {
@@ -818,7 +1068,24 @@ wrapper.addEventListener('mousemove', (e) => {
     state.cursorY = e.clientY - rect.top;
 
     if (state.isSelecting) {
-        state.selectEndX = state.cursorX + state.scrollX - JUDGE_X;
+        const rawCurrentX = state.cursorX + state.scrollX - JUDGE_X;
+        const measures = songData.courses[state.currentCourse];
+        const positions = calculateMeasurePositions(measures);
+
+        if (e.shiftKey) {
+            // Shift押下: 自由選択（ピクセル/音符単位）
+            state.selectStartX = state.selectRawStartX;
+            state.selectEndX = rawCurrentX;
+        } else {
+            // 通常: 小節単位で止まる（1節・4/4単位スナップ）
+            const startMIdx = getMeasureIndexAtWorldX(state.selectRawStartX, positions);
+            const currentMIdx = getMeasureIndexAtWorldX(rawCurrentX, positions);
+            const minM = Math.min(startMIdx, currentMIdx);
+            const maxM = Math.max(startMIdx, currentMIdx);
+
+            state.selectStartX = positions[minM].startX;
+            state.selectEndX = positions[maxM].startX + positions[maxM].width;
+        }
         updateSelection();
     }
 
@@ -955,11 +1222,31 @@ window.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
     state.isSnapEnabled = !e.shiftKey;
 
-    // スペースキーで再生/停止（入力フィールドにフォーカスがある場合は除外）
-    if (e.key === ' ' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+    // Ctrl+Z / Ctrl+Y (Undo / Redo)
+    if ((e.ctrlKey || e.metaKey) && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        if (key === 'z') {
+            e.preventDefault();
+            if (e.shiftKey) redo();
+            else undo();
+            return;
+        }
+        if (key === 'y') {
+            e.preventDefault();
+            redo();
+            return;
+        }
+    }
+
+    // Enterキーで再生/停止（入力フィールドにフォーカスがある場合は除外）
+    if (e.key === 'Enter' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
         e.preventDefault();
         togglePlayback();
         return;
+    }
+
+    // スペースキー押下時のブラウザスクロール抑止（入力フィールド以外）
+    if (e.key === ' ' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        e.preventDefault();
     }
 
     // cキーで連続配置モード切り替え
@@ -969,11 +1256,58 @@ window.addEventListener('keydown', (e) => {
         return;
     }
 
-    // 左右の矢印キーで選択中の音符をずらす
-    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && state.selectedNotes.length > 0 && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+    // 左右の矢印キーで選択音符をずらす、または前後の小節へ移動
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
         e.preventDefault();
-        shiftSelectedNotes(e.key === 'ArrowRight' ? 1 : -1);
+        if (state.selectedNotes.length > 0) {
+            shiftSelectedNotes(e.key === 'ArrowRight' ? 1 : -1);
+        } else {
+            if (e.key === 'ArrowLeft') prevMeasure();
+            else nextMeasure();
+        }
         return;
+    }
+
+    // Home / End キーで先頭 / 末尾小節へジャンプ
+    if (!['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        if (e.key === 'Home') {
+            e.preventDefault();
+            rewindToStart();
+            return;
+        }
+        if (e.key === 'End') {
+            e.preventDefault();
+            const measures = songData.courses[state.currentCourse] || [];
+            jumpToMeasure(measures.length - 1);
+            return;
+        }
+    }
+
+    // M または S キーで小節クイック設定を開く / 閉じる、G キーでギミック設定モーダルを開く
+    if (!['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        if (key === 'm' || key === 's') {
+            e.preventDefault();
+            const popup = document.getElementById('measure-quick-popup');
+            if (popup && popup.style.display !== 'none') {
+                closeMeasureQuickPopup();
+            } else {
+                openMeasureQuickPopup();
+            }
+            return;
+        }
+        if (key === 'g') {
+            e.preventDefault();
+            const gimmickOverlay = document.getElementById('gimmick-overlay');
+            if (gimmickOverlay && gimmickOverlay.classList.contains('active')) {
+                gimmickOverlay.classList.remove('active');
+            } else {
+                openGimmickPanel();
+            }
+            return;
+        }
+        if (e.key === 'Escape') {
+            closeMeasureQuickPopup();
+        }
     }
 
     if (state.mode === "NUM_INPUT") return;
@@ -1013,7 +1347,7 @@ window.addEventListener('keydown', (e) => {
                 isShortcut = true;
             }
             else if (shortcuts.rollEnd.includes(key)) { insertType = "8"; isShortcut = true; }
-            else if (shortcuts.del.includes(key)) { insertType = "0"; isShortcut = true; }
+            else if (shortcuts.del.includes(key) || (key === ' ' && shortcuts.del.includes('space'))) { insertType = "0"; isShortcut = true; }
         }
     }
 
@@ -1043,10 +1377,19 @@ window.addEventListener('keydown', (e) => {
             }
         }
 
-        if (insertType === "8" && state.mode === "ROLL_END") {
-            state.mode = "NOTE";
-            updateStatusBar();
+        if (insertType === "5" || insertType === "6") {
+            const measures = songData.courses[state.currentCourse];
+            const positions = calculateMeasurePositions(measures);
+            const snap = getSnapPosition(state.cursorX, positions);
+            if (snap.measureIdx !== -1) {
+                state.mode = "ROLL_END";
+                rollStartInfo = { measureIdx: snap.measureIdx, gridIdx: snap.gridIdx, type: insertType };
+            }
+        } else if (insertType === "8") {
+            state.mode = (currentTool === '5' || currentTool === '6') ? "ROLL" : "NOTE";
+            rollStartInfo = null;
         }
+        updateStatusBar();
     }
     draw();
 });
@@ -1059,6 +1402,7 @@ window.addEventListener('keyup', (e) => {
 
 // --- 6. データ更新ロジック ---
 function placeNoteData(type, val = "") {
+    pushHistory();
     const measures = songData.courses[state.currentCourse];
 
     // 一括選択されている場合は、選択範囲の音符を全て置き換える（または削除する）
@@ -1111,6 +1455,7 @@ function placeNoteData(type, val = "") {
 // 選択した音符を左右にずらす機能
 function shiftSelectedNotes(direction) {
     if (state.selectedNotes.length === 0) return;
+    pushHistory();
     const measures = songData.courses[state.currentCourse];
     const branch = state.currentBranch;
 
@@ -1176,6 +1521,7 @@ function shiftSelectedNotes(direction) {
 }
 
 function placeTemplate(tplKey) {
+    pushHistory();
     const measures = songData.courses[state.currentCourse];
     const positions = calculateMeasurePositions(measures);
     const snap = getSnapPosition(state.cursorX, positions);
@@ -1271,17 +1617,8 @@ function normalizeRolls(measures, branch) {
         }
     });
 
-    // 小節の最後で連打が終わっていない場合、その小節の最後に8を置く（次の小節へ持ち越さない仕様にする場合）
-    // ※TJAの仕様によりますが、ここでは「音符がないまま曲が終わる」のを防ぐため最後に8を入れる
-    if (inRoll && rollStartNode) {
-        // 曲の最後の小節の末尾を取得
-        const lastM = measures.length - 1;
-        const lastG = measures[lastM].subdivision - 1;
-        // 開始点と終了点が同じでない場合のみ追加
-        if (!(rollStartNode.measureIdx === lastM && rollStartNode.gridIdx === lastG)) {
-            correctionsAdd.push({ measureIdx: lastM, gridIdx: lastG, type: "8" });
-        }
-    }
+    // ※編集中の一時的な連打（未終了）の最中に曲末尾へ強制的に8を挿入しないようにし、
+    // ユーザーが手動で伸ばして再クリックまたはキー入力で終点を決定できるようにする。
 
     // --- 修正データの適用 ---
     // (以下、既存のcorrectionsRemove/Addの処理)
@@ -1305,16 +1642,12 @@ function normalizeRolls(measures, branch) {
 // (中略: getPreviousGridPos)
 
 // --- 7. 数値入力ポップアップの処理 (風船など) ---
+let lastUsedBalloonCount = 5;
+
 function startNumberInput(type) {
     const popup = document.getElementById('num-input-popup');
     const input = document.getElementById('note-value-input');
-
-    popup.style.display = 'block';
-    popup.style.left = (state.cursorX + 20) + 'px';
-    popup.style.top = (LANE_Y + 40) + 'px';
-
-    input.value = "";
-    input.focus();
+    if (!popup || !input) return;
 
     state.mode = "NUM_INPUT";
 
@@ -1327,55 +1660,162 @@ function startNumberInput(type) {
         measureIdx: snap.measureIdx,
         gridIdx: snap.gridIdx
     };
+
+    // ポップアップを表示
+    popup.style.display = 'flex';
+
+    // 画面外に見切れないよう表示座標をクランプ計算
+    const popupWidth = 280;
+    const popupHeight = 170;
+    let posX = state.cursorX + 20;
+    let posY = LANE_Y + 40;
+
+    if (posX + popupWidth > window.innerWidth - 15) {
+        posX = Math.max(10, state.cursorX - popupWidth - 10);
+    }
+    if (posY + popupHeight > window.innerHeight - 15) {
+        posY = Math.max(10, LANE_Y - popupHeight - 20);
+    }
+
+    popup.style.left = `${posX}px`;
+    popup.style.top = `${posY}px`;
+
+    // 直前に入力した打数をセット＆全選択して即座にEnterで決定できるように
+    input.value = lastUsedBalloonCount || 5;
+    setTimeout(() => {
+        input.focus();
+        input.select();
+    }, 20);
+
     updateStatusBar();
 }
 
-document.getElementById('note-value-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        e.stopPropagation();
-        e.preventDefault();
-        const val = e.target.value;
-        if (val && !isNaN(val)) {
-            finishNumberInput(val);
-        } else {
-            cancelNumberInput();
-        }
-    } else if (e.key === 'Escape') {
-        e.stopPropagation();
-        e.preventDefault();
-        cancelNumberInput();
-    }
-});
-
 function finishNumberInput(val) {
+    const num = parseInt(val, 10);
+    const finalVal = (!isNaN(num) && num > 0) ? num : (lastUsedBalloonCount || 5);
+    lastUsedBalloonCount = finalVal;
+
     if (state.pendingNote && state.pendingNote.measureIdx !== -1) {
         const { measureIdx, gridIdx, type } = state.pendingNote;
         const targetArray = songData.courses[state.currentCourse][measureIdx].notes[state.currentBranch];
 
         const existingIdx = targetArray.findIndex(n => n.posIndex === gridIdx);
-        const newNote = { type: type, posIndex: gridIdx, val: val };
+        const newNote = { type: type, posIndex: gridIdx, val: String(finalVal) };
 
         if (existingIdx !== -1) targetArray[existingIdx] = newNote;
         else targetArray.push(newNote);
 
-        // 自動的に整合性を整える（8を補完するなど）
+        // 自動的に整合性を整える
         normalizeRolls(songData.courses[state.currentCourse], state.currentBranch);
+
+        // 風船配置後、連打と同じく終点（8）待ちモードへ移行してプレビューを伸ばせるようにする
+        state.mode = "ROLL_END";
+        rollStartInfo = { measureIdx, gridIdx, type };
+        isDraggingRoll = false;
+    } else {
+        state.mode = "NOTE";
     }
 
-    document.getElementById('num-input-popup').style.display = 'none';
-    state.mode = "NOTE"; // 連続配置しやすいよう、ROLL_ENDではなくNOTEに戻す
+    const popup = document.getElementById('num-input-popup');
+    const input = document.getElementById('note-value-input');
+    if (popup) popup.style.display = 'none';
+    if (input) input.blur();
+
     state.pendingNote = null;
     draw();
     updateStatusBar();
 }
 
 function cancelNumberInput() {
-    document.getElementById('num-input-popup').style.display = 'none';
+    const popup = document.getElementById('num-input-popup');
+    const input = document.getElementById('note-value-input');
+    if (popup) popup.style.display = 'none';
+    if (input) input.blur();
+
     state.mode = "NOTE";
     state.pendingNote = null;
     draw();
     updateStatusBar();
 }
+
+// ポップアップの各種イベント登録（初期化）
+function initBalloonInputPopup() {
+    const input = document.getElementById('note-value-input');
+    const okBtn = document.getElementById('num-input-ok');
+    const cancelBtn = document.getElementById('num-input-cancel');
+    const cancelXBtn = document.getElementById('num-input-cancel-btn');
+    const inc1Btn = document.getElementById('num-input-inc1');
+    const dec1Btn = document.getElementById('num-input-dec1');
+    const inc5Btn = document.getElementById('num-input-inc5');
+    const dec5Btn = document.getElementById('num-input-dec5');
+    const presetBtns = document.querySelectorAll('.balloon-presets .preset-btn');
+
+    if (!input) return;
+
+    // Enter確定（IME変換中Enterは無視）
+    input.addEventListener('keydown', (e) => {
+        if (e.isComposing || e.keyCode === 229) return;
+
+        if (e.key === 'Enter') {
+            e.stopPropagation();
+            e.preventDefault();
+            finishNumberInput(input.value);
+        } else if (e.key === 'Escape') {
+            e.stopPropagation();
+            e.preventDefault();
+            cancelNumberInput();
+        }
+    });
+
+    if (okBtn) {
+        okBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            finishNumberInput(input.value);
+        });
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cancelNumberInput();
+        });
+    }
+    if (cancelXBtn) {
+        cancelXBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cancelNumberInput();
+        });
+    }
+
+    // ステッパーボタン（＋/−）
+    const adjustVal = (delta) => {
+        let cur = parseInt(input.value, 10);
+        if (isNaN(cur)) cur = 5;
+        cur = Math.max(1, Math.min(999, cur + delta));
+        input.value = cur;
+        input.focus();
+        input.select();
+    };
+
+    if (inc1Btn) inc1Btn.addEventListener('click', (e) => { e.stopPropagation(); adjustVal(1); });
+    if (dec1Btn) dec1Btn.addEventListener('click', (e) => { e.stopPropagation(); adjustVal(-1); });
+    if (inc5Btn) inc5Btn.addEventListener('click', (e) => { e.stopPropagation(); adjustVal(5); });
+    if (dec5Btn) dec5Btn.addEventListener('click', (e) => { e.stopPropagation(); adjustVal(-5); });
+
+    // クイックプリセットボタン（3, 5, 7, 10, 15, 20）
+    presetBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const val = btn.getAttribute('data-val');
+            if (val) {
+                input.value = val;
+                finishNumberInput(val);
+            }
+        });
+    });
+}
+
+initBalloonInputPopup();
 
 // 一括選択の更新処理
 function updateSelection() {
@@ -1386,7 +1826,18 @@ function updateSelection() {
     const measures = songData.courses[state.currentCourse];
     const positions = calculateMeasurePositions(measures);
 
+    let minMIdx = Infinity;
+    let maxMIdx = -Infinity;
+
     positions.forEach((pos, mIdx) => {
+        const mStart = pos.startX;
+        const mEnd = pos.startX + pos.width;
+        // 小節が選択範囲と交差している場合
+        if (mEnd > minX && mStart < maxX) {
+            if (mIdx < minMIdx) minMIdx = mIdx;
+            if (mIdx > maxMIdx) maxMIdx = mIdx;
+        }
+
         const gridSpacing = pos.width / pos.measure.subdivision;
         const notes = pos.measure.notes[state.currentBranch];
         notes.forEach(note => {
@@ -1396,11 +1847,195 @@ function updateSelection() {
             }
         });
     });
+
+    if (minMIdx !== Infinity && maxMIdx !== -Infinity) {
+        state.selectedMeasureRange = { start: minMIdx, end: maxMIdx };
+    } else {
+        state.selectedMeasureRange = null;
+    }
 }
+
+// --- 小節クイック設定ポップアップの制御 ---
+function openMeasureQuickPopup() {
+    const popup = document.getElementById('measure-quick-popup');
+    if (!popup) return;
+
+    const measures = songData.courses[state.currentCourse] || [];
+    let startIdx = state.lastActiveMeasureIdx;
+    let endIdx = state.lastActiveMeasureIdx;
+
+    if (state.selectedMeasureRange) {
+        startIdx = state.selectedMeasureRange.start;
+        endIdx = state.selectedMeasureRange.end;
+    }
+
+    startIdx = Math.max(0, Math.min(startIdx, measures.length - 1));
+    endIdx = Math.max(startIdx, Math.min(endIdx, measures.length - 1));
+
+    const titleEl = document.getElementById('measure-quick-title');
+    if (titleEl) {
+        if (startIdx === endIdx) {
+            const curSub = measures[startIdx] ? measures[startIdx].subdivision : 16;
+            const curSig = measures[startIdx] ? measures[startIdx].signature.join('/') : '4/4';
+            titleEl.textContent = `小節設定: 第${startIdx + 1}小節 (現在: ${curSub}分 | ${curSig})`;
+        } else {
+            titleEl.textContent = `小節一括設定: 第${startIdx + 1} 〜 第${endIdx + 1}小節 (${endIdx - startIdx + 1}小節選択中)`;
+        }
+    }
+
+    popup.style.display = 'flex';
+}
+
+function closeMeasureQuickPopup() {
+    const popup = document.getElementById('measure-quick-popup');
+    if (popup) {
+        popup.style.display = 'none';
+    }
+}
+
+// 分割数（細分数）を一括適用する
+function applyQuickSubdivision(newSub) {
+    newSub = parseInt(newSub, 10);
+    if (isNaN(newSub) || newSub <= 0) return;
+
+    pushHistory();
+    const measures = songData.courses[state.currentCourse] || [];
+    let startIdx = state.lastActiveMeasureIdx;
+    let endIdx = state.lastActiveMeasureIdx;
+
+    if (state.selectedMeasureRange) {
+        startIdx = state.selectedMeasureRange.start;
+        endIdx = state.selectedMeasureRange.end;
+    }
+
+    startIdx = Math.max(0, Math.min(startIdx, measures.length - 1));
+    endIdx = Math.max(startIdx, Math.min(endIdx, measures.length - 1));
+
+    for (let mi = startIdx; mi <= endIdx; mi++) {
+        const m = measures[mi];
+        if (!m) continue;
+        const oldSub = m.subdivision || 16;
+        if (oldSub !== newSub) {
+            m.subdivision = newSub;
+            // 既存音符の相対位置（時間比率）を保ってスケール変換
+            ['normal', 'expert', 'master'].forEach(b => {
+                if (m.notes && m.notes[b]) {
+                    m.notes[b].forEach(note => {
+                        note.posIndex = Math.round((note.posIndex / oldSub) * newSub);
+                    });
+                }
+            });
+        }
+    }
+
+    closeMeasureQuickPopup();
+    draw();
+    updateStatusBar();
+    updateRightSidebarPreview();
+}
+
+// 拍子を一括適用する
+function applyQuickSignature(num, den) {
+    num = parseInt(num, 10);
+    den = parseInt(den, 10);
+    if (isNaN(num) || isNaN(den) || num <= 0 || den <= 0) return;
+
+    pushHistory();
+    const measures = songData.courses[state.currentCourse] || [];
+    let startIdx = state.lastActiveMeasureIdx;
+    let endIdx = state.lastActiveMeasureIdx;
+
+    if (state.selectedMeasureRange) {
+        startIdx = state.selectedMeasureRange.start;
+        endIdx = state.selectedMeasureRange.end;
+    }
+
+    startIdx = Math.max(0, Math.min(startIdx, measures.length - 1));
+    endIdx = Math.max(startIdx, Math.min(endIdx, measures.length - 1));
+
+    for (let mi = startIdx; mi <= endIdx; mi++) {
+        const m = measures[mi];
+        if (m) {
+            m.signature = [num, den];
+        }
+    }
+
+    closeMeasureQuickPopup();
+    draw();
+    updateStatusBar();
+    updateRightSidebarPreview();
+}
+
+function initMeasureQuickPopup() {
+    // プリセット細分数ボタン
+    document.querySelectorAll('#quick-subdiv-btns .quick-preset-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const sub = btn.getAttribute('data-sub');
+            if (sub) applyQuickSubdivision(sub);
+        });
+    });
+
+    // 手入力細分数
+    const customApplyBtn = document.getElementById('quick-subdiv-custom-apply');
+    const customInput = document.getElementById('quick-subdiv-custom');
+    if (customApplyBtn && customInput) {
+        customApplyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyQuickSubdivision(customInput.value);
+        });
+        customInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyQuickSubdivision(customInput.value);
+            }
+        });
+    }
+
+    // 拍子プリセットボタン
+    document.querySelectorAll('#quick-sig-btns .quick-preset-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const sig = btn.getAttribute('data-sig');
+            if (sig) {
+                const parts = sig.split('/');
+                applyQuickSignature(parts[0], parts[1]);
+            }
+        });
+    });
+
+    // 閉じるボタン
+    const closeBtn = document.getElementById('measure-quick-close');
+    const cancelBtn = document.getElementById('quick-cancel-btn');
+    if (closeBtn) closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeMeasureQuickPopup(); });
+    if (cancelBtn) cancelBtn.addEventListener('click', (e) => { e.stopPropagation(); closeMeasureQuickPopup(); });
+
+    // ポップアップ本体クリック時はバブリングを止めて誤操作を防ぐ
+    const popup = document.getElementById('measure-quick-popup');
+    if (popup) {
+        popup.addEventListener('mousedown', (e) => e.stopPropagation());
+        popup.addEventListener('click', (e) => e.stopPropagation());
+    }
+}
+
+initMeasureQuickPopup();
 
 // --- 7.5 ギミック設定モーダルの制御 ---
 const gimmickOverlay = document.getElementById('gimmick-overlay');
 let gimmickTargetMeasureIdx = -1;
+
+// 指定小節時点での有効なBPMを取得（小節にBPM変化がなければ直前小節のBPMを遡って取得）
+function getEffectiveBpmAtMeasure(measureIdx, courseName) {
+    const course = courseName || state.currentCourse;
+    const measures = songData.courses[course] || [];
+    const defaultBpm = parseFloat(document.getElementById('cfg-bpm').value) || 120;
+    for (let i = Math.min(measureIdx, measures.length - 1); i >= 0; i--) {
+        if (measures[i] && measures[i].bpmChange !== null && !isNaN(measures[i].bpmChange) && measures[i].bpmChange > 0) {
+            return measures[i].bpmChange;
+        }
+    }
+    return defaultBpm;
+}
 
 function updateGimmickPanelFields() {
     const startVal = parseFloat(document.getElementById('gimmick-target-start').value);
@@ -1418,8 +2053,9 @@ function updateGimmickPanelFields() {
     const bpmEnable = document.getElementById('gimmick-bpm-enable');
     const bpmVal = document.getElementById('gimmick-bpm-val');
     bpmEnable.checked = measure.bpmChange !== null;
-    bpmVal.value = measure.bpmChange || '';
+    bpmVal.value = measure.bpmChange !== null ? measure.bpmChange : '';
     bpmVal.disabled = !bpmEnable.checked;
+    bpmVal.placeholder = `現在: ${getEffectiveBpmAtMeasure(startIdx)}`;
 
     document.getElementById('gimmick-sig-num').value = measure.signature[0];
     document.getElementById('gimmick-sig-den').value = measure.signature[1];
@@ -1427,7 +2063,7 @@ function updateGimmickPanelFields() {
     const scrollEnable = document.getElementById('gimmick-scroll-enable');
     const scrollVal = document.getElementById('gimmick-scroll-val');
     scrollEnable.checked = measure.scroll !== null && measure.scroll !== undefined;
-    scrollVal.value = measure.scroll || '';
+    scrollVal.value = measure.scroll !== null ? measure.scroll : '';
     scrollVal.disabled = !scrollEnable.checked;
 
     document.getElementById('gimmick-gogo-start').checked = measure.gogoStart !== false;
@@ -1445,19 +2081,25 @@ function openGimmickPanel() {
     let startVal = state.lastActiveMeasureIdx + 1.0;
     let endVal = state.lastActiveMeasureIdx + 1.0;
 
+    const measures = songData.courses[state.currentCourse] || [];
+    const m = measures[state.lastActiveMeasureIdx];
+
     // 範囲選択がある場合、小数の正確な位置を計算する
     if (state.selectedNotes.length > 0) {
-        const measures = songData.courses[state.currentCourse];
         let minTime = Infinity;
         let maxTime = -Infinity;
         state.selectedNotes.forEach(n => {
-            const m = measures[n.measureIdx];
-            const time = n.measureIdx + (n.posIndex / m.subdivision);
+            const sm = measures[n.measureIdx];
+            const time = n.measureIdx + (n.posIndex / sm.subdivision);
             if (time < minTime) minTime = time;
             if (time > maxTime) maxTime = time;
         });
         startVal = Math.round((minTime + 1) * 10) / 10; // 1-indexed for UI
         endVal = Math.round((maxTime + 1) * 10) / 10;
+    } else if (m && m.bpmChange !== null && m.bpmChangeOffset > 0) {
+        // 小節内にオフセット付きのBPM変化がある場合は、その位置を開始値に設定
+        startVal = state.lastActiveMeasureIdx + 1.0 + Math.round(m.bpmChangeOffset * 10) / 10;
+        endVal = startVal;
     }
 
     document.getElementById('gimmick-target-start').value = startVal;
@@ -1500,6 +2142,7 @@ gimmickOverlay.addEventListener('click', (e) => {
 
 // 適用ボタン
 document.getElementById('gimmick-apply').addEventListener('click', () => {
+    pushHistory();
     const startInput = parseFloat(document.getElementById('gimmick-target-start').value);
     const endInput = parseFloat(document.getElementById('gimmick-target-end').value);
 
@@ -1539,11 +2182,29 @@ document.getElementById('gimmick-apply').addEventListener('click', () => {
         startM.scroll = null;
     }
 
-    // Signature and Subdivision (開始位置の小節に適用)
+    // Signature and Subdivision (対象範囲の全小節に適用)
     const sigNum = parseInt(document.getElementById('gimmick-sig-num').value) || 4;
     const sigDen = parseInt(document.getElementById('gimmick-sig-den').value) || 4;
-    startM.signature = [sigNum, sigDen];
-    startM.subdivision = parseInt(document.getElementById('gimmick-subdivision').value) || 16;
+    const newSubdivision = parseInt(document.getElementById('gimmick-subdivision').value) || 16;
+
+    for (let mi = startIdx; mi <= endIdx; mi++) {
+        if (mi < measures.length) {
+            const m = measures[mi];
+            m.signature = [sigNum, sigDen];
+            const oldSub = m.subdivision || 16;
+            if (oldSub !== newSubdivision) {
+                m.subdivision = newSubdivision;
+                // 既存音符の相対位置（時間）を保持してスケール変換
+                ['normal', 'expert', 'master'].forEach(b => {
+                    if (m.notes && m.notes[b]) {
+                        m.notes[b].forEach(note => {
+                            note.posIndex = Math.round((note.posIndex / oldSub) * newSubdivision);
+                        });
+                    }
+                });
+            }
+        }
+    }
 
     // Go-Go Start
     if (document.getElementById('gimmick-gogo-start').checked) {
@@ -1560,6 +2221,7 @@ document.getElementById('gimmick-apply').addEventListener('click', () => {
 
 // リセット
 document.getElementById('gimmick-reset').addEventListener('click', () => {
+    pushHistory();
     const startInput = parseFloat(document.getElementById('gimmick-target-start').value);
     const endInput = parseFloat(document.getElementById('gimmick-target-end').value);
 
@@ -1594,27 +2256,55 @@ const courseMap = {
     Easy: "Easy"
 };
 
-// 小節のデータを TJA 文字列行に変換する
+// 小節のデータを TJA 文字列行に変換する（32分音符や連符、詰めた最適化表記に対応）
 function measureToTjaLine(measure, branch) {
     const notes = measure.notes[branch];
     if (!notes || notes.length === 0) {
         return ","; // 空小節
     }
 
-    // subdivision 分のバッファを用意（全て0で初期化）
-    const buf = new Array(measure.subdivision).fill("0");
+    const sub = measure.subdivision || 16;
 
-    notes.forEach(n => {
-        if (n.posIndex >= 0 && n.posIndex < measure.subdivision) {
-            buf[n.posIndex] = n.type;
+    // 有効な音符を正規化位置 (0 <= t < 1) で抽出
+    const notePositions = notes.map(n => ({
+        pos: n.posIndex / sub,
+        type: String(n.type)
+    })).filter(n => n.pos >= 0 && n.pos < 1 && n.type !== "0");
+
+    if (notePositions.length === 0) {
+        return ",";
+    }
+
+    // 一般的な細分数候補（小節文字数）
+    const candidateSubdivisions = [
+        1, 2, 3, 4, 6, 8, 12, 16, 20, 24, 32, 48, 64, 96, 192
+    ];
+
+    // 全ての音符が綺麗にグリッドに乗る最小の細分数を探索（自動約分・最適化）
+    let bestSub = Math.max(sub, 16);
+    for (const cand of candidateSubdivisions) {
+        let allFit = true;
+        for (const np of notePositions) {
+            const gridPos = np.pos * cand;
+            if (Math.abs(gridPos - Math.round(gridPos)) > 0.005) {
+                allFit = false;
+                break;
+            }
         }
+        if (allFit) {
+            bestSub = cand;
+            break;
+        }
+    }
+
+    // バッファを作成して音符を配置
+    const buf = new Array(bestSub).fill("0");
+    notePositions.forEach(np => {
+        const idx = Math.min(bestSub - 1, Math.max(0, Math.round(np.pos * bestSub)));
+        buf[idx] = np.type;
     });
 
-    const line = buf.join("");
-
-    // 末尾の0を削除して最小化（TJA形式では文字数＝細分数なので最小公倍数で良い）
-    // ただし正確な細分数を保つためそのまま出力する
-    return line + ",";
+    return buf.join("") + ",";
 }
 
 // 末尾の完全空小節をトリミングする関数（ギミック設定がある小節も含める）
@@ -1729,18 +2419,19 @@ function generateCourseTja(courseName, measures, level) {
             tjaLine = tjaLine.slice(0, -1);
         }
 
+        const actualLen = tjaLine.length > 0 ? tjaLine.length : m.subdivision;
         const events = [];
         if (m.gogoStart !== false) {
-            events.push({ type: '#GOGOSTART', idx: Math.round(m.gogoStart * m.subdivision) });
+            events.push({ type: '#GOGOSTART', idx: Math.round(m.gogoStart * actualLen) });
         }
         if (m.gogoEnd !== false) {
-            events.push({ type: '#GOGOEND', idx: Math.round(m.gogoEnd * m.subdivision) });
+            events.push({ type: '#GOGOEND', idx: Math.round(m.gogoEnd * actualLen) });
         }
         if (m.bpmChange !== null) {
-            events.push({ type: `#BPMCHANGE ${m.bpmChange}`, idx: Math.round((m.bpmChangeOffset || 0) * m.subdivision) });
+            events.push({ type: `#BPMCHANGE ${m.bpmChange}`, idx: Math.round((m.bpmChangeOffset || 0) * actualLen) });
         }
         if (m.scroll !== null) {
-            events.push({ type: `#SCROLL ${m.scroll}`, idx: Math.round((m.scrollOffset || 0) * m.subdivision) });
+            events.push({ type: `#SCROLL ${m.scroll}`, idx: Math.round((m.scrollOffset || 0) * actualLen) });
         }
 
         events.sort((a, b) => a.idx - b.idx);
@@ -1900,6 +2591,7 @@ function updateRightSidebarPreview() {
 
 // すべてのデータを初期状態にリセットする関数
 function resetAllData() {
+    pushHistory();
     // 1. ローカルストレージのデータを削除
     try {
         localStorage.removeItem('taikoEditorData');
@@ -1985,8 +2677,22 @@ function drawVisualPreview() {
 
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.parentElement.clientWidth;
+    if (w <= 0) return; // 親要素が折りたたまれている等で幅0の場合は処理しない
+
     const measureHeight = 32;
     const totalHeight = measures.length * measureHeight;
+
+    // プレビューコンテナのサイズ変更を自動検知して再描画
+    const previewContainer = canvas.parentElement;
+    if (previewContainer && !previewContainer.dataset.observerAttached && window.ResizeObserver) {
+        previewContainer.dataset.observerAttached = "true";
+        const ro = new ResizeObserver(() => {
+            if (!state.isRightSidebarCollapsed && state.rightSidebarTab === "visual") {
+                drawVisualPreview();
+            }
+        });
+        ro.observe(previewContainer);
+    }
 
     // イベントリスナーの一度限りの登録
     if (!canvas.dataset.listenerAttached) {
@@ -2014,7 +2720,7 @@ function drawVisualPreview() {
     if (canvas.width !== w * dpr || canvas.height !== totalHeight * dpr) {
         canvas.width = w * dpr;
         canvas.height = totalHeight * dpr;
-        canvas.style.width = w + 'px';
+        canvas.style.width = '100%';
         canvas.style.height = totalHeight + 'px';
     }
 
@@ -2101,7 +2807,7 @@ function drawVisualPreview() {
         ctx.lineWidth = 0.5;
         ctx.stroke();
 
-        // ギミック（ゴーゴー、BPM、HS、拍子）の描画
+        // ギミック（ゴーゴー、BPM、HS、拍子、細分数）の描画
         let textOffset = 0;
         ctx.font = '8px sans-serif';
         ctx.textAlign = 'left';
@@ -2110,6 +2816,13 @@ function drawVisualPreview() {
         if (m.signature[0] !== 4 || m.signature[1] !== 4) {
             ctx.fillStyle = '#2ecc71';
             ctx.fillText(`${m.signature[0]}/${m.signature[1]}`, startX + 2, yStart + 12 + textOffset);
+            textOffset += 8;
+        }
+
+        // 分割数（32分など16分以外の場合）
+        if (m.subdivision && m.subdivision !== 16) {
+            ctx.fillStyle = '#9b59b6';
+            ctx.fillText(`${m.subdivision}分`, startX + 2, yStart + 12 + textOffset);
             textOffset += 8;
         }
 
@@ -2142,15 +2855,36 @@ function drawVisualPreview() {
             ctx.fillText('⏹', markerX + 2, yStart + 12 + textOffset);
         }
 
+        // 32分音符など高密度小節の補助ガイド線（うっすら表示）
+        const sub = m.subdivision || 16;
+        if (sub >= 24) {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 0.5;
+            const subStep = drawW / sub;
+            for (let s = 1; s < sub; s++) {
+                if (s % (sub / m.signature[0]) !== 0) {
+                    const sx = startX + s * subStep;
+                    ctx.beginPath();
+                    ctx.moveTo(sx, yStart + 4);
+                    ctx.lineTo(sx, yStart + measureHeight - 4);
+                    ctx.stroke();
+                }
+            }
+        }
+
         // 音符
         const notes = m.notes[branch] || [];
         const sortedNotes = [...notes].sort((a, b) => a.posIndex - b.posIndex);
+
+        // 32分や高密度音符でも潰れないよう、音符間隔に応じて半径を動的調整
+        const gridPx = drawW / Math.max(sub, 16);
+        const densityRadius = Math.min(3.0, Math.max(1.6, gridPx * 0.42));
 
         let activeRollX = null;
         let activeRollType = null;
 
         sortedNotes.forEach(note => {
-            const noteX = startX + (note.posIndex / m.subdivision) * drawW;
+            const noteX = startX + (note.posIndex / sub) * drawW;
 
             if (['5', '6', '7', '9'].includes(note.type)) {
                 activeRollX = noteX;
@@ -2164,7 +2898,7 @@ function drawVisualPreview() {
             }
 
             if (note.type !== '8') {
-                drawMiniNote(ctx, noteX, centerY, note.type);
+                drawMiniNote(ctx, noteX, centerY, note.type, densityRadius);
             }
         });
 
@@ -2185,19 +2919,20 @@ function drawMiniRollBar(ctx, startX, endX, y, type) {
     ctx.fillRect(startX, y - height / 2, endX - startX, height);
 }
 
-function drawMiniNote(ctx, x, y, type) {
+function drawMiniNote(ctx, x, y, type, densityRadius = 3.0) {
     const conf = NOTE_CONFIG[type];
     if (!conf) return;
 
-    const radius = conf.isLarge ? 4.5 : 3;
+    const baseR = Math.max(1.6, Math.min(3.2, densityRadius));
+    const radius = conf.isLarge ? baseR * 1.35 : baseR;
     const color = conf.color;
 
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = baseR < 2.5 ? 'rgba(255, 255, 255, 0.75)' : '#fff';
+    ctx.lineWidth = baseR < 2.5 ? 0.35 : 0.5;
     ctx.stroke();
 }
 
@@ -2491,6 +3226,138 @@ function togglePlayback() {
     }
 }
 
+// --- 可変BPM（途中のBPM変化）対応の再生タイミング計算 ---
+
+// 譜面全体の小節およびBPM変化区間の時間マップを構築
+function getMeasureTimingMap(measures) {
+    const baseBpm = parseFloat(document.getElementById('cfg-bpm').value) || 120;
+    const pxPerBeat = state.basePxPerBeat * state.zoomLevel;
+    const positions = calculateMeasurePositions(measures);
+
+    let currentBpm = baseBpm;
+    let accumulatedTime = 0; // 秒
+
+    // 各小節ごとの時間情報
+    const timingList = [];
+
+    for (let i = 0; i < positions.length; i++) {
+        const pos = positions[i];
+        const m = pos.measure;
+        const totalBeats = (m.signature[0] / m.signature[1]) * 4;
+
+        // この小節でBPM変化があるか
+        if (m.bpmChange !== null && !isNaN(m.bpmChange) && m.bpmChange > 0) {
+            const offset = Math.max(0, Math.min(0.999, m.bpmChangeOffset || 0));
+            const beatsBefore = totalBeats * offset;
+            const beatsAfter = totalBeats * (1 - offset);
+
+            const durationBefore = beatsBefore * (60 / currentBpm);
+            currentBpm = m.bpmChange;
+            const durationAfter = beatsAfter * (60 / currentBpm);
+
+            timingList.push({
+                measureIdx: i,
+                startX: pos.startX,
+                width: pos.width,
+                startTime: accumulatedTime,
+                duration: durationBefore + durationAfter,
+                splitOffset: offset,
+                splitX: pos.startX + pos.width * offset,
+                splitTime: accumulatedTime + durationBefore,
+                bpmBefore: currentBpm,
+                bpmAfter: m.bpmChange
+            });
+            accumulatedTime += durationBefore + durationAfter;
+        } else {
+            const duration = totalBeats * (60 / currentBpm);
+            timingList.push({
+                measureIdx: i,
+                startX: pos.startX,
+                width: pos.width,
+                startTime: accumulatedTime,
+                duration: duration,
+                splitOffset: null,
+                bpm: currentBpm
+            });
+            accumulatedTime += duration;
+        }
+    }
+
+    return { timingList, totalTime: accumulatedTime, finalBpm: currentBpm };
+}
+
+// 譜面時間 (秒) から スクロール位置 (px) を計算
+function getScrollXFromTime(timeInSeconds, measures) {
+    if (timeInSeconds <= 0) return 0;
+    const { timingList, finalBpm } = getMeasureTimingMap(measures);
+    const pxPerBeat = state.basePxPerBeat * state.zoomLevel;
+
+    for (let i = 0; i < timingList.length; i++) {
+        const t = timingList[i];
+        if (timeInSeconds >= t.startTime && timeInSeconds < t.startTime + t.duration) {
+            if (t.splitOffset !== null) {
+                if (timeInSeconds < t.splitTime) {
+                    const ratio = (timeInSeconds - t.startTime) / (t.splitTime - t.startTime || 1);
+                    return t.startX + (t.splitX - t.startX) * ratio;
+                } else {
+                    const ratio = (timeInSeconds - t.splitTime) / ((t.startTime + t.duration) - t.splitTime || 1);
+                    return t.splitX + (t.startX + t.width - t.splitX) * ratio;
+                }
+            } else {
+                const ratio = (timeInSeconds - t.startTime) / (t.duration || 1);
+                return t.startX + t.width * ratio;
+            }
+        }
+    }
+
+    // 最後の小節以降
+    if (timingList.length > 0) {
+        const last = timingList[timingList.length - 1];
+        const extraTime = timeInSeconds - (last.startTime + last.duration);
+        const pxPerSecond = pxPerBeat * (finalBpm / 60);
+        return (last.startX + last.width) + extraTime * pxPerSecond;
+    }
+
+    const baseBpm = parseFloat(document.getElementById('cfg-bpm').value) || 120;
+    return timeInSeconds * (pxPerBeat * (baseBpm / 60));
+}
+
+// スクロール位置 (px) から 譜面時間 (秒) を計算
+function getTimeFromScrollX(scrollX, measures) {
+    if (scrollX <= 0) return 0;
+    const { timingList, finalBpm } = getMeasureTimingMap(measures);
+    const pxPerBeat = state.basePxPerBeat * state.zoomLevel;
+
+    for (let i = 0; i < timingList.length; i++) {
+        const t = timingList[i];
+        if (scrollX >= t.startX && scrollX < t.startX + t.width) {
+            if (t.splitOffset !== null) {
+                if (scrollX < t.splitX) {
+                    const ratio = (scrollX - t.startX) / (t.splitX - t.startX || 1);
+                    return t.startTime + (t.splitTime - t.startTime) * ratio;
+                } else {
+                    const ratio = (scrollX - t.splitX) / ((t.startX + t.width) - t.splitX || 1);
+                    return t.splitTime + ((t.startTime + t.duration) - t.splitTime) * ratio;
+                }
+            } else {
+                const ratio = (scrollX - t.startX) / (t.width || 1);
+                return t.startTime + t.duration * ratio;
+            }
+        }
+    }
+
+    // 最後の小節以降
+    if (timingList.length > 0) {
+        const last = timingList[timingList.length - 1];
+        const extraX = scrollX - (last.startX + last.width);
+        const pxPerSecond = pxPerBeat * (finalBpm / 60);
+        return (last.startTime + last.duration) + (extraX / (pxPerSecond || 1));
+    }
+
+    const baseBpm = parseFloat(document.getElementById('cfg-bpm').value) || 120;
+    return scrollX / (pxPerBeat * (baseBpm / 60) || 1);
+}
+
 function startPlayback() {
     if (!state.audioBuffer || !state.audioContext) return;
 
@@ -2500,13 +3367,11 @@ function startPlayback() {
     state.audioSource.connect(state.audioContext.destination);
 
     const offset = parseFloat(document.getElementById('cfg-offset').value) || 0;
-    const bpm = parseFloat(document.getElementById('cfg-bpm').value) || 120;
-    const pxPerBeat = state.basePxPerBeat * state.zoomLevel;
-    const pxPerSecond = pxPerBeat * (bpm / 60);
+    const measures = songData.courses[state.currentCourse] || [];
 
-    // 現在のスクロール位置から再生開始時間を計算
-    // offsetがプラスなら曲は後から始まるため、スクロール位置から引く
-    const currentTime = state.scrollX / pxPerSecond - offset;
+    // 現在のスクロール位置から再生開始時間を計算（可変BPM対応）
+    const songTime = getTimeFromScrollX(state.scrollX, measures);
+    const currentTime = songTime - offset;
 
     let playDelay = 0;
     let audioStartTime = 0;
@@ -2527,7 +3392,7 @@ function startPlayback() {
 
     // ボタン更新
     const btn = document.getElementById('btn-play');
-    btn.textContent = "⏸ 停止 (Space)";
+    btn.textContent = "⏸ 停止 (Enter)";
     btn.classList.add('playing');
 
     // 再生終了イベント
@@ -2553,7 +3418,7 @@ function stopPlayback() {
 
     // ボタン更新
     const btn = document.getElementById('btn-play');
-    btn.textContent = "▶ 再生 (Space)";
+    btn.textContent = "▶ 再生 (Enter)";
     btn.classList.remove('playing');
 }
 
@@ -2562,14 +3427,13 @@ function playbackAnimation() {
     if (!state.isPlaying) return;
 
     const offset = parseFloat(document.getElementById('cfg-offset').value) || 0;
-    const bpm = parseFloat(document.getElementById('cfg-bpm').value) || 120;
-    const pxPerBeat = state.basePxPerBeat * state.zoomLevel;
-    const pxPerSecond = pxPerBeat * (bpm / 60);
+    const measures = songData.courses[state.currentCourse] || [];
 
     // 現在の再生時間を取得（曲の0:00位置からの経過時間）
     const currentAudioTime = state.audioContext.currentTime - state.playStartTime;
-    // 再生位置をスクロール座標に変換（曲の経過時間 + オフセット = 譜面の時間）
-    const targetScrollX = (currentAudioTime + offset) * pxPerSecond;
+    // 再生位置をスクロール座標に変換（曲の経過時間 + オフセット = 譜面の時間、可変BPM対応）
+    const songTime = currentAudioTime + offset;
+    const targetScrollX = getScrollXFromTime(songTime, measures);
 
     state.scrollX = Math.max(0, targetScrollX);
 
@@ -2592,9 +3456,31 @@ function playbackAnimation() {
 }
 
 // 再生ボタンのクリック
-document.getElementById('btn-play').addEventListener('click', () => {
-    togglePlayback();
-});
+const btnPlay = document.getElementById('btn-play');
+if (btnPlay) {
+    btnPlay.addEventListener('click', () => {
+        togglePlayback();
+    });
+}
+
+// --- トランスポートバー＆履歴ボタンの初期化 ---
+function initTransportAndHistory() {
+    const undoBtn = document.getElementById('btn-undo');
+    const redoBtn = document.getElementById('btn-redo');
+    const rewindBtn = document.getElementById('btn-rewind');
+    const prevMeasBtn = document.getElementById('btn-prev-measure');
+    const nextMeasBtn = document.getElementById('btn-next-measure');
+
+    if (undoBtn) undoBtn.addEventListener('click', undo);
+    if (redoBtn) redoBtn.addEventListener('click', redo);
+    if (rewindBtn) rewindBtn.addEventListener('click', rewindToStart);
+    if (prevMeasBtn) prevMeasBtn.addEventListener('click', prevMeasure);
+    if (nextMeasBtn) nextMeasBtn.addEventListener('click', nextMeasure);
+
+    updateUndoRedoButtons();
+}
+
+initTransportAndHistory();
 
 // 連続配置モードの切り替え
 const btnContinuous = document.getElementById('btn-continuous');
@@ -2625,7 +3511,7 @@ document.getElementById('tja-file-input').addEventListener('change', (e) => {
     const reader = new FileReader();
     reader.onload = (event) => {
         const text = event.target.result;
-        parseTJA(text);
+        const loadedCourse = parseTJA(text);
 
         // 読み込み完了後にUIを更新
         document.getElementById('cfg-title').value = songData.header.title || "";
@@ -2635,10 +3521,10 @@ document.getElementById('tja-file-input').addEventListener('change', (e) => {
         document.getElementById('cfg-wave').value = songData.header.wave || "";
         document.getElementById('cfg-demostart').value = songData.header.demostart || "";
 
-        state.currentCourse = "Oni"; // デフォルトでおにを開く
-        const courseSelect = document.querySelectorAll('.course-tab');
-        courseSelect.forEach(tab => {
-            if (tab.dataset.course === "Oni") tab.classList.add('active');
+        state.currentCourse = loadedCourse || "Oni"; // 読込対象の難易度を開く
+        const courseTabs = document.querySelectorAll('.course-tabs .tab');
+        courseTabs.forEach(tab => {
+            if (tab.dataset.course === state.currentCourse) tab.classList.add('active');
             else tab.classList.remove('active');
         });
 
@@ -2650,200 +3536,358 @@ document.getElementById('tja-file-input').addEventListener('change', (e) => {
     reader.readAsText(file, 'Shift_JIS');
 });
 
-function parseTJA(text) {
-    const lines = text.split(/\r?\n/);
+// --- 9.5 TJA トークナイザー & パーサー (Tokenizer & Parser) ---
 
-    // 新しいsongDataの雛形を作成
-    const newSongData = {
-        header: { title: "New Song", subtitle: "", wave: "", bpm: 120, offset: 0, demostart: "" },
-        courses: {
-            Oni: [], Ura: [], Hard: [], Normal: [], Easy: []
-        }
-    };
+/**
+ * TJA トークナイザー（字句解析器）
+ * ヘッダーブロックと譜面本体ブロックを厳密に分離し、
+ * タイトルやサブタイトル内の記号・数字・コマンド風文字列による誤作動を完全に防止する。
+ */
+class TjaTokenizer {
+    // 譜面ブロック内の文字列をトークン列に変換する
+    static tokenizeChartLine(line) {
+        const tokens = [];
+        let i = 0;
+        const len = line.length;
 
-    let currentCourse = null;
-    let inStart = false;
-    let currentMeasure = createEmptyMeasure();
-    let currentBranch = 'normal'; // 'normal', 'expert', 'master'
-    let measureTokens = [];
-    let targetMeasureIdx = 0;
-    let branchStartIdx = 0;
+        while (i < len) {
+            const ch = line[i];
 
-    const courseTypeMap = {
-        '0': 'Easy', 'easy': 'Easy',
-        '1': 'Normal', 'normal': 'Normal',
-        '2': 'Hard', 'hard': 'Hard',
-        '3': 'Oni', 'oni': 'Oni',
-        '4': 'Ura', 'edit': 'Ura', 'ura': 'Ura'
-    };
+            // コメントの開始 (//) -> 行末までコメントなのでスキップ
+            if (ch === '/' && line[i + 1] === '/') {
+                break;
+            }
 
-    const finalizeMeasure = () => {
-        const notesOnly = measureTokens.filter(t => t.type === 'note');
-        let sub = notesOnly.length;
-        if (sub === 0) sub = 16;
-        currentMeasure.subdivision = sub;
+            // コマンドの開始 (#)
+            if (ch === '#') {
+                const rest = line.substring(i);
+                // コマンド名を取得（英字・数字）
+                const cmdMatch = rest.match(/^#([A-Za-z0-9_]+)/);
+                if (cmdMatch) {
+                    const rawName = cmdMatch[1].toUpperCase();
+                    let rawArgs = '';
+                    let matchLen = cmdMatch[0].length;
 
-        let noteIdx = 0;
-        measureTokens.forEach(t => {
-            if (t.type === 'note') {
-                if (t.val !== '0') {
-                    currentMeasure.notes[currentBranch].push({
-                        posIndex: noteIdx,
-                        type: t.val,
-                        val: 0
+                    const afterCmd = rest.substring(matchLen);
+                    if (['BPMCHANGE', 'SCROLL', 'DELAY'].includes(rawName)) {
+                        const argM = afterCmd.match(/^[\s:]*([0-9.-]+)/);
+                        if (argM) {
+                            rawArgs = argM[1];
+                            matchLen += argM[0].length;
+                        }
+                    } else if (rawName === 'MEASURE') {
+                        const argM = afterCmd.match(/^[\s:]*([0-9]+\s*\/\s*[0-9]+)/);
+                        if (argM) {
+                            rawArgs = argM[1];
+                            matchLen += argM[0].length;
+                        }
+                    } else if (rawName === 'BRANCHSTART') {
+                        const argM = afterCmd.match(/^[\s:]*([^\r\n,#]*)/);
+                        if (argM) {
+                            rawArgs = argM[1].trim();
+                            matchLen += argM[0].length;
+                        }
+                    } else {
+                        // 引数なしコマンド (GOGOSTART, GOGOEND, N, E, M, SECTION 等)
+                        const spaceM = afterCmd.match(/^[\s]+/);
+                        if (spaceM) {
+                            matchLen += spaceM[0].length;
+                        }
+                    }
+
+                    tokens.push({
+                        type: 'COMMAND',
+                        name: rawName,
+                        args: rawArgs,
+                        raw: rest.substring(0, matchLen)
                     });
+                    i += matchLen;
+                    continue;
                 }
-                noteIdx++;
-            } else if (t.type === '#GOGOSTART') {
-                currentMeasure.gogoStart = sub > 0 ? noteIdx / sub : 0;
-            } else if (t.type === '#GOGOEND') {
-                currentMeasure.gogoEnd = sub > 0 ? noteIdx / sub : 0;
-            } else if (t.type === '#MEASURE') {
-                const parts = t.val.split('/');
-                if (parts.length === 2) currentMeasure.signature = [parseInt(parts[0]), parseInt(parts[1])];
-            } else if (t.type === '#BPMCHANGE') {
-                currentMeasure.bpmChange = parseFloat(t.val);
-            } else if (t.type === '#SCROLL') {
-                currentMeasure.scroll = parseFloat(t.val);
+                i++;
+                continue;
+            }
+
+            // 小節区切り (,)
+            if (ch === ',') {
+                tokens.push({ type: 'COMMA' });
+                i++;
+                continue;
+            }
+
+            // 音符数字 (0-9)
+            if (ch >= '0' && ch <= '9') {
+                tokens.push({ type: 'NOTE', val: ch });
+                i++;
+                continue;
+            }
+
+            // 空白文字などはスキップ
+            i++;
+        }
+
+        return tokens;
+    }
+
+    // ヘッダー行を安全にパースする（TITLE, SUBTITLE, BPM 等）
+    // ※ タイトル値の中に '#' や ',' や数字があっても純粋な文字列として保護する
+    static parseHeaderLine(line) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('//')) return null;
+
+        // 行末のコメントを慎重に除去（ただし http:// や https:// の // は保護）
+        let cleanLine = trimmed;
+        const commentIdx = cleanLine.search(/(?<!https?:)\s+\/\//);
+        if (commentIdx !== -1) {
+            cleanLine = cleanLine.substring(0, commentIdx).trim();
+        }
+
+        // KEY: VALUE 形式を検出
+        const colonIdx = cleanLine.indexOf(':');
+        if (colonIdx > 0) {
+            const key = cleanLine.substring(0, colonIdx).trim().toUpperCase();
+            const val = cleanLine.substring(colonIdx + 1).trim();
+            // 妥当なヘッダーキー名（英数字のみ）か検証
+            if (/^[A-Z0-9_]+$/.test(key)) {
+                return { key, val };
+            }
+        }
+
+        return null;
+    }
+}
+
+/**
+ * TJA パーサー（構文解析器）
+ */
+class TjaParser {
+    static parse(text) {
+        const lines = text.split(/\r?\n/);
+
+        const newSongData = {
+            header: { title: "New Song", subtitle: "", wave: "", bpm: 120, offset: 0, demostart: "" },
+            courses: {
+                Oni: [], Ura: [], Hard: [], Normal: [], Easy: []
+            }
+        };
+
+        const courseTypeMap = {
+            '0': 'Easy', 'easy': 'Easy',
+            '1': 'Normal', 'normal': 'Normal',
+            '2': 'Hard', 'hard': 'Hard',
+            '3': 'Oni', 'oni': 'Oni',
+            '4': 'Ura', 'edit': 'Ura', 'ura': 'Ura'
+        };
+
+        let currentCourse = 'Oni';
+        let inChart = false;
+        let currentBranch = 'normal'; // 'normal', 'expert', 'master'
+        let currentMeasure = createEmptyMeasure();
+        let measureTokens = [];
+        let targetMeasureIdx = 0;
+        let branchStartIdx = 0;
+        let firstBpmChangeFound = null;
+
+        const finalizeMeasure = () => {
+            const notesOnly = measureTokens.filter(t => t.type === 'NOTE');
+            let sub = notesOnly.length;
+            if (sub === 0) sub = 16;
+            currentMeasure.subdivision = sub;
+
+            let noteIdx = 0;
+            measureTokens.forEach(t => {
+                if (t.type === 'NOTE') {
+                    if (t.val !== '0') {
+                        currentMeasure.notes[currentBranch].push({
+                            posIndex: noteIdx,
+                            type: t.val,
+                            val: 0
+                        });
+                    }
+                    noteIdx++;
+                } else if (t.type === 'COMMAND') {
+                    const offset = sub > 0 ? (noteIdx / sub) : 0;
+                    switch (t.name) {
+                        case 'BPMCHANGE': {
+                            const bpm = parseFloat(t.args);
+                            if (!isNaN(bpm) && bpm > 0) {
+                                currentMeasure.bpmChange = bpm;
+                                currentMeasure.bpmChangeOffset = offset;
+                                if (firstBpmChangeFound === null) firstBpmChangeFound = bpm;
+                            }
+                            break;
+                        }
+                        case 'SCROLL': {
+                            const sc = parseFloat(t.args);
+                            if (!isNaN(sc)) {
+                                currentMeasure.scroll = sc;
+                                currentMeasure.scrollOffset = offset;
+                            }
+                            break;
+                        }
+                        case 'MEASURE': {
+                            const parts = t.args.split('/');
+                            if (parts.length === 2) {
+                                const num = parseInt(parts[0], 10);
+                                const den = parseInt(parts[1], 10);
+                                if (!isNaN(num) && !isNaN(den) && num > 0 && den > 0) {
+                                    currentMeasure.signature = [num, den];
+                                }
+                            }
+                            break;
+                        }
+                        case 'GOGOSTART': {
+                            currentMeasure.gogoStart = offset;
+                            break;
+                        }
+                        case 'GOGOEND': {
+                            currentMeasure.gogoEnd = offset;
+                            break;
+                        }
+                    }
+                }
+            });
+
+            const courseArr = newSongData.courses[currentCourse];
+            if (courseArr) {
+                if (targetMeasureIdx < courseArr.length) {
+                    if (currentBranch === 'normal') {
+                        courseArr[targetMeasureIdx] = currentMeasure;
+                    } else {
+                        courseArr[targetMeasureIdx].notes[currentBranch] = currentMeasure.notes[currentBranch];
+                        // ギミック設定の共有・補完
+                        if (currentMeasure.bpmChange !== null && courseArr[targetMeasureIdx].bpmChange === null) {
+                            courseArr[targetMeasureIdx].bpmChange = currentMeasure.bpmChange;
+                            courseArr[targetMeasureIdx].bpmChangeOffset = currentMeasure.bpmChangeOffset;
+                        }
+                        if (currentMeasure.scroll !== null && courseArr[targetMeasureIdx].scroll === null) {
+                            courseArr[targetMeasureIdx].scroll = currentMeasure.scroll;
+                            courseArr[targetMeasureIdx].scrollOffset = currentMeasure.scrollOffset;
+                        }
+                    }
+                } else {
+                    courseArr.push(currentMeasure);
+                }
+            }
+
+            targetMeasureIdx++;
+
+            const nextMeasure = createEmptyMeasure();
+            nextMeasure.signature = [...currentMeasure.signature];
+            currentMeasure = nextMeasure;
+            measureTokens = [];
+        };
+
+        for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+            const rawLine = lines[lineIdx];
+            const trimmed = rawLine.trim();
+            if (!trimmed) continue;
+
+            // 1. ヘッダー状態（#START 前、または #END 後）
+            // ※ TITLE や SUBTITLE の中に '#' や ',' が含まれていても安全に解析する
+            if (!inChart) {
+                // #START コマンドを検出
+                if (/^#START\b/i.test(trimmed)) {
+                    inChart = true;
+                    currentBranch = 'normal';
+                    currentMeasure = createEmptyMeasure();
+                    measureTokens = [];
+                    targetMeasureIdx = 0;
+                    branchStartIdx = 0;
+                    continue;
+                }
+
+                // ヘッダー行の安全な解析
+                const headerEntry = TjaTokenizer.parseHeaderLine(trimmed);
+                if (headerEntry) {
+                    const { key, val } = headerEntry;
+                    if (key === 'TITLE') newSongData.header.title = val;
+                    else if (key === 'SUBTITLE') newSongData.header.subtitle = val;
+                    else if (key === 'BPM') newSongData.header.bpm = parseFloat(val) || 120;
+                    else if (key === 'OFFSET') newSongData.header.offset = parseFloat(val) || 0;
+                    else if (key === 'WAVE') newSongData.header.wave = val;
+                    else if (key === 'DEMOSTART') newSongData.header.demostart = parseFloat(val) || 0;
+                    else if (key === 'COURSE') {
+                        const cLower = val.toLowerCase();
+                        currentCourse = courseTypeMap[cLower] || 'Oni';
+                    }
+                }
+                continue;
+            }
+
+            // 2. 譜面データ状態（#START 〜 #END）
+            // #END コマンドを検出
+            if (/^#END\b/i.test(trimmed)) {
+                inChart = false;
+                if (measureTokens.length > 0) finalizeMeasure();
+                continue;
+            }
+
+            // 分岐制御コマンドの先行チェック（行頭）
+            if (/^#BRANCHSTART\b/i.test(trimmed)) {
+                if (measureTokens.length > 0) finalizeMeasure();
+                branchStartIdx = targetMeasureIdx;
+                continue;
+            } else if (/^#N\b/i.test(trimmed)) {
+                if (measureTokens.length > 0) finalizeMeasure();
+                currentBranch = 'normal';
+                targetMeasureIdx = branchStartIdx;
+                currentMeasure = createEmptyMeasure();
+                if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx - 1]) {
+                    currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx - 1].signature];
+                }
+                continue;
+            } else if (/^#E\b/i.test(trimmed)) {
+                if (measureTokens.length > 0) finalizeMeasure();
+                currentBranch = 'expert';
+                targetMeasureIdx = branchStartIdx;
+                currentMeasure = createEmptyMeasure();
+                if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx - 1]) {
+                    currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx - 1].signature];
+                }
+                continue;
+            } else if (/^#M\b/i.test(trimmed)) {
+                if (measureTokens.length > 0) finalizeMeasure();
+                currentBranch = 'master';
+                targetMeasureIdx = branchStartIdx;
+                currentMeasure = createEmptyMeasure();
+                if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx - 1]) {
+                    currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx - 1].signature];
+                }
+                continue;
+            }
+
+            // 行内の音符・インラインギミック・カンマをトークナイザーで字句解析
+            const tokens = TjaTokenizer.tokenizeChartLine(trimmed);
+            tokens.forEach(token => {
+                if (token.type === 'COMMA') {
+                    finalizeMeasure();
+                } else {
+                    measureTokens.push(token);
+                }
+            });
+        }
+
+        // ヘッダーBPMが未指定で、最初の小節でBPM変化があった場合はヘッダーBPMに補完
+        if ((!newSongData.header.bpm || newSongData.header.bpm === 120) && firstBpmChangeFound !== null) {
+            newSongData.header.bpm = firstBpmChangeFound;
+        }
+
+        // 空の難易度にデフォルトを詰める
+        Object.keys(newSongData.courses).forEach(key => {
+            if (newSongData.courses[key].length === 0) {
+                newSongData.courses[key] = [createEmptyMeasure()];
             }
         });
 
-        const courseArr = newSongData.courses[currentCourse];
-        if (courseArr) {
-            if (targetMeasureIdx < courseArr.length) {
-                // すでに小節が存在する場合は分岐マージ
-                if (currentBranch === 'normal') {
-                    courseArr[targetMeasureIdx] = currentMeasure;
-                } else {
-                    courseArr[targetMeasureIdx].notes[currentBranch] = currentMeasure.notes[currentBranch];
-                }
-            } else {
-                courseArr.push(currentMeasure);
-            }
-        }
+        return { songData: newSongData, activeCourse: currentCourse };
+    }
+}
 
-        targetMeasureIdx++;
-
-        // 次の小節の準備
-        const nextMeasure = createEmptyMeasure();
-        nextMeasure.signature = [...currentMeasure.signature];
-        currentMeasure = nextMeasure;
-        measureTokens = [];
-    };
-
-    lines.forEach(rawLine => {
-        let line = rawLine.split('//')[0].trim();
-        if (!line) return;
-
-        if (!inStart) {
-            const match = line.match(/^([A-Z]+):(.*)$/i);
-            if (match) {
-                const key = match[1].toUpperCase();
-                const val = match[2].trim();
-
-                if (key === 'TITLE') newSongData.header.title = val;
-                else if (key === 'SUBTITLE') newSongData.header.subtitle = val;
-                else if (key === 'BPM') newSongData.header.bpm = parseFloat(val) || 120;
-                else if (key === 'OFFSET') newSongData.header.offset = parseFloat(val) || 0;
-                else if (key === 'WAVE') newSongData.header.wave = val;
-                else if (key === 'DEMOSTART') newSongData.header.demostart = parseFloat(val) || 0;
-                else if (key === 'COURSE') {
-                    const cLower = val.toLowerCase();
-                    currentCourse = courseTypeMap[cLower] || 'Oni';
-                }
-            }
-            if (line === '#START') {
-                inStart = true;
-                if (!currentCourse) currentCourse = 'Oni';
-                currentBranch = 'normal';
-                currentMeasure = createEmptyMeasure();
-                measureTokens = [];
-                targetMeasureIdx = 0;
-                branchStartIdx = 0;
-            }
-            return;
-        }
-
-        if (line === '#END') {
-            inStart = false;
-            if (measureTokens.length > 0) finalizeMeasure();
-            return;
-        }
-
-        if (line.startsWith('#BRANCHSTART')) {
-            if (measureTokens.length > 0) finalizeMeasure();
-            branchStartIdx = targetMeasureIdx;
-            return;
-        } else if (line === '#N') {
-            if (measureTokens.length > 0) finalizeMeasure();
-            currentBranch = 'normal';
-            targetMeasureIdx = branchStartIdx;
-            currentMeasure = createEmptyMeasure(); // リセット
-            if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx - 1]) {
-                currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx - 1].signature];
-            }
-            return;
-        } else if (line === '#E') {
-            if (measureTokens.length > 0) finalizeMeasure();
-            currentBranch = 'expert';
-            targetMeasureIdx = branchStartIdx;
-            currentMeasure = createEmptyMeasure();
-            if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx - 1]) {
-                currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx - 1].signature];
-            }
-            return;
-        } else if (line === '#M') {
-            if (measureTokens.length > 0) finalizeMeasure();
-            currentBranch = 'master';
-            targetMeasureIdx = branchStartIdx;
-            currentMeasure = createEmptyMeasure();
-            if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx - 1]) {
-                currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx - 1].signature];
-            }
-            return;
-        }
-
-        // ギミックコマンド
-        if (line.startsWith('#MEASURE')) {
-            measureTokens.push({ type: '#MEASURE', val: line.replace('#MEASURE', '').trim() });
-            return;
-        }
-        if (line.startsWith('#BPMCHANGE')) {
-            measureTokens.push({ type: '#BPMCHANGE', val: line.replace('#BPMCHANGE', '').trim() });
-            return;
-        }
-        if (line.startsWith('#SCROLL')) {
-            measureTokens.push({ type: '#SCROLL', val: line.replace('#SCROLL', '').trim() });
-            return;
-        }
-        if (line === '#GOGOSTART') {
-            measureTokens.push({ type: '#GOGOSTART' });
-            return;
-        }
-        if (line === '#GOGOEND') {
-            measureTokens.push({ type: '#GOGOEND' });
-            return;
-        }
-
-        // 音符データ
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === ',') {
-                finalizeMeasure();
-            } else if (/[0-9]/.test(char)) {
-                measureTokens.push({ type: 'note', val: char });
-            }
-        }
-    });
-
-    // 空の難易度にデフォルトを詰める
-    Object.keys(newSongData.courses).forEach(key => {
-        if (newSongData.courses[key].length === 0) {
-            newSongData.courses[key] = [createEmptyMeasure()];
-        }
-    });
-
-    songData = newSongData;
+function parseTJA(text) {
+    const result = TjaParser.parse(text);
+    songData = result.songData;
+    return result.activeCourse;
 }
 
 // 数値入力ポップアップ以外をクリックした時にキャンセルするグローバルリスナー
@@ -2856,3 +3900,201 @@ window.addEventListener('mousedown', (e) => {
         }
     }
 }, true);
+
+// --- 11. リリースノート管理 ---
+const CURRENT_RELEASE_VERSION = "2026-09-28-v3";
+
+function initReleaseNotes() {
+    const overlay = document.getElementById('release-notes-overlay');
+    const closeBtn = document.getElementById('release-notes-close');
+    const okBtn = document.getElementById('release-notes-ok');
+
+    if (!overlay) return;
+
+    const dismissReleaseNotes = () => {
+        overlay.classList.remove('active');
+        try {
+            localStorage.setItem('taikoEditorReleaseReadVersion', CURRENT_RELEASE_VERSION);
+        } catch (e) {
+            console.warn("Failed to save release notes status", e);
+        }
+    };
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', dismissReleaseNotes);
+    }
+    if (okBtn) {
+        okBtn.addEventListener('click', dismissReleaseNotes);
+    }
+
+    // モーダル背景クリックでも閉じる
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            dismissReleaseNotes();
+        }
+    });
+
+    // 初回起動時または更新フラグ（未読バージョン）がある場合に表示
+    try {
+        const lastRead = localStorage.getItem('taikoEditorReleaseReadVersion');
+        if (lastRead !== CURRENT_RELEASE_VERSION) {
+            overlay.classList.add('active');
+        }
+    } catch (e) {
+        console.warn("Failed to check release notes status", e);
+    }
+}
+
+initReleaseNotes();
+
+// --- 12. 操作ガイド・マニュアル管理 ---
+function initGuideModal() {
+    const guideOverlay = document.getElementById('guide-overlay');
+    const guideBtn = document.getElementById('btn-guide');
+    const closeBtn = document.getElementById('guide-close-btn');
+    const prevBtn = document.getElementById('guide-prev-btn');
+    const nextBtn = document.getElementById('guide-next-btn');
+    const pageBadge = document.getElementById('guide-page-badge');
+    const tabBtns = document.querySelectorAll('.guide-tab-btn');
+    const pages = document.querySelectorAll('.guide-page');
+
+    if (!guideOverlay) return;
+
+    const TOTAL_PAGES = 5;
+    const PAGE_TITLES = {
+        1: "1 / 5 音符入力",
+        2: "2 / 5 プレビュー",
+        3: "3 / 5 設定・ギミック",
+        4: "4 / 5 入出力・再生",
+        5: "5 / 5 全操作一覧"
+    };
+
+    let currentPage = 5; // 初回起動時・再オープン時ともに「最後の一覧 (5)」をデフォルトに
+
+    function setGuidePage(pageNum) {
+        if (pageNum < 1) pageNum = 1;
+        if (pageNum > TOTAL_PAGES) pageNum = TOTAL_PAGES;
+        currentPage = pageNum;
+
+        // ページの表示切り替え
+        pages.forEach(p => {
+            const pageId = parseInt(p.getAttribute('data-page'), 10);
+            p.classList.toggle('active', pageId === currentPage);
+        });
+
+        // 下部タブのアクティブ状態更新
+        tabBtns.forEach(btn => {
+            const target = parseInt(btn.getAttribute('data-target'), 10);
+            btn.classList.toggle('active', target === currentPage);
+        });
+
+        // バッジ更新
+        if (pageBadge) {
+            pageBadge.textContent = PAGE_TITLES[currentPage] || `${currentPage} / ${TOTAL_PAGES}`;
+        }
+
+        // 前へ / 次へ ボタンの文言・状態更新
+        if (prevBtn) {
+            prevBtn.disabled = (currentPage === 1);
+            prevBtn.style.opacity = (currentPage === 1) ? '0.5' : '1';
+        }
+        if (nextBtn) {
+            if (currentPage === TOTAL_PAGES) {
+                nextBtn.textContent = '最初に戻る ↺';
+            } else {
+                nextBtn.textContent = '次へ ▶';
+            }
+        }
+    }
+
+    function openGuideModal(targetPage = 5) {
+        setGuidePage(targetPage);
+        guideOverlay.style.display = 'flex';
+        guideOverlay.classList.add('active');
+    }
+
+    function closeGuideModal() {
+        guideOverlay.style.display = 'none';
+        guideOverlay.classList.remove('active');
+    }
+
+    // ボタンクリックイベント
+    if (guideBtn) {
+        guideBtn.addEventListener('click', () => openGuideModal(5));
+    }
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeGuideModal);
+    }
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                setGuidePage(currentPage - 1);
+            }
+        });
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < TOTAL_PAGES) {
+                setGuidePage(currentPage + 1);
+            } else {
+                setGuidePage(1); // 最終ページからは最初に戻る
+            }
+        });
+    }
+
+    // 下部のページ選択タブ
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = parseInt(btn.getAttribute('data-target'), 10);
+            if (!isNaN(target)) {
+                setGuidePage(target);
+            }
+        });
+    });
+
+    // モーダル背景クリックで閉じる
+    guideOverlay.addEventListener('click', (e) => {
+        if (e.target === guideOverlay) {
+            closeGuideModal();
+        }
+    });
+
+    // キーボードショートカット
+    window.addEventListener('keydown', (e) => {
+        const isGuideOpen = guideOverlay.classList.contains('active') && guideOverlay.style.display !== 'none';
+
+        if (isGuideOpen) {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeGuideModal();
+                return;
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                if (currentPage > 1) setGuidePage(currentPage - 1);
+                return;
+            }
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+                e.preventDefault();
+                if (currentPage < TOTAL_PAGES) setGuidePage(currentPage + 1);
+                else setGuidePage(1);
+                return;
+            }
+            if (e.key === '?' || (e.shiftKey && e.key === '/') || e.key === 'F1') {
+                e.preventDefault();
+                closeGuideModal();
+                return;
+            }
+        } else {
+            // ガイド非表示時
+            if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+            if (e.key === '?' || (e.shiftKey && e.key === '/') || e.key === 'F1') {
+                e.preventDefault();
+                openGuideModal(5);
+                return;
+            }
+        }
+    });
+}
+
+initGuideModal();
