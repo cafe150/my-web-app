@@ -414,6 +414,33 @@
                     <button type="button" class="quick-clear-btn" id="quick-scroll-clear" title="HS変更を解除">解除</button>
                 </div>
             </div>
+
+            <!-- 譜面分岐設定 (#BRANCHSTART, #SECTION, #BRANCHEND) -->
+            <div class="quick-popup-section" style="border-top: 1px solid #3e4451; padding-top: 12px; margin-top: 12px;">
+                <div class="quick-section-title">🔀 譜面分岐制御 (BRANCH CONTROL):</div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                    <button type="button" class="quick-preset-btn" id="quick-section-btn" title="直前までの判定カウンタ（精度・連打数・スコア）をゼロリセット">§ SECTION (判定リセット)</button>
+                    <button type="button" class="quick-preset-btn" id="quick-branchend-btn" title="分岐区間を終了し共通トラックへ合流">⏹ BRANCHEND (合流)</button>
+                    <button type="button" class="quick-clear-btn" id="quick-branch-clear-btn" title="この小節の分岐・SECTION・合流設定をすべて解除">解除</button>
+                </div>
+                <div class="quick-custom-row" style="flex-wrap:wrap; gap:6px;">
+                    <span class="quick-custom-label">#BRANCHSTART:</span>
+                    <select id="quick-branch-type" style="padding:4px 8px; border-radius:4px; background:#2c3e50; color:#fff; border:1px solid #4a5568;">
+                        <option value="p">p (精度: %)</option>
+                        <option value="r">r (連打数: 打)</option>
+                        <option value="s">s (スコア: 点)</option>
+                    </select>
+                    <span class="quick-custom-label">玄人値:</span>
+                    <input type="number" id="quick-branch-expert" step="1" min="0" placeholder="玄人条件" value="40" style="width:70px;">
+                    <span class="quick-custom-label">達人値:</span>
+                    <input type="number" id="quick-branch-master" step="1" min="0" placeholder="達人条件" value="80" style="width:70px;">
+                    <button type="button" class="quick-apply-btn" id="quick-branch-apply" style="background:#8e44ad;">分岐開始を適用</button>
+                </div>
+                <div style="margin-top:8px; display:flex; gap:6px; align-items:center;">
+                    <span class="quick-custom-label" style="font-size:11px;">便利機能:</span>
+                    <button type="button" class="quick-preset-btn" id="quick-branch-copy-to-all" style="font-size:11px; padding:3px 8px;" title="現在の分岐の音符を選択中の小節の他分岐(玄/達/普)へ複製します">現在の分岐音符を他コースへコピー</button>
+                </div>
+            </div>
         </div>
         <div class="quick-popup-footer">
             <span class="quick-hint">ショートカット: <strong>M</strong> / <strong>S</strong> / <strong>G</strong> キー (ギミック統合)</span>

@@ -320,6 +320,25 @@ body {
 .branch-btn.active {
     background: #d35400;
     border-color: #e67e22;
+    box-shadow: 0 0 8px rgba(230, 126, 34, 0.5);
+}
+
+.branch-btn[data-branch="normal"].active {
+    background: #27ae60;
+    border-color: #2ecc71;
+    box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
+}
+
+.branch-btn[data-branch="expert"].active {
+    background: #d35400;
+    border-color: #e67e22;
+    box-shadow: 0 0 8px rgba(230, 126, 34, 0.5);
+}
+
+.branch-btn[data-branch="master"].active {
+    background: #8e44ad;
+    border-color: #9b59b6;
+    box-shadow: 0 0 8px rgba(155, 89, 182, 0.5);
 }
 
 .canvas-wrapper {

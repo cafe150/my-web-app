@@ -75,7 +75,11 @@ const createEmptyMeasure = () => ({
     scroll: null,         // HS変化 (例: 2.0)
     scrollOffset: 0.0,    // 小節内の位置 (0.0~0.99)
     gogoStart: false,     // この小節でゴーゴータイム開始
-    gogoEnd: false        // この小節でゴーゴータイム終了
+    gogoEnd: false,       // この小節でゴーゴータイム終了
+    // 譜面分岐制御
+    section: false,        // この小節で判定用バッファをリセット (#SECTION)
+    branchStart: null,     // 分岐開始 (#BRANCHSTART): { type: 'p'|'r'|'s', expert: number, master: number }
+    branchEnd: false       // 分岐終了・共通トラックへ合流 (#BRANCHEND)
 });
 
 const defaultSongData = {
@@ -373,14 +377,17 @@ function updateStatusBar() {
     const modeJa = { NOTE: "音符", ROLL: "連打", NUM_INPUT: "打数入力", ROLL_END: "連打終了待ち" };
     const sizeJa = { SMALL: "小", LARGE: "大" };
 
-    // 現在の小節の分音符を取得
+    // 現在の小節の分音符・分岐情報を取得
     let subdivInfo = "";
     if (measureIdx >= 0 && measureIdx < measures.length) {
         const m = measures[measureIdx];
         subdivInfo = ` | ${m.subdivision}分`;
     }
 
-    document.getElementById('status-timeline').innerText = `小節: ${measureDisplay}`;
+    const branchNames = { normal: "普通", expert: "玄人", master: "達人" };
+    const branchText = ` [${branchNames[state.currentBranch] || state.currentBranch}譜面]`;
+
+    document.getElementById('status-timeline').innerText = `小節: ${measureDisplay}${branchText}`;
     document.getElementById('status-mode').innerText = `モード: ${modeJa[state.mode] || state.mode} | サイズ: ${sizeJa[state.size] || state.size} | スナップ: ${state.isSnapEnabled ? 'ON' : 'OFF'}${subdivInfo}`;
 }
 
@@ -430,12 +437,17 @@ function draw() {
         }
     });
 
-    // 連打入力・終了待ち状態ならカーソル（またはスナップ位置）までプレビューを描画
-    if (activeRoll && (state.mode === "ROLL" || state.mode === "ROLL_END")) {
+    // 連打入力・終了待ち状態なら、現在の編集中連打の開始位置からカーソル（またはスナップ位置）までプレビューを描画
+    if (rollStartInfo && state.mode === "ROLL_END") {
         const snap = getSnapPosition(state.cursorX, positions);
         const endX = (snap && snap.exactX !== undefined) ? snap.exactX : state.cursorX;
-        if (endX >= activeRoll.x) {
-            drawRollBar(activeRoll.x, endX, activeRoll.type, true);
+        const startPos = positions[rollStartInfo.measureIdx];
+        if (startPos) {
+            const gridSpacing = startPos.width / startPos.measure.subdivision;
+            const startX = JUDGE_X + startPos.startX + (rollStartInfo.gridIdx * gridSpacing) - state.scrollX;
+            if (endX >= startX) {
+                drawRollBar(startX, endX, rollStartInfo.type, true);
+            }
         }
     }
 
@@ -498,8 +510,8 @@ function draw() {
             }
         }
 
-        // --- ギミックマーカーの描画 ---
-        const hasGimmick = pos.measure.bpmChange !== null || pos.measure.scroll !== null || pos.measure.gogoStart !== false || pos.measure.gogoEnd !== false;
+        // --- ギミックマーカー・分岐マーカーの描画 ---
+        const hasGimmick = pos.measure.bpmChange !== null || pos.measure.scroll !== null || pos.measure.gogoStart !== false || pos.measure.gogoEnd !== false || pos.measure.section || pos.measure.branchStart !== null || pos.measure.branchEnd;
         if (hasGimmick) {
             let markerY = LANE_Y - 55;
             ctx.font = "bold 11px sans-serif";
@@ -549,6 +561,27 @@ function draw() {
                 ctx.fillText("⏹END", markerX + 2, LANE_Y - 69);
                 drawTriangle(markerX);
             }
+
+            // 譜面分岐制御マーカー
+            if (pos.measure.section) {
+                ctx.fillStyle = "#e67e22";
+                ctx.fillText("§SECTION", drawX + 2, markerY);
+                drawTriangle(drawX);
+                markerY -= 14;
+            }
+            if (pos.measure.branchStart) {
+                const bs = pos.measure.branchStart;
+                ctx.fillStyle = "#9b59b6";
+                ctx.fillText(`🔀分岐:${bs.type}(玄${bs.expert}/達${bs.master})`, drawX + 2, markerY);
+                drawTriangle(drawX);
+                markerY -= 14;
+            }
+            if (pos.measure.branchEnd) {
+                ctx.fillStyle = "#7f8c8d";
+                ctx.fillText("⏹BRANCHEND", drawX + 2, markerY);
+                drawTriangle(drawX);
+                markerY -= 14;
+            }
         }
     });
 
@@ -566,6 +599,30 @@ function draw() {
     ctx.strokeStyle = "rgba(255,255,255,0.5)";
     ctx.lineWidth = 4;
     ctx.stroke();
+
+    // 現在の分岐（普・玄・達）インジケーターバッジ描画
+    ctx.save();
+    const branchBadgeConfig = {
+        normal: { text: "普通譜面 (#N)", bg: "rgba(39, 174, 96, 0.9)", border: "#2ecc71" },
+        expert: { text: "玄人譜面 (#E)", bg: "rgba(211, 84, 0, 0.9)", border: "#e67e22" },
+        master: { text: "達人譜面 (#M)", bg: "rgba(142, 68, 173, 0.9)", border: "#9b59b6" }
+    };
+    const bInfo = branchBadgeConfig[state.currentBranch] || branchBadgeConfig.normal;
+    ctx.font = "bold 11px sans-serif";
+    const bTextW = ctx.measureText(bInfo.text).width;
+    const badgeX = JUDGE_X + 45;
+    const badgeY = 22;
+    ctx.fillStyle = bInfo.bg;
+    ctx.strokeStyle = bInfo.border;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.rect(badgeX, badgeY - 14, bTextW + 16, 20);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "left";
+    ctx.fillText(bInfo.text, badgeX + 8, badgeY);
+    ctx.restore();
 
     // スナップガイド
     if (state.mode !== "NUM_INPUT") {
@@ -942,19 +999,25 @@ document.querySelectorAll('#course-tabs .tab').forEach(tab => {
 });
 
 // --- 分岐ボタン切り替え ---
+function switchBranch(branch) {
+    if (!branch || branch === state.currentBranch) return;
+
+    state.currentBranch = branch;
+
+    // アクティブスタイルの切り替え
+    document.querySelectorAll('.branch-btn').forEach(b => {
+        if (b.dataset.branch === branch) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+
+    draw();
+    updateStatusBar();
+}
+
 document.querySelectorAll('.branch-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const branch = btn.dataset.branch;
-        if (!branch || branch === state.currentBranch) return;
-
-        state.currentBranch = branch;
-
-        // アクティブスタイルの切り替え
-        document.querySelectorAll('.branch-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        draw();
-        updateStatusBar();
+        if (branch) switchBranch(branch);
     });
 });
 
@@ -1122,6 +1185,10 @@ window.addEventListener('mouseup', (e) => {
     }
     // 連打のドラッグ終了処理
     if (isDraggingRoll && e.button === 0) {
+        const rect = wrapper.getBoundingClientRect();
+        state.cursorX = e.clientX - rect.left;
+        state.cursorY = e.clientY - rect.top;
+
         const dragDist = Math.abs(e.clientX - rollDragStartX);
         if (dragDist > 15 && rollStartInfo) {
             const measures = songData.courses[state.currentCourse];
@@ -1132,6 +1199,8 @@ window.addEventListener('mouseup', (e) => {
                 (snap.measureIdx === rollStartInfo.measureIdx && snap.gridIdx > rollStartInfo.gridIdx)
             );
             if (isAfterStart) {
+                // 連打区間（開始〜終了）の間にある既存音符をクリアして連打に置き換える
+                clearNotesBetween(rollStartInfo.measureIdx, rollStartInfo.gridIdx, snap.measureIdx, snap.gridIdx, measures, state.currentBranch);
                 placeNoteData("8");
                 state.mode = (currentTool === '5' || currentTool === '6') ? "ROLL" : "NOTE";
                 rollStartInfo = null;
@@ -1162,11 +1231,29 @@ wrapper.addEventListener('mouseleave', () => {
     updateStatusBar();
 });
 
+// 連打区間（開始音符と終了音符の間）にある既存の音符を削除する
+function clearNotesBetween(startM, startG, endM, endG, measures, branch) {
+    measures.forEach((m, mIdx) => {
+        if (mIdx < startM || mIdx > endM) return;
+        m.notes[branch] = m.notes[branch].filter(n => {
+            const isAtStart = (mIdx === startM && n.posIndex === startG);
+            const isAtEnd = (mIdx === endM && n.posIndex === endG);
+            if (isAtStart || isAtEnd) return true;
+
+            const afterStart = (mIdx > startM) || (mIdx === startM && n.posIndex > startG);
+            const beforeEnd = (mIdx < endM) || (mIdx === endM && n.posIndex < endG);
+            return !(afterStart && beforeEnd);
+        });
+    });
+}
+
 // 通常の左クリック時の音符配置・小節クイック設定等の処理
 function handleCanvasLeftClick(e) {
     const rect = wrapper.getBoundingClientRect();
     const mouseY = e.clientY - rect.top;
     const mouseX = e.clientX - rect.left;
+    state.cursorX = mouseX;
+    state.cursorY = mouseY;
     const rawWorldX = mouseX + state.scrollX - JUDGE_X;
 
     // レーンの上部（小節番号やギミック領域）をクリックした場合、その小節を選択してクイック設定を開く
@@ -1200,32 +1287,33 @@ function handleCanvasLeftClick(e) {
         cancelNumberInput();
     }
 
-    if (state.mode === "ROLL_END") {
+    if (state.mode === "ROLL_END" && rollStartInfo) {
         const measures = songData.courses[state.currentCourse];
         const positions = calculateMeasurePositions(measures);
         const snap = getSnapPosition(state.cursorX, positions);
         if (snap.measureIdx !== -1) {
-            if (rollStartInfo) {
-                const isAfterStart = (snap.measureIdx > rollStartInfo.measureIdx) ||
-                    (snap.measureIdx === rollStartInfo.measureIdx && snap.gridIdx > rollStartInfo.gridIdx);
-                if (!isAfterStart) {
-                    return;
-                }
+            const isAfterStart = (snap.measureIdx > rollStartInfo.measureIdx) ||
+                (snap.measureIdx === rollStartInfo.measureIdx && snap.gridIdx > rollStartInfo.gridIdx);
+            if (isAfterStart) {
+                // 連打区間（開始〜終了）の間にある既存音符をクリアして連打に置き換える
+                clearNotesBetween(rollStartInfo.measureIdx, rollStartInfo.gridIdx, snap.measureIdx, snap.gridIdx, measures, state.currentBranch);
+                placeNoteData("8");
+                state.mode = (currentTool === '5' || currentTool === '6') ? "ROLL" : "NOTE";
+                rollStartInfo = null;
+                isDraggingRoll = false;
+                draw();
+                updateStatusBar();
+                return;
             }
-            placeNoteData("8");
-            state.mode = (currentTool === '5' || currentTool === '6') ? "ROLL" : "NOTE";
-            rollStartInfo = null;
-            isDraggingRoll = false;
-            draw();
-            updateStatusBar();
-            return;
         }
+        return; // 開始位置より前やスナップ無効の場合は新規連打配置にフォールスルーさせない
     }
 
     if (currentTool === '5' || currentTool === '6') {
         const measures = songData.courses[state.currentCourse];
         const positions = calculateMeasurePositions(measures);
         const snap = getSnapPosition(state.cursorX, positions);
+
         if (snap.measureIdx !== -1) {
             placeNoteData(currentTool);
             state.mode = "ROLL_END";
@@ -1250,6 +1338,8 @@ wrapper.addEventListener('mousedown', (e) => {
     const rect = wrapper.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
+    state.cursorX = mouseX;
+    state.cursorY = mouseY;
     const rawWorldX = mouseX + state.scrollX - JUDGE_X;
 
     if (e.button === 2) {
@@ -1289,11 +1379,19 @@ wrapper.addEventListener('mousedown', (e) => {
         return;
     }
 
-    // 連打ツール使用中は連打のドラッグ伸長を優先
-    if ((currentTool === '5' || currentTool === '6') && state.mode !== "ROLL_END") {
+    // 連打終了点待ちの場合はクリック即時処理
+    if (state.mode === "ROLL_END" && rollStartInfo) {
+        handleCanvasLeftClick(e);
+        return;
+    }
+
+    // 連打ツール使用中の処理
+    if (currentTool === '5' || currentTool === '6') {
         const measures = songData.courses[state.currentCourse];
         const positions = calculateMeasurePositions(measures);
         const snap = getSnapPosition(state.cursorX, positions);
+
+        // 新規連打開始または既存音符からの連打置き換え
         if (snap.measureIdx !== -1) {
             placeNoteData(currentTool);
             state.mode = "ROLL_END";
@@ -1304,12 +1402,6 @@ wrapper.addEventListener('mousedown', (e) => {
             updateStatusBar();
             return;
         }
-    }
-
-    // 連打終了点待ちの場合はクリック即時処理
-    if (state.mode === "ROLL_END") {
-        handleCanvasLeftClick(e);
-        return;
     }
 
     // 通常の左クリック：スライド（ドラッグ）判定の準備
@@ -1873,9 +1965,16 @@ function normalizeRolls(measures, branch) {
     allNotes.forEach(note => {
         if (note.type === "5" || note.type === "6" || note.type === "7" || note.type === "9") {
             if (inRoll) {
-                // 連打中に新しい連打が始まった場合、直前で前の連打を終了させる
-                const prev = getPreviousGridPos(note.measureIdx, note.gridIdx, measures, "8");
-                if (prev) correctionsAdd.push(prev);
+                // 連打中に新しい連打が始まった場合（かつ現在編集中でなければ）、直前で前の連打を終了させる
+                const isEditingThisRoll = rollStartInfo &&
+                    rollStartNode &&
+                    rollStartNode.measureIdx === rollStartInfo.measureIdx &&
+                    rollStartNode.gridIdx === rollStartInfo.gridIdx;
+
+                if (!isEditingThisRoll) {
+                    const prev = getPreviousGridPos(note.measureIdx, note.gridIdx, measures, "8");
+                    if (prev) correctionsAdd.push(prev);
+                }
             }
             inRoll = true;
             rollStartNode = note;
@@ -1891,14 +1990,16 @@ function normalizeRolls(measures, branch) {
         else if (note.type !== "0") {
             // ドン、カッなどの通常音符が来た場合
             if (inRoll) {
-                // 連打の途中に音符が置かれた → 直前で連打を終了させる
-                const prev = getPreviousGridPos(note.measureIdx, note.gridIdx, measures, "8");
-                if (prev && prev.measureIdx === rollStartNode.measureIdx && prev.gridIdx === rollStartNode.gridIdx) {
-                    correctionsRemove.push(rollStartNode);
-                } else if (prev) {
-                    correctionsAdd.push(prev);
+                const isEditingThisRoll = rollStartInfo &&
+                    rollStartNode &&
+                    rollStartNode.measureIdx === rollStartInfo.measureIdx &&
+                    rollStartNode.gridIdx === rollStartInfo.gridIdx;
+
+                // 編集中の連打でなければ区間を終了させる（勝手に8を強制生成して伸ばさない）
+                if (!isEditingThisRoll) {
+                    inRoll = false;
+                    rollStartNode = null;
                 }
-                inRoll = false;
             }
         }
     });
@@ -1925,7 +2026,16 @@ function normalizeRolls(measures, branch) {
     });
 }
 
-// (中略: getPreviousGridPos)
+function getPreviousGridPos(mIdx, gIdx, measures, type = "8") {
+    let prevG = gIdx - 1;
+    let prevM = mIdx;
+    if (prevG < 0) {
+        prevM--;
+        if (prevM < 0) return null;
+        prevG = measures[prevM].subdivision - 1;
+    }
+    return { measureIdx: prevM, gridIdx: prevG, type: type };
+}
 
 // --- 7. 数値入力ポップアップの処理 (風船など) ---
 let lastUsedBalloonCount = 5;
@@ -2170,6 +2280,9 @@ function openMeasureQuickPopup() {
                 if (m.gogoEnd !== false) gimmickTags.push('🛑GOGO終了');
                 if (m.scroll !== null) gimmickTags.push(`🏎HS:${m.scroll}x`);
                 if (m.bpmChange !== null) gimmickTags.push(`🎵BPM:${m.bpmChange}`);
+                if (m.section) gimmickTags.push('§SECTION');
+                if (m.branchStart) gimmickTags.push(`🔀分岐(${m.branchStart.type}:${m.branchStart.expert}/${m.branchStart.master})`);
+                if (m.branchEnd) gimmickTags.push('⏹合流');
             }
             const tagStr = gimmickTags.length > 0 ? ` [${gimmickTags.join(' ')}]` : '';
             titleEl.textContent = `小節設定: 第${startIdx + 1}小節 (${curSub}分 | ${curSig})${tagStr}`;
@@ -2201,6 +2314,53 @@ function openMeasureQuickPopup() {
     const subInput = document.getElementById('quick-subdiv-custom');
     if (subInput) {
         subInput.value = (curM && curM.subdivision) ? curM.subdivision : 16;
+    }
+
+    // 分岐設定のUI反映
+    const sectionBtn = document.getElementById('quick-section-btn');
+    if (sectionBtn) {
+        if (curM && curM.section) {
+            sectionBtn.classList.add('active');
+            sectionBtn.style.background = '#e67e22';
+            sectionBtn.style.borderColor = '#f39c12';
+            sectionBtn.textContent = '§ SECTION (設定中)';
+        } else {
+            sectionBtn.classList.remove('active');
+            sectionBtn.style.background = '';
+            sectionBtn.style.borderColor = '';
+            sectionBtn.textContent = '§ SECTION (判定リセット)';
+        }
+    }
+    const branchEndBtn = document.getElementById('quick-branchend-btn');
+    if (branchEndBtn) {
+        if (curM && curM.branchEnd) {
+            branchEndBtn.classList.add('active');
+            branchEndBtn.style.background = '#7f8c8d';
+            branchEndBtn.style.borderColor = '#95a5a6';
+            branchEndBtn.textContent = '⏹ BRANCHEND (合流設定中)';
+        } else {
+            branchEndBtn.classList.remove('active');
+            branchEndBtn.style.background = '';
+            branchEndBtn.style.borderColor = '';
+            branchEndBtn.textContent = '⏹ BRANCHEND (合流)';
+        }
+    }
+    const branchTypeSelect = document.getElementById('quick-branch-type');
+    const branchExpertInput = document.getElementById('quick-branch-expert');
+    const branchMasterInput = document.getElementById('quick-branch-master');
+    const branchApplyBtn = document.getElementById('quick-branch-apply');
+    if (branchTypeSelect && branchExpertInput && branchMasterInput) {
+        if (curM && curM.branchStart) {
+            branchTypeSelect.value = curM.branchStart.type || 'p';
+            branchExpertInput.value = curM.branchStart.expert !== undefined ? curM.branchStart.expert : 40;
+            branchMasterInput.value = curM.branchStart.master !== undefined ? curM.branchStart.master : 80;
+            if (branchApplyBtn) branchApplyBtn.textContent = '分岐条件を更新';
+        } else {
+            branchTypeSelect.value = 'p';
+            branchExpertInput.value = '40';
+            branchMasterInput.value = '80';
+            if (branchApplyBtn) branchApplyBtn.textContent = '分岐開始を適用';
+        }
     }
 
     popup.style.display = 'flex';
@@ -2435,6 +2595,129 @@ function applyQuickClearAllGimmicks() {
     updateRightSidebarPreview();
 }
 
+// SECTION (判定リセット) トグル
+function applyQuickSection() {
+    pushHistory();
+    const measures = songData.courses[state.currentCourse] || [];
+    let startIdx = state.lastActiveMeasureIdx;
+    if (state.selectedMeasureRange) startIdx = state.selectedMeasureRange.start;
+    startIdx = Math.max(0, Math.min(startIdx, measures.length - 1));
+
+    if (measures[startIdx]) {
+        measures[startIdx].section = !measures[startIdx].section;
+    }
+
+    closeMeasureQuickPopup();
+    draw();
+    updateStatusBar();
+    autoSave();
+}
+
+// BRANCHEND (合流) トグル
+function applyQuickBranchEnd() {
+    pushHistory();
+    const measures = songData.courses[state.currentCourse] || [];
+    let endIdx = state.lastActiveMeasureIdx;
+    if (state.selectedMeasureRange) endIdx = state.selectedMeasureRange.end;
+    endIdx = Math.max(0, Math.min(endIdx, measures.length - 1));
+
+    if (measures[endIdx]) {
+        measures[endIdx].branchEnd = !measures[endIdx].branchEnd;
+    }
+
+    closeMeasureQuickPopup();
+    draw();
+    updateStatusBar();
+    autoSave();
+}
+
+// BRANCHSTART (分岐開始) 適用
+function applyQuickBranchStart(type, expert, master) {
+    pushHistory();
+    const measures = songData.courses[state.currentCourse] || [];
+    let startIdx = state.lastActiveMeasureIdx;
+    if (state.selectedMeasureRange) startIdx = state.selectedMeasureRange.start;
+    startIdx = Math.max(0, Math.min(startIdx, measures.length - 1));
+
+    let expVal = parseFloat(expert);
+    let mastVal = parseFloat(master);
+    if (isNaN(expVal)) expVal = 40;
+    if (isNaN(mastVal)) mastVal = 80;
+
+    if (measures[startIdx]) {
+        measures[startIdx].branchStart = {
+            type: type || 'p',
+            expert: expVal,
+            master: mastVal
+        };
+    }
+
+    closeMeasureQuickPopup();
+    draw();
+    updateStatusBar();
+    autoSave();
+}
+
+// 分岐設定の解除
+function applyQuickClearBranch() {
+    pushHistory();
+    const measures = songData.courses[state.currentCourse] || [];
+    let startIdx = state.lastActiveMeasureIdx;
+    let endIdx = state.lastActiveMeasureIdx;
+    if (state.selectedMeasureRange) {
+        startIdx = state.selectedMeasureRange.start;
+        endIdx = state.selectedMeasureRange.end;
+    }
+    startIdx = Math.max(0, Math.min(startIdx, measures.length - 1));
+    endIdx = Math.max(startIdx, Math.min(endIdx, measures.length - 1));
+
+    for (let mi = startIdx; mi <= endIdx; mi++) {
+        if (measures[mi]) {
+            measures[mi].section = false;
+            measures[mi].branchStart = null;
+            measures[mi].branchEnd = false;
+        }
+    }
+
+    closeMeasureQuickPopup();
+    draw();
+    updateStatusBar();
+    autoSave();
+}
+
+// 現在の分岐の音符を選択小節の全分岐（普通・玄人・達人）へ複製
+function applyQuickBranchCopyToAll() {
+    pushHistory();
+    const measures = songData.courses[state.currentCourse] || [];
+    let startIdx = state.lastActiveMeasureIdx;
+    let endIdx = state.lastActiveMeasureIdx;
+    if (state.selectedMeasureRange) {
+        startIdx = state.selectedMeasureRange.start;
+        endIdx = state.selectedMeasureRange.end;
+    }
+    startIdx = Math.max(0, Math.min(startIdx, measures.length - 1));
+    endIdx = Math.max(startIdx, Math.min(endIdx, measures.length - 1));
+
+    const curB = state.currentBranch;
+    const targetBranches = ['normal', 'expert', 'master'].filter(b => b !== curB);
+
+    for (let mi = startIdx; mi <= endIdx; mi++) {
+        const m = measures[mi];
+        if (!m || !m.notes) continue;
+        const srcNotes = m.notes[curB] || [];
+        targetBranches.forEach(tb => {
+            m.notes[tb] = JSON.parse(JSON.stringify(srcNotes));
+        });
+    }
+
+    closeMeasureQuickPopup();
+    draw();
+    updateStatusBar();
+    autoSave();
+    const branchNames = { normal: '普通', expert: '玄人', master: '達人' };
+    alert(`第${startIdx + 1}〜${endIdx + 1}小節の【${branchNames[curB] || curB}譜面】の音符を他の全分岐へ複製しました。`);
+}
+
 function initMeasureQuickPopup() {
     // プリセット細分数ボタン
     document.querySelectorAll('#quick-subdiv-btns .quick-preset-btn').forEach(btn => {
@@ -2562,6 +2845,50 @@ function initMeasureQuickPopup() {
         });
     }
 
+    // 譜面分岐制御リスナー
+    const sectionBtn = document.getElementById('quick-section-btn');
+    if (sectionBtn) {
+        sectionBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyQuickSection();
+        });
+    }
+
+    const branchEndBtn = document.getElementById('quick-branchend-btn');
+    if (branchEndBtn) {
+        branchEndBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyQuickBranchEnd();
+        });
+    }
+
+    const branchApplyBtn = document.getElementById('quick-branch-apply');
+    if (branchApplyBtn) {
+        branchApplyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const bType = document.getElementById('quick-branch-type') ? document.getElementById('quick-branch-type').value : 'p';
+            const bExp = document.getElementById('quick-branch-expert') ? document.getElementById('quick-branch-expert').value : 40;
+            const bMast = document.getElementById('quick-branch-master') ? document.getElementById('quick-branch-master').value : 80;
+            applyQuickBranchStart(bType, bExp, bMast);
+        });
+    }
+
+    const branchClearBtn = document.getElementById('quick-branch-clear-btn');
+    if (branchClearBtn) {
+        branchClearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyQuickClearBranch();
+        });
+    }
+
+    const branchCopyBtn = document.getElementById('quick-branch-copy-to-all');
+    if (branchCopyBtn) {
+        branchCopyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyQuickBranchCopyToAll();
+        });
+    }
+
     // 閉じるボタン
     const closeBtn = document.getElementById('measure-quick-close');
     const cancelBtn = document.getElementById('quick-cancel-btn');
@@ -2669,15 +2996,19 @@ function measureToTjaLine(measure, branch) {
     return buf.join("") + ",";
 }
 
-// 末尾の完全空小節をトリミングする関数（ギミック設定がある小節も含める）
-function getLastNonEmptyMeasure(measures, branch) {
+// 末尾の完全空小節をトリミングする関数（全分岐の音符・ギミック・分岐設定を考慮）
+function getLastNonEmptyMeasure(measures) {
     for (let i = measures.length - 1; i >= 0; i--) {
         const m = measures[i];
-        const notes = m.notes[branch];
-        if (notes && notes.length > 0) return i;
-        // ギミックが設定されている小節も出力対象
+        if (!m) continue;
+        if (m.notes) {
+            if (m.notes.normal && m.notes.normal.length > 0) return i;
+            if (m.notes.expert && m.notes.expert.length > 0) return i;
+            if (m.notes.master && m.notes.master.length > 0) return i;
+        }
         if (m.bpmChange !== null || m.scroll !== null || m.gogoStart !== false || m.gogoEnd !== false) return i;
         if (m.signature[0] !== 4 || m.signature[1] !== 4) return i;
+        if (m.section || m.branchStart || m.branchEnd) return i;
     }
     return -1;
 }
@@ -2743,19 +3074,74 @@ document.addEventListener('DOMContentLoaded', () => {
     draw();
 });
 
-// 1つの難易度分のTJAブロックを生成する
-function generateCourseTja(courseName, measures, level) {
-    // normal 分岐のみ出力（現状のエディタの主要データ）
-    const branch = "normal";
-    const lastIdx = getLastNonEmptyMeasure(measures, branch);
+// 1つの小節オブジェクトを指定ブランチのTJA文字列行（ギミック含む）に変換する
+function formatMeasureTja(m, branch, prevM) {
+    const lines = [];
 
-    if (lastIdx === -1) return ""; // 音符が全くない難易度はスキップ
+    // 拍子変化 (#MEASURE)
+    if (!prevM || m.signature[0] !== prevM.signature[0] || m.signature[1] !== prevM.signature[1]) {
+        if (m.signature[0] !== 4 || m.signature[1] !== 4 || prevM) {
+            lines.push(`#MEASURE ${m.signature[0]}/${m.signature[1]}`);
+        }
+    }
+
+    let tjaLine = measureToTjaLine(m, branch);
+    let comma = "";
+    if (tjaLine.endsWith(",")) {
+        comma = ",";
+        tjaLine = tjaLine.slice(0, -1);
+    }
+
+    const actualLen = tjaLine.length > 0 ? tjaLine.length : m.subdivision;
+    const events = [];
+    if (m.gogoStart !== false) {
+        events.push({ type: '#GOGOSTART', idx: Math.round(m.gogoStart * actualLen) });
+    }
+    if (m.gogoEnd !== false) {
+        events.push({ type: '#GOGOEND', idx: Math.round(m.gogoEnd * actualLen) });
+    }
+    if (m.bpmChange !== null) {
+        events.push({ type: `#BPMCHANGE ${m.bpmChange}`, idx: Math.round((m.bpmChangeOffset || 0) * actualLen) });
+    }
+    if (m.scroll !== null) {
+        events.push({ type: `#SCROLL ${m.scroll}`, idx: Math.round((m.scrollOffset || 0) * actualLen) });
+    }
+
+    events.sort((a, b) => a.idx - b.idx);
+
+    if (events.length === 0) {
+        lines.push(tjaLine + comma);
+    } else {
+        let lastIdx = 0;
+        events.forEach(ev => {
+            if (ev.idx === 0 && lastIdx === 0) {
+                lines.push(ev.type);
+            } else {
+                const chunk = tjaLine.substring(lastIdx, ev.idx);
+                if (chunk.length > 0) lines.push(chunk);
+                lines.push(ev.type);
+                lastIdx = ev.idx;
+            }
+        });
+        const remaining = tjaLine.substring(lastIdx);
+        if (remaining.length > 0 || comma) {
+            lines.push(remaining + comma);
+        }
+    }
+
+    return lines;
+}
+
+// 1つの難易度分のTJAブロックを生成する（譜面分岐対応）
+function generateCourseTja(courseName, measures, level) {
+    const lastIdx = getLastNonEmptyMeasure(measures);
+    if (lastIdx === -1) return "";
 
     const lines = [];
-    lines.push(`COURSE:${courseMap[courseName]}`);
+    lines.push(`COURSE:${courseMap[courseName] || courseName}`);
     lines.push(`LEVEL:${level || 1}`);
 
-    const balloons = collectBalloons(measures, branch);
+    const balloons = collectBalloons(measures, 'normal');
     if (balloons.length > 0) {
         lines.push(`BALLOON:${balloons.join(",")}`);
     }
@@ -2763,59 +3149,63 @@ function generateCourseTja(courseName, measures, level) {
     lines.push("");
     lines.push("#START");
 
-    for (let i = 0; i <= lastIdx; i++) {
+    let i = 0;
+    while (i <= lastIdx) {
         const m = measures[i];
 
-        // --- ギミック命令を小節データの前に挿入 ---
-        // 拍子変化 (#MEASURE)
-        if (i === 0 || m.signature[0] !== measures[i - 1].signature[0] || m.signature[1] !== measures[i - 1].signature[1]) {
-            if (m.signature[0] !== 4 || m.signature[1] !== 4 || i > 0) {
-                lines.push(`#MEASURE ${m.signature[0]}/${m.signature[1]}`);
-            }
+        // #SECTION
+        if (m.section) {
+            lines.push("#SECTION");
         }
 
-        let tjaLine = measureToTjaLine(m, branch);
-        let comma = "";
-        if (tjaLine.endsWith(",")) {
-            comma = ",";
-            tjaLine = tjaLine.slice(0, -1);
-        }
-
-        const actualLen = tjaLine.length > 0 ? tjaLine.length : m.subdivision;
-        const events = [];
-        if (m.gogoStart !== false) {
-            events.push({ type: '#GOGOSTART', idx: Math.round(m.gogoStart * actualLen) });
-        }
-        if (m.gogoEnd !== false) {
-            events.push({ type: '#GOGOEND', idx: Math.round(m.gogoEnd * actualLen) });
-        }
-        if (m.bpmChange !== null) {
-            events.push({ type: `#BPMCHANGE ${m.bpmChange}`, idx: Math.round((m.bpmChangeOffset || 0) * actualLen) });
-        }
-        if (m.scroll !== null) {
-            events.push({ type: `#SCROLL ${m.scroll}`, idx: Math.round((m.scrollOffset || 0) * actualLen) });
-        }
-
-        events.sort((a, b) => a.idx - b.idx);
-
-        if (events.length === 0) {
-            lines.push(tjaLine + comma);
-        } else {
-            let lastIdx = 0;
-            events.forEach(ev => {
-                if (ev.idx === 0 && lastIdx === 0) {
-                    lines.push(ev.type);
-                } else {
-                    const chunk = tjaLine.substring(lastIdx, ev.idx);
-                    if (chunk.length > 0) lines.push(chunk);
-                    lines.push(ev.type);
-                    lastIdx = ev.idx;
+        // 分岐開始 (#BRANCHSTART)
+        if (m.branchStart) {
+            const bs = m.branchStart;
+            let endBranchIdx = lastIdx;
+            for (let k = i; k <= lastIdx; k++) {
+                if (measures[k].branchEnd) {
+                    endBranchIdx = k;
+                    break;
                 }
-            });
-            const remaining = tjaLine.substring(lastIdx);
-            if (remaining.length > 0 || comma) {
-                lines.push(remaining + comma);
+                if (k > i && measures[k].branchStart) {
+                    endBranchIdx = k - 1;
+                    break;
+                }
             }
+
+            lines.push(`#BRANCHSTART ${bs.type || 'p'},${bs.expert !== undefined ? bs.expert : 0},${bs.master !== undefined ? bs.master : 0}`);
+
+            // #N 普通譜面
+            lines.push("#N");
+            for (let k = i; k <= endBranchIdx; k++) {
+                const prevM = k === 0 ? null : measures[k - 1];
+                lines.push(...formatMeasureTja(measures[k], 'normal', prevM));
+            }
+
+            // #E 玄人譜面
+            lines.push("#E");
+            for (let k = i; k <= endBranchIdx; k++) {
+                const prevM = k === 0 ? null : measures[k - 1];
+                lines.push(...formatMeasureTja(measures[k], 'expert', prevM));
+            }
+
+            // #M 達人譜面
+            lines.push("#M");
+            for (let k = i; k <= endBranchIdx; k++) {
+                const prevM = k === 0 ? null : measures[k - 1];
+                lines.push(...formatMeasureTja(measures[k], 'master', prevM));
+            }
+
+            if (measures[endBranchIdx].branchEnd) {
+                lines.push("#BRANCHEND");
+            }
+
+            i = endBranchIdx + 1;
+        } else {
+            // 分岐外の通常小節
+            const prevM = i === 0 ? null : measures[i - 1];
+            lines.push(...formatMeasureTja(m, 'normal', prevM));
+            i++;
         }
     }
 
@@ -3720,8 +4110,22 @@ function getTimeFromScrollX(scrollX, measures) {
     return scrollX / (pxPerBeat * (baseBpm / 60) || 1);
 }
 
+// 分岐判定シミュレーション状態管理
+const playbackBranchState = {
+    counters: { good: 0, ok: 0, bad: 0, rolls: 0, score: 0 },
+    passedSections: new Set(),
+    evaluatedBranches: new Set(),
+    judgedNotes: new Set()
+};
+
 function startPlayback() {
     if (!state.audioBuffer || !state.audioContext) return;
+
+    // 分岐カウンタの初期化
+    playbackBranchState.counters = { good: 0, ok: 0, bad: 0, rolls: 0, score: 0 };
+    playbackBranchState.passedSections.clear();
+    playbackBranchState.evaluatedBranches.clear();
+    playbackBranchState.judgedNotes.clear();
 
     // AudioSource を作成
     state.audioSource = state.audioContext.createBufferSource();
@@ -3798,6 +4202,56 @@ function playbackAnimation() {
     const targetScrollX = getScrollXFromTime(songTime, measures);
 
     state.scrollX = Math.max(0, targetScrollX);
+
+    // --- 分岐判定ライフサイクルシミュレーション ---
+    const positions = calculateMeasurePositions(measures);
+    for (let mi = 0; mi < positions.length; mi++) {
+        const p = positions[mi];
+        // 判定枠を通過した小節のイベントを評価
+        if (state.scrollX >= p.startX - 5) {
+            const m = p.measure;
+
+            // 1. #SECTION 到達: 計測バッファをゼロクリア
+            if (m.section && !playbackBranchState.passedSections.has(mi)) {
+                playbackBranchState.counters = { good: 0, ok: 0, bad: 0, rolls: 0, score: 0 };
+                playbackBranchState.passedSections.add(mi);
+            }
+
+            // 2. #BRANCHSTART 到達: 条件評価と分岐先トラックのアクティブ化
+            if (m.branchStart && !playbackBranchState.evaluatedBranches.has(mi)) {
+                const bs = m.branchStart;
+                let newBranch = "normal";
+                if (bs.type === 'p') {
+                    // 精度 (%) 判定: (良×2 + 可) / (総打数×2) * 100
+                    const total = playbackBranchState.counters.good + playbackBranchState.counters.ok + playbackBranchState.counters.bad;
+                    const rate = total > 0 ? ((playbackBranchState.counters.good * 2 + playbackBranchState.counters.ok) / (total * 2)) * 100 : 100;
+                    if (rate >= bs.master) newBranch = "master";
+                    else if (rate >= bs.expert) newBranch = "expert";
+                    else newBranch = "normal";
+                } else if (bs.type === 'r') {
+                    // 連打数 (Roll) 判定
+                    const rolls = playbackBranchState.counters.rolls;
+                    if (rolls >= bs.master) newBranch = "master";
+                    else if (rolls >= bs.expert) newBranch = "expert";
+                    else newBranch = "normal";
+                } else if (bs.type === 's') {
+                    // スコア判定
+                    const sc = playbackBranchState.counters.score;
+                    if (sc >= bs.master) newBranch = "master";
+                    else if (sc >= bs.expert) newBranch = "expert";
+                    else newBranch = "normal";
+                }
+
+                switchBranch(newBranch);
+                playbackBranchState.evaluatedBranches.add(mi);
+            }
+        }
+    }
+
+    // オートプレイ（全良想定）による打数・精度・スコアの随時加算
+    playbackBranchState.counters.good++;
+    playbackBranchState.counters.score += 100;
+    playbackBranchState.counters.rolls += 1;
 
     // 再生位置ライン（赤い縦線）を判定枠の位置に表示
     draw();
@@ -3944,7 +4398,7 @@ class TjaTokenizer {
                             matchLen += argM[0].length;
                         }
                     } else if (rawName === 'BRANCHSTART') {
-                        const argM = afterCmd.match(/^[\s:]*([^\r\n,#]*)/);
+                        const argM = afterCmd.match(/^[\s:]*([^\r\n#]+)/);
                         if (argM) {
                             rawArgs = argM[1].trim();
                             matchLen += argM[0].length;
@@ -4048,6 +4502,9 @@ class TjaParser {
         let measureTokens = [];
         let targetMeasureIdx = 0;
         let branchStartIdx = 0;
+        let branchMaxMeasureIdx = 0;
+        let pendingBranchStart = null;
+        let pendingSection = false;
         let firstBpmChangeFound = null;
 
         const finalizeMeasure = () => {
@@ -4106,26 +4563,88 @@ class TjaParser {
                             currentMeasure.gogoEnd = offset;
                             break;
                         }
+                        case 'SECTION': {
+                            currentMeasure.section = true;
+                            break;
+                        }
+                        case 'BRANCHSTART': {
+                            const parts = (t.args || '').split(',').map(s => s.trim());
+                            const bType = parts[0] ? parts[0].toLowerCase() : 'p';
+                            const bExp = parts[1] !== undefined ? parseFloat(parts[1]) || 0 : 0;
+                            const bMast = parts[2] !== undefined ? parseFloat(parts[2]) || 0 : 0;
+                            currentMeasure.branchStart = { type: bType, expert: bExp, master: bMast };
+                            break;
+                        }
+                        case 'BRANCHEND': {
+                            currentMeasure.branchEnd = true;
+                            break;
+                        }
                     }
                 }
             });
 
+            if (pendingSection) {
+                currentMeasure.section = true;
+                pendingSection = false;
+            }
+            if (pendingBranchStart) {
+                currentMeasure.branchStart = { ...pendingBranchStart };
+                pendingBranchStart = null;
+            }
+
             const courseArr = newSongData.courses[currentCourse];
             if (courseArr) {
                 if (targetMeasureIdx < courseArr.length) {
-                    if (currentBranch === 'normal') {
-                        courseArr[targetMeasureIdx] = currentMeasure;
-                    } else {
-                        courseArr[targetMeasureIdx].notes[currentBranch] = currentMeasure.notes[currentBranch];
-                        // ギミック設定の共有・補完
-                        if (currentMeasure.bpmChange !== null && courseArr[targetMeasureIdx].bpmChange === null) {
-                            courseArr[targetMeasureIdx].bpmChange = currentMeasure.bpmChange;
-                            courseArr[targetMeasureIdx].bpmChangeOffset = currentMeasure.bpmChangeOffset;
+                    const existing = courseArr[targetMeasureIdx];
+
+                    // 細分数（解像度）の統合と音符位置のスケール変換 (LCM)
+                    const oldSub = existing.subdivision || 16;
+                    const curSub = currentMeasure.subdivision || 16;
+                    if (oldSub !== curSub) {
+                        const gcd = (a, b) => { while (b) { let t = b; b = a % b; a = t; } return a; };
+                        const lcm = (a, b) => (!a || !b) ? 16 : (a * b) / gcd(a, b);
+                        const newSub = lcm(oldSub, curSub);
+                        if (newSub !== oldSub) {
+                            ['normal', 'expert', 'master'].forEach(b => {
+                                if (existing.notes[b]) {
+                                    existing.notes[b].forEach(n => {
+                                        n.posIndex = Math.round((n.posIndex / oldSub) * newSub);
+                                    });
+                                }
+                            });
+                            existing.subdivision = newSub;
                         }
-                        if (currentMeasure.scroll !== null && courseArr[targetMeasureIdx].scroll === null) {
-                            courseArr[targetMeasureIdx].scroll = currentMeasure.scroll;
-                            courseArr[targetMeasureIdx].scrollOffset = currentMeasure.scrollOffset;
+                        if (newSub !== curSub) {
+                            currentMeasure.notes[currentBranch].forEach(n => {
+                                n.posIndex = Math.round((n.posIndex / curSub) * newSub);
+                            });
                         }
+                    }
+
+                    existing.notes[currentBranch] = currentMeasure.notes[currentBranch];
+                    // ギミック設定・メタデータの共有・補完
+                    if (currentMeasure.bpmChange !== null && existing.bpmChange === null) {
+                        existing.bpmChange = currentMeasure.bpmChange;
+                        existing.bpmChangeOffset = currentMeasure.bpmChangeOffset;
+                    }
+                    if (currentMeasure.scroll !== null && existing.scroll === null) {
+                        existing.scroll = currentMeasure.scroll;
+                        existing.scrollOffset = currentMeasure.scrollOffset;
+                    }
+                    if (currentMeasure.gogoStart !== false && existing.gogoStart === false) {
+                        existing.gogoStart = currentMeasure.gogoStart;
+                    }
+                    if (currentMeasure.gogoEnd !== false && existing.gogoEnd === false) {
+                        existing.gogoEnd = currentMeasure.gogoEnd;
+                    }
+                    if (currentMeasure.section) {
+                        existing.section = true;
+                    }
+                    if (currentMeasure.branchStart) {
+                        existing.branchStart = currentMeasure.branchStart;
+                    }
+                    if (currentMeasure.branchEnd) {
+                        existing.branchEnd = true;
                     }
                 } else {
                     courseArr.push(currentMeasure);
@@ -4133,6 +4652,7 @@ class TjaParser {
             }
 
             targetMeasureIdx++;
+            branchMaxMeasureIdx = Math.max(branchMaxMeasureIdx, targetMeasureIdx);
 
             const nextMeasure = createEmptyMeasure();
             nextMeasure.signature = [...currentMeasure.signature];
@@ -4146,9 +4666,7 @@ class TjaParser {
             if (!trimmed) continue;
 
             // 1. ヘッダー状態（#START 前、または #END 後）
-            // ※ TITLE や SUBTITLE の中に '#' や ',' が含まれていても安全に解析する
             if (!inChart) {
-                // #START コマンドを検出
                 if (/^#START\b/i.test(trimmed)) {
                     inChart = true;
                     currentBranch = 'normal';
@@ -4156,10 +4674,12 @@ class TjaParser {
                     measureTokens = [];
                     targetMeasureIdx = 0;
                     branchStartIdx = 0;
+                    branchMaxMeasureIdx = 0;
+                    pendingBranchStart = null;
+                    pendingSection = false;
                     continue;
                 }
 
-                // ヘッダー行の安全な解析
                 const headerEntry = TjaTokenizer.parseHeaderLine(trimmed);
                 if (headerEntry) {
                     const { key, val } = headerEntry;
@@ -4178,29 +4698,78 @@ class TjaParser {
             }
 
             // 2. 譜面データ状態（#START 〜 #END）
-            // #END コマンドを検出
             if (/^#END\b/i.test(trimmed)) {
                 inChart = false;
                 if (measureTokens.length > 0) finalizeMeasure();
+                if (branchMaxMeasureIdx > targetMeasureIdx) {
+                    targetMeasureIdx = branchMaxMeasureIdx;
+                }
+                continue;
+            }
+
+            // #SECTION コマンドを検出
+            if (/^#SECTION\b/i.test(trimmed)) {
+                if (measureTokens.length > 0) finalizeMeasure();
+                pendingSection = true;
                 continue;
             }
 
             // 分岐制御コマンドの先行チェック（行頭）
             if (/^#BRANCHSTART\b/i.test(trimmed)) {
                 if (measureTokens.length > 0) finalizeMeasure();
+                if (branchMaxMeasureIdx > targetMeasureIdx) {
+                    targetMeasureIdx = branchMaxMeasureIdx;
+                }
                 branchStartIdx = targetMeasureIdx;
+                branchMaxMeasureIdx = targetMeasureIdx;
+
+                const argMatch = trimmed.match(/^#BRANCHSTART[\s:]*(.*)$/i);
+                let bType = 'p';
+                let bExp = 0;
+                let bMast = 0;
+                if (argMatch && argMatch[1]) {
+                    const parts = argMatch[1].split(',').map(s => s.trim());
+                    bType = parts[0] ? parts[0].toLowerCase() : 'p';
+                    bExp = parts[1] !== undefined ? parseFloat(parts[1]) || 0 : 0;
+                    bMast = parts[2] !== undefined ? parseFloat(parts[2]) || 0 : 0;
+                }
+                pendingBranchStart = { type: bType, expert: bExp, master: bMast };
+                continue;
+            } else if (/^#BRANCHEND\b/i.test(trimmed)) {
+                if (measureTokens.length > 0) finalizeMeasure();
+                branchMaxMeasureIdx = Math.max(branchMaxMeasureIdx, targetMeasureIdx);
+                const courseArr = newSongData.courses[currentCourse];
+                if (courseArr && branchMaxMeasureIdx > 0 && courseArr[branchMaxMeasureIdx - 1]) {
+                    courseArr[branchMaxMeasureIdx - 1].branchEnd = true;
+                }
+                targetMeasureIdx = branchMaxMeasureIdx;
+                currentBranch = 'normal';
+                currentMeasure = createEmptyMeasure();
+                if (targetMeasureIdx > 0 && courseArr && courseArr[targetMeasureIdx - 1]) {
+                    currentMeasure.signature = [...courseArr[targetMeasureIdx - 1].signature];
+                }
                 continue;
             } else if (/^#N\b/i.test(trimmed)) {
                 if (measureTokens.length > 0) finalizeMeasure();
+                branchMaxMeasureIdx = Math.max(branchMaxMeasureIdx, targetMeasureIdx);
                 currentBranch = 'normal';
                 targetMeasureIdx = branchStartIdx;
                 currentMeasure = createEmptyMeasure();
+                if (pendingBranchStart) {
+                    currentMeasure.branchStart = { ...pendingBranchStart };
+                    pendingBranchStart = null;
+                }
+                if (pendingSection) {
+                    currentMeasure.section = true;
+                    pendingSection = false;
+                }
                 if (targetMeasureIdx > 0 && newSongData.courses[currentCourse] && newSongData.courses[currentCourse][targetMeasureIdx - 1]) {
                     currentMeasure.signature = [...newSongData.courses[currentCourse][targetMeasureIdx - 1].signature];
                 }
                 continue;
             } else if (/^#E\b/i.test(trimmed)) {
                 if (measureTokens.length > 0) finalizeMeasure();
+                branchMaxMeasureIdx = Math.max(branchMaxMeasureIdx, targetMeasureIdx);
                 currentBranch = 'expert';
                 targetMeasureIdx = branchStartIdx;
                 currentMeasure = createEmptyMeasure();
@@ -4210,6 +4779,7 @@ class TjaParser {
                 continue;
             } else if (/^#M\b/i.test(trimmed)) {
                 if (measureTokens.length > 0) finalizeMeasure();
+                branchMaxMeasureIdx = Math.max(branchMaxMeasureIdx, targetMeasureIdx);
                 currentBranch = 'master';
                 targetMeasureIdx = branchStartIdx;
                 currentMeasure = createEmptyMeasure();
