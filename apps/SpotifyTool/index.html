@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpotifyTool | 音楽ダッシュボード</title>
+  <meta name="description"
+    content="Spotify Web APIを活用し、再生中の楽曲、よく聴く楽曲・アーティスト、ライブラリ、プレイリストをリアルタイムに可視化するモダンな音楽ダッシュボード「SpotifyTool」。" />
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <!-- 背景アンビエントオーラグロー -->
+  <div class="ambient-glow glow-top-left"></div>
+  <div class="ambient-glow glow-bottom-right"></div>
+
+  <!-- ナビゲーションバー -->
+  <header class="app-nav">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <svg class="spotify-logo" viewBox="0 0 24 24" width="32" height="32" fill="#1DB954">
+          <path
+            d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.5 17.3c-.2.3-.6.4-.9.2-2.5-1.5-5.6-1.9-9.3-1-0.4.1-.7-.1-.8-.5-.1-.4.1-.7.5-.8 4.1-1 7.6-.5 10.4 1.2.3.2.4.6.1.9zm1.5-3.3c-.3.4-.8.5-1.2.3-2.9-1.8-7.3-2.3-10.7-1.3-.4.1-.9-.1-1-.6-.1-.4.1-.9.6-1 3.9-1.2 8.8-.6 12 1.4.4.2.5.8.3 1.2zm.1-3.5C15.6 8.3 9.1 8.1 5.3 9.2c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4 4.4-1.3 11.6-1.1 16 1.5.5.3.7 1 .4 1.5-.3.6-1 .7-1.9.1z" />
+        </svg>
+        <span class="brand-title">Spotify<span>Tool</span></span>
+        <div id="live-status-indicator" class="status-badge-dot demo" title="デモモード"></div>
+      </div>
+
+      <div class="nav-actions">
+        <span id="sync-time" class="sync-text">同期準備中...</span>
+
+        <button id="btn-refresh-all" class="nav-btn icon-btn" title="データを更新">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19" />
+          </svg>
+        </button>
+
+        <button id="btn-toggle-demo" class="nav-btn demo-btn" title="デモモードとAPI連携を切り替え">
+          🟢 デモモードON (切替)
+        </button>
+
+        <button id="btn-open-config" class="nav-btn secondary-btn" title="API設定・接続ガイド">
+          ⚙ 設定
+        </button>
+
+        <button id="btn-login" class="nav-btn spotify-btn">
+          Spotifyでログイン
+        </button>
+
+        <button id="btn-logout" class="nav-btn logout-btn hidden">
+          ログアウト
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインダッシュボードコンテンツ -->
+  <main class="dashboard-main">
+    <div class="dashboard-layout">
+      <!-- 未認証時ウェルカムヒーローバナー -->
+      <section class="glass-panel unauth-hero-section hidden" id="unauth-hero-banner">
+        <div class="hero-content">
+          <div class="hero-tag">SpotifyTool - Music Dashboard</div>
+          <h2 class="hero-title">
+            あなたのSpotifyアカウントを連携して<br /><span class="text-gradient">音楽ライフを1画面で可視化</span>
+          </h2>
+          <p class="hero-description">
+            再生中のリアルタイムステータス、よく聴く楽曲・アーティスト、ライブラリ、再生履歴、プレイリストを一元管理できるダッシュボードです。
+          </p>
+          <div class="hero-cta-group">
+            <button id="hero-btn-login" class="hero-btn-spotify">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path
+                  d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.5 17.3c-.2.3-.6.4-.9.2-2.5-1.5-5.6-1.9-9.3-1-0.4.1-.7-.1-.8-.5-.1-.4.1-.7.5-.8 4.1-1 7.6-.5 10.4 1.2.3.2.4.6.1.9zm1.5-3.3c-.3.4-.8.5-1.2.3-2.9-1.8-7.3-2.3-10.7-1.3-.4.1-.9-.1-1-.6-.1-.4.1-.9.6-1 3.9-1.2 8.8-.6 12 1.4.4.2.5.8.3 1.2zm.1-3.5C15.6 8.3 9.1 8.1 5.3 9.2c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4 4.4-1.3 11.6-1.1 16 1.5.5.3.7 1 .4 1.5-.3.6-1 .7-1.9.1z" />
+              </svg>
+              Spotifyアカウントでログイン
+            </button>
+            <button id="hero-btn-demo" class="hero-btn-demo">
+              デモモードで試してみる
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 1. Header: ユーザー属性セクション -->
+      <section class="glass-panel profile-section" id="section-profile">
+        <div id="user-profile-card" class="profile-card">
+          <!-- JSでレンダリング -->
+          <div class="skeleton-profile"></div>
+        </div>
+      </section>
+
+      <!-- 2. Active: 再生状況セクション -->
+      <section class="glass-panel active-playback-section" id="section-active">
+        <div class="section-badge-header">
+          <span class="live-dot-pulse"></span>
+          <h3>Active Player (再生ステータス)</h3>
+          <span class="polling-hint">5秒自動更新</span>
+        </div>
+        <div id="active-player-content" class="active-player-wrapper">
+          <!-- JSでレンダリング -->
+        </div>
+      </section>
+
+      <!-- 2カラムコンテンツグリッド -->
+      <div class="dashboard-grid-columns">
+        <!-- 左カラム: Analytics & Library -->
+        <div class="grid-column left-column">
+          <!-- 3. Analytics: トップ項目セクション -->
+          <section class="glass-panel analytics-section" id="section-analytics">
+            <div class="section-title-bar">
+              <div>
+                <h3 class="section-heading">Analytics (よく聴く項目)</h3>
+                <p class="section-subheading">
+                  あなたの音楽トレンドと人気度・親和度スコア (0〜100)
+                </p>
+              </div>
+
+              <!-- タブコントロール -->
+              <div class="tab-controls-wrap">
+                <div class="tab-pill-group">
+                  <button class="tab-btn tab-btn-type active" data-type="tracks">
+                    楽曲
+                  </button>
+                  <button class="tab-btn tab-btn-type" data-type="artists">
+                    アーティスト
+                  </button>
+                </div>
+                <div class="tab-pill-group">
+                  <button class="tab-btn tab-btn-range" data-range="short_term">
+                    4週間
+                  </button>
+                  <button class="tab-btn tab-btn-range active" data-range="medium_term">
+                    6ヶ月
+                  </button>
+                  <button class="tab-btn tab-btn-range" data-range="long_term">
+                    全期間
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div id="top-items-grid" class="top-items-grid">
+              <!-- JSでレンダリング -->
+            </div>
+          </section>
+
+          <!-- 4. Library: ライブラリ統計セクション -->
+          <section class="glass-panel library-section" id="section-library">
+            <div class="section-title-bar">
+              <div>
+                <h3 class="section-heading">Library (保存済みライブラリ)</h3>
+                <p class="section-subheading">
+                  お気に入りの楽曲と保存アルバム統計
+                </p>
+              </div>
+              <div class="library-summary-chips">
+                <span class="chip">いいねした曲:
+                  <strong id="total-liked-tracks">0</strong></span>
+                <span class="chip">保存アルバム:
+                  <strong id="total-saved-albums">0</strong></span>
+              </div>
+            </div>
+
+            <div class="library-content-split">
+              <!-- いいね楽曲 -->
+              <div class="library-sub-block">
+                <h4 class="sub-block-title">最新のお気に入り楽曲</h4>
+                <div id="library-tracks-list" class="mini-tracks-list">
+                  <!-- JSでレンダリング -->
+                </div>
+              </div>
+
+              <!-- 保存アルバム -->
+              <div class="library-sub-block">
+                <h4 class="sub-block-title">保存アルバムコレクション</h4>
+                <div id="library-albums-grid" class="mini-albums-grid">
+                  <!-- JSでレンダリング -->
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 右カラム: History & Playlists -->
+        <div class="grid-column right-column">
+          <!-- 5. History: 直近の再生履歴セクション -->
+          <section class="glass-panel history-section" id="section-history">
+            <div class="section-title-bar">
+              <div>
+                <h3 class="section-heading">History (再生履歴)</h3>
+                <p class="section-subheading">直近再生されたトラック</p>
+              </div>
+              <span class="count-badge" id="history-count">50曲</span>
+            </div>
+
+            <div class="history-scroll-container">
+              <div id="history-list" class="history-list">
+                <!-- JSでレンダリング -->
+              </div>
+            </div>
+          </section>
+
+          <!-- 6. Playlists: プレイリスト一覧セクション -->
+          <section class="glass-panel playlists-section" id="section-playlists">
+            <div class="section-title-bar">
+              <div>
+                <h3 class="section-heading">Playlists (プレイリスト)</h3>
+                <p class="section-subheading">作成およびフォロー中のリスト</p>
+              </div>
+              <span class="count-badge" id="playlists-count">0件</span>
+            </div>
+
+            <div id="playlists-grid" class="playlists-grid">
+              <!-- JSでレンダリング -->
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <p>
+        © 2026 SpotifyTool. Built with Vanilla JS & CSS. Powered
+        by Spotify Web API.
+      </p>
+      <div class="footer-links">
+        <a href="https://developer.spotify.com/documentation/web-api" target="_blank" rel="noreferrer">Spotify API
+          Docs</a>
+        <span>•</span>
+        <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noreferrer">Developer Dashboard</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 設定・接続ガイドモーダル -->
+  <div id="config-modal" class="modal-backdrop hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Spotify API 接続設定ガイド</h3>
+        <button id="btn-close-config" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Client ID 設定入力フォーム -->
+        <div class="client-id-input-section">
+          <label for="input-client-id" class="input-label">
+            <strong>Spotify Client ID</strong> (ブラウザに安全に保存されます)
+          </label>
+          <div class="input-action-row">
+            <input type="text" id="input-client-id" class="client-id-field" placeholder="例: 1a2b3c... (32文字の英数字)"
+              autocomplete="off" spellcheck="false" />
+            <button id="btn-save-client-id" class="modal-action-btn primary-action-btn">
+              保存
+            </button>
+          </div>
+          <p class="field-hint">
+            ※ Client Secret は不要です。PKCE (Proof Key for Code Exchange)
+            によりブラウザ単体で安全に認可されます。
+          </p>
+        </div>
+
+        <div class="setup-status-box">
+          <div class="status-row">
+            <span>実行環境 / 動作モード:</span>
+            <span id="env-status-badge" class="status-tag">判定中...</span>
+          </div>
+          <div class="status-row">
+            <span>設定済みClient ID:</span>
+            <code id="config-client-id">-</code>
+          </div>
+          <div class="status-row redirect-row">
+            <div class="redirect-info">
+              <span>Spotify 登録用 Redirect URI:</span>
+              <code id="config-redirect-uri">https://...</code>
+            </div>
+            <button id="btn-copy-redirect-uri" class="copy-small-btn" title="Redirect URIをコピー">
+              📋 コピー
+            </button>
+          </div>
+        </div>
+
+        <h4>Spotify アプリの連携手順:</h4>
+        <ol class="setup-steps-list">
+          <li>
+            <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noreferrer">Spotify Developer
+              Dashboard</a>
+            にログインします。
+          </li>
+          <li>
+            <strong>Create App</strong> をクリックし、アプリ名（例:
+            <code>SpotifyTool</code>）を入力します。
+          </li>
+          <li>
+            アプリ設定の <strong>Redirect URIs</strong> に上記の
+            <code class="inline-code">Redirect URI</code>
+            を追加して保存します（※完全一致する必要があります）。
+          </li>
+          <li>
+            <strong>Which API/SDKs are you planning to use?</strong> で
+            <strong>Web API</strong> にチェックを入れます。
+          </li>
+          <li>
+            Basic Information から
+            <strong>Client ID</strong>
+            をコピーし、上の入力欄に貼り付けて「保存」をクリックします。
+          </li>
+          <li>
+            右上の「Spotifyでログイン」ボタンを押せば、あなたのアカウントの実データが読み込まれます！
+          </li>
+        </ol>
+
+        <div class="modal-tip-box">
+          💡 <strong>デモモード:</strong> Client
+          IDが未設定の場合でも、画面上部の「デモモード」ボタンからいつでも全機能のデモデータを体感できます。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- トースト通知コンテナ -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- グローバルローディングスピナー -->
+  <div id="global-loader" class="global-loader hidden">
+    <div class="loader-spinner"></div>
+    <p>Spotify データを同期中...</p>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
