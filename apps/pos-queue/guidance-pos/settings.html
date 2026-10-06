@@ -50,7 +50,7 @@
 </div>
 
 <script>
-    let rawExp = JSON.parse(localStorage.getItem('expMaster')) || [{name: "プログラミング", duration: 5}, {name: "学校説明", duration: 10}];
+    let rawExp = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験", duration: 5}];
     if (rawExp.length > 0 && typeof rawExp[0] === 'string') rawExp = rawExp.map(e => ({ name: e, duration: 5 }));
     let expMaster = rawExp;
     

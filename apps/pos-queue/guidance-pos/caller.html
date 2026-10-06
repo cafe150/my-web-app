@@ -35,8 +35,8 @@
         let orders = JSON.parse(localStorage.getItem('orders') || '[]');
         orders.sort((a, b) => a.id - b.id);
         
-        let exps = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験なし", duration: 0}];
-        if(typeof exps[0] === 'string') exps = exps.map(e => ({name:e, duration:30}));
+        let exps = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験", duration: 5}];
+        if(typeof exps[0] === 'string') exps = exps.map(e => ({name:e, duration:5}));
 
         const board = document.getElementById('board');
         const currentScroll = board.scrollLeft;
@@ -76,7 +76,8 @@
             newHtml += colHtml;
         });
 
-        const noExpOrders = orders.filter(o => !o.experiences || o.experiences.length === 0);
+        const expNames = exps.map(e => e.name);
+        const noExpOrders = orders.filter(o => !o.experiences || o.experiences.length === 0 || !o.experiences.some(exp => expNames.includes(exp)));
         if (noExpOrders.length > 0) {
             let colHtml = `<div class="exp-column"><div class="exp-title" style="color:#e74c3c;">⚠️ 未選択 (総合受付)</div>`;
             noExpOrders.forEach(o => {

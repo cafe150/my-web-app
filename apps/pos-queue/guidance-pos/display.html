@@ -164,7 +164,8 @@
             });
 
             // 何も選択されていないエラーデータの表示
-            const noExpOrders = orders.filter(o => (o.status === 'waiting' || o.status === 'calling') && (!o.experiences || o.experiences.length === 0));
+            const expNames = exps.map(e => e.name);
+            const noExpOrders = orders.filter(o => (o.status === 'waiting' || o.status === 'calling') && (!o.experiences || o.experiences.length === 0 || !o.experiences.some(exp => expNames.includes(exp))));
             if (noExpOrders.length > 0) {
                 let secHtml = `<div class="exp-section"><div class="exp-title" style="color:#e74c3c;">総合受付・ご案内</div>`;
                 noExpOrders.forEach((o, index) => {
