@@ -672,10 +672,11 @@
                     `*このIssueはWebサイトのバグ報告フォームから自動生成されました。*`
                 ].join("\n");
 
+                // GitHub Issue作成用URLを組み立て（julesラベルを自動付与）
                 const queryParams = new URLSearchParams({
                     title: `[${selectedApp}][Bug] ${title}`,
                     body: bodyContent,
-                    labels: categoryLabels
+                    labels: `${categoryLabels},jules`
                 });
 
                 const targetUrl = `https://github.com/${encodeURIComponent(GITHUB_CONFIG.owner)}/${encodeURIComponent(GITHUB_CONFIG.repo)}/issues/new?${queryParams.toString()}`;
