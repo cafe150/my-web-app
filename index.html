@@ -216,6 +216,133 @@
 
         @keyframes fadeInOut { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
         @keyframes dotFlashing { 0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
+
+        /* --- バグ・不具合報告フォーム用CSS --- */
+        .bug-report-section {
+            max-width: 680px;
+            margin: 40px auto 60px;
+            padding: 0 20px;
+        }
+
+        .bug-report-card {
+            background-color: var(--card-bg, #ffffff);
+            border: 1px solid #d0d7de;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .bug-report-card h2 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .bug-report-card .description {
+            color: var(--text-sub, #656d76);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .bug-report-card .notice-box {
+            background-color: #ddf4ff;
+            border: 1px solid #54aeff;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .bug-report-card .form-group {
+            margin-bottom: 20px;
+        }
+
+        .bug-report-card label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .bug-report-card .required {
+            color: #cf222e;
+            margin-left: 2px;
+        }
+
+        .bug-report-card .help-text {
+            font-size: 12px;
+            color: var(--text-sub, #656d76);
+            margin-top: 4px;
+        }
+
+        .bug-report-card input[type="text"],
+        .bug-report-card select,
+        .bug-report-card textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            background-color: #ffffff;
+            color: var(--text-main);
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .bug-report-card input[type="text"]:focus,
+        .bug-report-card select:focus,
+        .bug-report-card textarea:focus {
+            border-color: #0969da;
+            box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.2);
+        }
+
+        .bug-report-card textarea {
+            height: 110px;
+            resize: vertical;
+        }
+
+        .bug-report-card .screenshot-guide {
+            background: #f6f8fa;
+            border: 1px dashed #d0d7de;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 13px;
+            color: var(--text-sub, #656d76);
+        }
+
+        .bug-report-card .screenshot-guide strong {
+            color: var(--text-main);
+        }
+
+        .bug-report-card .submit-btn {
+            background-color: #0969da;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .bug-report-card .submit-btn:hover {
+            background-color: #0854b0;
+        }
     </style>
     <script>
         if (!localStorage.getItem('tosAgreed')) {
@@ -361,8 +488,104 @@
         </div>
     </div>
 
+    <!-- バグ・不具合報告セクション -->
+    <section id="bug-report" class="bug-report-section">
+        <div class="bug-report-card">
+            <h2>バグ・不具合報告</h2>
+            <p class="description">アプリやWebサイトで発生した不具合の報告フォームです。入力後、GitHubのIssue作成画面へ安全に転送されます。</p>
+
+            <div class="notice-box">
+                <span>💡</span>
+                <div>
+                    送信ボタンを押すとGitHubのIssue新規作成ページが開きます。内容を確認し、画面右下の「Submit new issue」を押すことで報告が完了します。
+                </div>
+            </div>
+
+            <form id="bugReportForm">
+                <!-- 対象ツール・アプリ（プルダウン選択） -->
+                <div class="form-group">
+                    <label for="targetApp">対象アプリ・ツール<span class="required">*</span></label>
+                    <select id="targetApp" required>
+                        <option value="PCBS 構成管理シミュレーター" data-placeholder="例: パーツ選択時に互換性チェックが正しく動作しない" selected>PCBS 構成管理シミュレーター</option>
+                        <option value="ブラウザ完結型 順番待ち＆POSレジ" data-placeholder="例: 会計完了時に待ち人数がリアルタイム更新されない">ブラウザ完結型 順番待ち＆POSレジ</option>
+                        <option value="BVE CSV 時間補間ツール" data-placeholder="例: CSV読み込み時に到着時刻が正しく計算されない">BVE CSV 時間補間ツール</option>
+                        <option value="Minecraft コマンドコンバーター" data-placeholder="例: execute構文変換でセレクタが欠落する">Minecraft コマンドコンバーター</option>
+                        <option value="懐かしの鉄道発車標 再現" data-placeholder="例: フラップの回転アニメーションが途中で停止する">懐かしの鉄道発車標 再現</option>
+                        <option value="Taiko Web Editor" data-placeholder="例: 音声のシーク位置と小節線がずれる">Taiko Web Editor</option>
+                        <option value="SpotifyTool (音楽ダッシュボード)" data-placeholder="例: ログイン後にプレイリスト一覧が取得できない">SpotifyTool (音楽ダッシュボード)</option>
+                        <option value="サイト全体 / その他" data-placeholder="例: リンク先が開かない / 表示が崩れている">サイト全体 / その他</option>
+                    </select>
+                    <div class="help-text">不具合が発生したアプリまたはツールを選択してください。</div>
+                </div>
+
+                <!-- 件名 -->
+                <div class="form-group">
+                    <label for="title">件名 / 概要<span class="required">*</span></label>
+                    <input type="text" id="title" placeholder="例: パーツ選択時に互換性チェックが正しく動作しない" required>
+                </div>
+
+                <!-- ラベル / 分類 -->
+                <div class="form-group">
+                    <label for="category">不具合の分類</label>
+                    <select id="category">
+                        <option value="bug">bug（一般的な不具合）</option>
+                        <option value="bug,crash">bug, crash（強制終了・クラッシュ）</option>
+                        <option value="bug,ui">bug, ui（表示崩れ・デザイン崩れ）</option>
+                        <option value="bug,performance">bug, performance（動作が重い・フリーズ）</option>
+                    </select>
+                </div>
+
+                <!-- 優先度 -->
+                <div class="form-group">
+                    <label for="severity">影響度（自己評価）</label>
+                    <select id="severity">
+                        <option value="低（利用に支障はない / 軽微な表示崩れなど）">低（利用に支障はない / 軽微な表示崩れなど）</option>
+                        <option value="中（一部の機能が使えないが回避策がある）" selected>中（一部の機能が使えないが回避策がある）</option>
+                        <option value="高（主要機能が使えない / クラッシュする）">高（主要機能が使えない / クラッシュする）</option>
+                    </select>
+                </div>
+
+                <!-- 再現手順 -->
+                <div class="form-group">
+                    <label for="reproduce">再現手順<span class="required">*</span></label>
+                    <textarea id="reproduce" placeholder="1. アプリを起動する&#10;2. 登録画面でNFCカードをかざす&#10;3. エラーダイアログが表示される" required></textarea>
+                    <div class="help-text">どのような操作を行った際に問題が発生したかを具体的に記載してください。</div>
+                </div>
+
+                <!-- 期待した動作 -->
+                <div class="form-group">
+                    <label for="expected">本来期待していた挙動</label>
+                    <textarea id="expected" placeholder="例: カードIDが読み取られ、ユーザー名入力フォームへ自動遷移すること"></textarea>
+                </div>
+
+                <!-- 利用環境（ブラウザ情報など自動取得） -->
+                <div class="form-group">
+                    <label for="environment">ご利用の環境（端末・OSなど）</label>
+                    <input type="text" id="environment">
+                    <div class="help-text">自動検出されたブラウザ・OS情報が入っています。実機アプリの場合は端末名（Pixel 8, Galaxy S23など）を追記してください。</div>
+                </div>
+
+                <!-- スクリーンショット添付の案内枠 -->
+                <div class="form-group">
+                    <label>スクリーンショット・動画の添付について</label>
+                    <div class="screenshot-guide">
+                        <strong>📎 画像を添付したい場合:</strong><br>
+                        このフォーム送信後に開くGitHub画面の本文入力欄（テキストボックス）に、<strong>直接画像をドラッグ＆ドロップ</strong>（またはクリップボードから <code>Ctrl + V</code> で貼り付け）すると自動でアップロードされます。
+                    </div>
+                </div>
+
+                <!-- 送信ボタン -->
+                <button type="submit" class="submit-btn">
+                    <span>GitHub Issueの作成画面を開く</span>
+                    <span>&rarr;</span>
+                </button>
+            </form>
+        </div>
+    </section>
+
 <footer style="text-align: center; padding: 40px 0; color: #888; font-size: 0.9rem;">
     <p>&copy; 2026 mocha</p>
+    <a href="#bug-report" style="color: #888; text-decoration: none; margin-right: 15px;">不具合報告</a>
     <a href="terms.html" style="color: #888; text-decoration: none; margin-right: 15px;">利用規約</a>
     <a href="privacy.html" style="color: #888; text-decoration: none;">プライバシーポリシー</a>
 </footer>
@@ -382,6 +605,84 @@
             modal.classList.add('hidden');
             document.body.style.overflow = '';
         });
+
+        // バグ報告フォームの初期化・送信処理
+        const envInput = document.getElementById("environment");
+        if (envInput) {
+            const userAgent = navigator.userAgent;
+            const platform = navigator.platform || "Unknown Platform";
+            envInput.value = `${platform} / ${userAgent}`;
+        }
+
+        // 対象ツールのプルダウン変更処理
+        const targetAppSelect = document.getElementById("targetApp");
+        const titleInput = document.getElementById("title");
+
+        if (targetAppSelect && titleInput) {
+            targetAppSelect.addEventListener("change", () => {
+                const selectedOption = targetAppSelect.options[targetAppSelect.selectedIndex];
+                const placeholder = selectedOption.getAttribute("data-placeholder");
+                if (placeholder) {
+                    titleInput.placeholder = placeholder;
+                }
+            });
+        }
+
+        const bugReportForm = document.getElementById("bugReportForm");
+        if (bugReportForm) {
+            const GITHUB_CONFIG = {
+                owner: "cafe150",
+                repo: "my-web-app"
+            };
+
+            bugReportForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                const selectedApp = targetAppSelect ? targetAppSelect.value : "対象ツール未指定";
+                const title = document.getElementById("title").value.trim();
+                const categoryLabels = document.getElementById("category").value;
+                const severity = document.getElementById("severity").value;
+                const reproduce = document.getElementById("reproduce").value.trim();
+                const expected = document.getElementById("expected").value.trim() || "特になし";
+                const environment = document.getElementById("environment").value.trim();
+
+                const bodyContent = [
+                    `### 対象ツール / アプリ`,
+                    `- **${selectedApp}**`,
+                    ``,
+                    `### 発生している問題の概要`,
+                    `${title}`,
+                    ``,
+                    `### 影響度`,
+                    `- ${severity}`,
+                    ``,
+                    `### 再現手順`,
+                    `${reproduce}`,
+                    ``,
+                    `### 期待される挙動`,
+                    `${expected}`,
+                    ``,
+                    `### 実行環境`,
+                    `- **環境情報:** \`${environment}\``,
+                    ``,
+                    `### スクリーンショット・ログ`,
+                    `<!-- 画像やエラーログがある場合は、この下へドラッグ＆ドロップまたは貼り付けてください -->`,
+                    ``,
+                    `---`,
+                    `*このIssueはWebサイトのバグ報告フォームから自動生成されました。*`
+                ].join("\n");
+
+                const queryParams = new URLSearchParams({
+                    title: `[${selectedApp}][Bug] ${title}`,
+                    body: bodyContent,
+                    labels: categoryLabels
+                });
+
+                const targetUrl = `https://github.com/${encodeURIComponent(GITHUB_CONFIG.owner)}/${encodeURIComponent(GITHUB_CONFIG.repo)}/issues/new?${queryParams.toString()}`;
+
+                window.open(targetUrl, "_blank", "noopener,noreferrer");
+            });
+        }
     });
 
     window.addEventListener('load', () => {
