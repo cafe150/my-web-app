@@ -10,19 +10,23 @@ function createMockLocalStorage() {
     };
 }
 
-describe('Guidance POS tests', () => {
+describe('guidance_pos tests', () => {
     it('Default expMaster fallback is consistent across admin, caller, display, and settings logic', () => {
         const localStorage = createMockLocalStorage();
 
+        // Simulation of admin.html loadExps
         let adminExps = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験", duration: 5}];
         if (typeof adminExps[0] === 'string') adminExps = adminExps.map(e => ({name: e, duration: 5}));
 
+        // Simulation of caller.html renderCaller exps loading
         let callerExps = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験", duration: 5}];
         if (typeof callerExps[0] === 'string') callerExps = callerExps.map(e => ({name: e, duration: 5}));
 
+        // Simulation of display.html updateWaitingList exps loading
         let displayExps = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験", duration: 5}];
         if (typeof displayExps[0] === 'string') displayExps = displayExps.map(e => ({name: e, duration: 5}));
 
+        // Simulation of settings.html rawExp loading
         let settingsRawExp = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験", duration: 5}];
         if (settingsRawExp.length > 0 && typeof settingsRawExp[0] === 'string') settingsRawExp = settingsRawExp.map(e => ({ name: e, duration: 5 }));
 
@@ -35,8 +39,9 @@ describe('Guidance POS tests', () => {
     it('Ticket issued with default expMaster ("体験") appears in caller.html target orders', () => {
         const localStorage = createMockLocalStorage();
 
+        // 1. Issue a ticket on admin.html with default expMaster
         let adminExps = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験", duration: 5}];
-        const selectedExps = [adminExps[0].name];
+        const selectedExps = [adminExps[0].name]; // ["体験"]
 
         let orders = JSON.parse(localStorage.getItem('orders') || '[]');
         let nextNum = parseInt(localStorage.getItem('nextNum') || '1');
@@ -53,6 +58,7 @@ describe('Guidance POS tests', () => {
         });
         localStorage.setItem('orders', JSON.stringify(orders));
 
+        // 2. Caller.html processes orders with default expMaster
         let callerExps = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験", duration: 5}];
         let savedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
 
@@ -70,6 +76,7 @@ describe('Guidance POS tests', () => {
     it('Ticket with unmatched experience name is caught in fallback "noExpOrders" section', () => {
         const localStorage = createMockLocalStorage();
 
+        // Ticket issued under an old experience name "古体験"
         const savedOrders = [{
             id: 12345,
             number: 99,
@@ -82,6 +89,7 @@ describe('Guidance POS tests', () => {
         }];
         localStorage.setItem('orders', JSON.stringify(savedOrders));
 
+        // Caller.html loaded with new expMaster ["新体験"]
         localStorage.setItem('expMaster', JSON.stringify([{name: "新体験", duration: 10}]));
         let callerExps = JSON.parse(localStorage.getItem('expMaster'));
 
