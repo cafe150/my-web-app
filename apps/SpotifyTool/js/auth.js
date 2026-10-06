@@ -355,13 +355,10 @@ function scheduleTokenRefresh(expiresInSeconds) {
   if (tokenRefreshTimer) clearTimeout(tokenRefreshTimer);
 
   const refreshDelayMs = Math.max(10000, (expiresInSeconds - 90) * 1000);
-  console.log(`[Auth] Scheduled token refresh in ${Math.round(refreshDelayMs / 1000)}s`);
 
   tokenRefreshTimer = setTimeout(async () => {
     try {
-      console.log('[Auth] Refreshing access token...');
       await refreshAccessToken();
-      console.log('[Auth] Token refreshed successfully');
     } catch (err) {
       console.error('[Auth] Error during token refresh:', err);
     }

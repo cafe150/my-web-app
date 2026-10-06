@@ -168,7 +168,6 @@ async function pollActivePlayback() {
     const isTrackChangedFlag = isTrackSwitched || isTrackLooped || isTrackEndedAndStopped;
 
     if (isTrackChangedFlag) {
-      console.log(`[Playback Detection] Track change/finish flag TRIGGERED! (prev: ${AppState.lastTrackId}, now: ${currentTrackId})`);
       // 曲が変わったフラグに基づき、「再生履歴」項目だけをピンポイント自動更新
       await updateRecentlyPlayedOnly();
     }
@@ -207,8 +206,6 @@ async function updateRecentlyPlayedOnly() {
       if (tracks && artists) {
         UI.renderTopItems(tracks, artists, AppState.currentTopType, AppState.currentTopRange, AppState.cachedRecentlyPlayed);
       }
-
-      console.log('[Playback] Recently Played updated successfully.');
     }
   } catch (err) {
     console.warn('[Playback] Failed to update recently played only:', err);
@@ -397,7 +394,6 @@ function setupEventListeners() {
 
   // 曲の再生終了検知カスタムイベント
   window.addEventListener('spotify:track_finished', async () => {
-    console.log('[Event] Track finished event received! Polling playback to update history...');
     await pollActivePlayback();
   });
 }
