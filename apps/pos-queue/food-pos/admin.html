@@ -90,7 +90,7 @@
     let masterData = {}; // ★全体で使い回せるように変数化
 
     function loadMaster() {
-        masterData = JSON.parse(localStorage.getItem('masterData')) || {
+        masterData = JSON.parse(localStorage.getItem('food_masterData')) || {
             "メイン": {items:[{name:"商品",price:500}], columns:4}
         };
         initTabs();
@@ -176,17 +176,17 @@
         const total = cart.reduce((s, i) => s + i.price, 0);
         if (received < total) return alert("預り金が不足しています");
         
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
-        let nextNum = parseInt(localStorage.getItem('nextNum') || '100');
+        let orders = JSON.parse(localStorage.getItem('food_orders') || '[]');
+        let nextNum = parseInt(localStorage.getItem('food_nextNum') || '100');
         
         const newOrder = { id:Date.now(), number:nextNum, note:cart.map(i=>i.name).join(', '), time:new Date(), total:total, status:'waiting' };
         orders.push(newOrder);
-        localStorage.setItem('orders', JSON.stringify(orders));
+        localStorage.setItem('food_orders', JSON.stringify(orders));
         
-        let salesHistory = JSON.parse(localStorage.getItem('salesHistory') || '[]');
+        let salesHistory = JSON.parse(localStorage.getItem('food_salesHistory') || '[]');
         salesHistory.push(newOrder);
-        localStorage.setItem('salesHistory', JSON.stringify(salesHistory));
-        localStorage.setItem('nextNum', nextNum + 1);
+        localStorage.setItem('food_salesHistory', JSON.stringify(salesHistory));
+        localStorage.setItem('food_nextNum', nextNum + 1);
 
         bc.postMessage({ type: 'NEW_ORDER' });
 
@@ -200,7 +200,7 @@
     
     // 設定画面で保存したときにリアルタイムで反映させる
     window.addEventListener('storage', (e) => {
-        if (e.key === 'masterData') {
+        if (e.key === 'food_masterData') {
             loadMaster();
         }
     });

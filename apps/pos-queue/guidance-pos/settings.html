@@ -50,11 +50,11 @@
 </div>
 
 <script>
-    let rawExp = JSON.parse(localStorage.getItem('expMaster')) || [{name: "プログラミング", duration: 5}, {name: "学校説明", duration: 10}];
+    let rawExp = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験", duration: 5}];
     if (rawExp.length > 0 && typeof rawExp[0] === 'string') rawExp = rawExp.map(e => ({ name: e, duration: 5 }));
     let expMaster = rawExp;
     
-    let audioSettings = JSON.parse(localStorage.getItem('audioSettings')) || {};
+    let audioSettings = JSON.parse(localStorage.getItem('queue_audioSettings')) || {};
     document.getElementById('chime-type').value = audioSettings.type || "1";
     document.getElementById('announce-template').value = audioSettings.template || "{number}ばんの、{name}さま、ごあんないいたします";
 
@@ -78,14 +78,14 @@
         const cleanMaster = expMaster.filter(e => e.name.trim() !== "");
         localStorage.setItem('expMaster', JSON.stringify(cleanMaster));
         const audio = { type: document.getElementById('chime-type').value, template: document.getElementById('announce-template').value };
-        localStorage.setItem('audioSettings', JSON.stringify(audio));
+        localStorage.setItem('queue_audioSettings', JSON.stringify(audio));
         alert("💾 設定を保存しました！\nモニター画面をリロードすると反映されます。");
         renderEditor();
     }
 
     function clearData() {
         if(confirm("本日の受付待ちリストや発券番号をすべてリセットしますか？")) {
-            localStorage.setItem('orders', '[]'); localStorage.setItem('nextNum', '1'); alert("リセットしました。");
+            localStorage.setItem('queue_orders', '[]'); localStorage.setItem('queue_nextNum', '1'); alert("リセットしました。");
         }
     }
 
