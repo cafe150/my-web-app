@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>作成物 | Portfolio</title>
+    <script src="js/env-detector.js"></script>
     <style>
         :root {
             --primary-color: #007AFF;
@@ -695,9 +696,18 @@
             // バグ報告フォームの初期化・送信処理
             const envInput = document.getElementById("environment");
             if (envInput) {
-                const userAgent = navigator.userAgent;
-                const platform = navigator.platform || "Unknown Platform";
-                envInput.value = `${platform} / ${userAgent}`;
+                if (window.EnvDetector) {
+                    envInput.value = window.EnvDetector.detectEnvironment(navigator);
+                    window.EnvDetector.detectEnvironmentAsync(navigator).then(detailedEnv => {
+                        if (detailedEnv) {
+                            envInput.value = detailedEnv;
+                        }
+                    }).catch(() => {});
+                } else {
+                    const userAgent = navigator.userAgent;
+                    const platform = navigator.platform || "Unknown Platform";
+                    envInput.value = `${platform} / ${userAgent}`;
+                }
             }
 
             // 対象ツールのプルダウン変更処理
