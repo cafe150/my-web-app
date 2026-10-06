@@ -66,7 +66,6 @@ async function spotifyFetch(endpoint, retryCount = 0) {
 
     // 401 Unauthorized (トークン失効)
     if (res.status === 401 && retryCount === 0) {
-      console.log('[API 401] Token expired. Attempting refresh...');
       try {
         const newAccessToken = await refreshAccessToken();
         if (newAccessToken) {
