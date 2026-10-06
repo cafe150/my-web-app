@@ -1,0 +1,49 @@
+name: Auto Assign Jules on Issue
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  label-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate Issue and Apply 'jules' Label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            
+            // すでに jules ラベルが付いている場合は二重実行防止
+            const hasJulesLabel = issue.labels.some(l => l.name === 'jules');
+            if (hasJulesLabel) {
+              console.log('Issue already has jules label. Skipping.');
+              return;
+            }
+
+            // バグ報告の特徴（タイトル接頭辞、既存ラベル、フォームの定型文など）を判定
+            const isBugReport = 
+              issue.title.startsWith('[Bug]') ||
+              issue.labels.some(l => l.name === 'bug') ||
+              (issue.body && (issue.body.includes('再現手順') || issue.body.includes('期待される挙動')));
+
+            if (isBugReport) {
+              // 'jules' ラベルを付与（未作成の場合はリポジトリ側で自動登録または作成）
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['jules']
+              });
+
+              // 作業受付コメントを投稿
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: '🤖 **Jules Automated Triage**\n\nこの Issue に `jules` ラベルを付与しました。Jules によるコード解析および修正タスクがトリガーされます。'
+              });
+            }
