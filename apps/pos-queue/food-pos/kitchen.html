@@ -61,7 +61,7 @@
     };
 
     function renderKitchen() {
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let orders = JSON.parse(localStorage.getItem('food_orders') || '[]');
         let waitingOrders = orders.filter(o => o.status === 'waiting');
         
         // ★必ず古い順（IDの小さい順）に並び替える
@@ -94,11 +94,11 @@
     }
 
     function finishCooking(id) {
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let orders = JSON.parse(localStorage.getItem('food_orders') || '[]');
         const idx = orders.findIndex(o => o.id === id);
         if (idx !== -1) {
             orders[idx].status = 'ready';
-            localStorage.setItem('orders', JSON.stringify(orders));
+            localStorage.setItem('food_orders', JSON.stringify(orders));
             renderKitchen();
         }
     }

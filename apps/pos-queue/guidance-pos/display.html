@@ -93,7 +93,7 @@
                 document.getElementById('current-number').classList.add('blink');
                 
                 // ★ 新しい音声読み込みロジック（確実に鳴らす）
-                const settings = JSON.parse(localStorage.getItem('audioSettings')) || {};
+                const settings = JSON.parse(localStorage.getItem('queue_audioSettings')) || {};
                 const templateStr = settings.template || "{number}ばんの、{name}さま、ごあんないいたします";
                 const chimeType = String(settings.type || "1");
 
@@ -119,7 +119,7 @@
 
         // ★ リアルタイムカウントダウン処理
         function updateWaitingList() {
-            let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            let orders = JSON.parse(localStorage.getItem('queue_orders') || '[]');
             orders.sort((a,b) => a.id - b.id); // 受付順（古い順）
             
             let exps = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験", duration: 5}];

@@ -34,7 +34,7 @@
     const bc = new BroadcastChannel('pos_system');
 
     function renderCaller() {
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let orders = JSON.parse(localStorage.getItem('food_orders') || '[]');
         
         // ★必ず古い順に並べる
         orders.sort((a, b) => a.id - b.id);
@@ -70,20 +70,20 @@
     }
 
     function callOrder(id, number) {
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let orders = JSON.parse(localStorage.getItem('food_orders') || '[]');
         const idx = orders.findIndex(o => o.id === id);
         if (idx !== -1) {
             orders[idx].status = 'calling'; 
-            localStorage.setItem('orders', JSON.stringify(orders));
+            localStorage.setItem('food_orders', JSON.stringify(orders));
             bc.postMessage({ type: 'CALL', number: number }); 
             renderCaller();
         }
     }
 
     function completeOrder(id, number) {
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let orders = JSON.parse(localStorage.getItem('food_orders') || '[]');
         orders = orders.filter(o => o.id !== id);
-        localStorage.setItem('orders', JSON.stringify(orders));
+        localStorage.setItem('food_orders', JSON.stringify(orders));
         bc.postMessage({ type: 'DELETE', number: number }); 
         renderCaller();
     }

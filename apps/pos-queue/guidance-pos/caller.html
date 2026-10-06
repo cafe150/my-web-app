@@ -32,7 +32,7 @@
     const bc = new BroadcastChannel('queue_system');
 
     function renderCaller() {
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let orders = JSON.parse(localStorage.getItem('queue_orders') || '[]');
         orders.sort((a, b) => a.id - b.id);
         
         let exps = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験なし", duration: 0}];
@@ -106,20 +106,20 @@
     }
 
     function callOrder(id, number, name) {
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let orders = JSON.parse(localStorage.getItem('queue_orders') || '[]');
         const idx = orders.findIndex(o => o.id === id);
         if (idx !== -1) {
             orders[idx].status = 'calling'; 
-            localStorage.setItem('orders', JSON.stringify(orders));
+            localStorage.setItem('queue_orders', JSON.stringify(orders));
             bc.postMessage({ type: 'CALL', number: number, name: name }); 
             renderCaller();
         }
     }
 
     function completeOrder(id, number) {
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let orders = JSON.parse(localStorage.getItem('queue_orders') || '[]');
         orders = orders.filter(o => o.id !== id);
-        localStorage.setItem('orders', JSON.stringify(orders));
+        localStorage.setItem('queue_orders', JSON.stringify(orders));
         bc.postMessage({ type: 'DELETE', number: number }); 
         renderCaller();
     }
@@ -129,7 +129,7 @@
     
     // 2. ★最強のバックアップ通信：別タブでデータが保存された瞬間に強制的に目を覚ます
     window.addEventListener('storage', (e) => {
-        if (e.key === 'orders') {
+        if (e.key === 'queue_orders') {
             renderCaller();
         }
     });

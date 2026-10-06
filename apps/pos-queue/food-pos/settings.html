@@ -98,11 +98,11 @@
 
 <script>
     // --- データの読み込み ---
-    let master = JSON.parse(localStorage.getItem('masterData')) || { 
+    let master = JSON.parse(localStorage.getItem('food_masterData')) || {
         "メイン": { items: [{name: "牛丼", price: 500}], columns: 4 },
         "トッピング": { items: [{name: "生卵", price: 80}], columns: 4 }
     };
-    let audioSettings = JSON.parse(localStorage.getItem('audioSettings')) || { type: "1", prefix: "番号", suffix: "番の方" };
+    let audioSettings = JSON.parse(localStorage.getItem('food_audioSettings')) || { type: "1", prefix: "番号", suffix: "番の方" };
     
     document.getElementById('chime-type').value = audioSettings.type;
     document.getElementById('prefix').value = audioSettings.prefix;
@@ -182,7 +182,7 @@
 
     // --- 💰 売上・精算レポートの描画 ---
     function renderSalesReport() {
-        const salesHistory = JSON.parse(localStorage.getItem('salesHistory') || '[]');
+        const salesHistory = JSON.parse(localStorage.getItem('food_salesHistory') || '[]');
         const reportEl = document.getElementById('sales-report');
         
         if (salesHistory.length === 0) {
@@ -247,22 +247,22 @@
 
     // --- 保存・リセット処理 ---
     function saveAll() {
-        localStorage.setItem('masterData', JSON.stringify(master));
+        localStorage.setItem('food_masterData', JSON.stringify(master));
         const audio = { 
             type: document.getElementById('chime-type').value, 
             prefix: document.getElementById('prefix').value, 
             suffix: document.getElementById('suffix').value 
         };
-        localStorage.setItem('audioSettings', JSON.stringify(audio));
+        localStorage.setItem('food_audioSettings', JSON.stringify(audio));
         alert("💾 設定を保存しました！\nレジ画面や呼び出し画面を「再読み込み」すると反映されます。");
     }
 
     function clearSales() {
         if(confirm("【警告】\n本日の売上データと注文履歴を完全にリセットしますか？\n（この操作は取り消せません）")) {
-            localStorage.setItem('sales', '0');
-            localStorage.setItem('salesHistory', '[]');
-            localStorage.setItem('orders', '[]');
-            localStorage.setItem('nextNum', '100');
+            localStorage.setItem('food_sales', '0');
+            localStorage.setItem('food_salesHistory', '[]');
+            localStorage.setItem('food_orders', '[]');
+            localStorage.setItem('food_nextNum', '100');
             alert("✨ 精算が完了し、データがリセットされました。");
             location.reload();
         }
@@ -273,7 +273,7 @@
     renderSalesReport();
 
     // 他のタブ（レジ画面）で売上が上がったらレポートを自動更新
-    window.addEventListener('storage', (e) => { if (e.key === 'salesHistory') renderSalesReport(); });
+    window.addEventListener('storage', (e) => { if (e.key === 'food_salesHistory') renderSalesReport(); });
 </script>
 </body>
 </html>

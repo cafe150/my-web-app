@@ -123,8 +123,8 @@
         const manualWait = mWaitStr === '' ? null : parseInt(mWaitStr, 10);
         const selectedExps = Array.from(document.querySelectorAll('.exp-check:checked')).map(cb => cb.value);
 
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
-        let nextNum = parseInt(localStorage.getItem('nextNum') || '1');
+        let orders = JSON.parse(localStorage.getItem('queue_orders') || '[]');
+        let nextNum = parseInt(localStorage.getItem('queue_nextNum') || '1');
         
         // ★ 作成時間（Date.now()）がリアルタイムカウントダウンの基準になります
         orders.push({ 
@@ -138,8 +138,8 @@
             status: 'waiting' 
         });
         
-        localStorage.setItem('orders', JSON.stringify(orders));
-        localStorage.setItem('nextNum', nextNum + 1);
+        localStorage.setItem('queue_orders', JSON.stringify(orders));
+        localStorage.setItem('queue_nextNum', nextNum + 1);
         bc.postMessage({ type: 'NEW_ORDER' });
 
         alert(`発券しました！【 整理番号: ${nextNum} 番 】`);
