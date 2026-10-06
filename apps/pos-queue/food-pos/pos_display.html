@@ -114,7 +114,7 @@
                 void document.getElementById('current-number').offsetWidth;
                 document.getElementById('current-number').classList.add('blink');
                 
-                const settings = JSON.parse(localStorage.getItem('audioSettings')) || {type:"1", prefix:"番号", suffix:"番の方"};
+                const settings = JSON.parse(localStorage.getItem('food_audioSettings')) || {type:"1", prefix:"番号", suffix:"番の方"};
                 playChime(settings.type);
                 
                 setTimeout(() => {
@@ -135,7 +135,7 @@
         };
 
         function updateWaitingList() {
-            let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            let orders = JSON.parse(localStorage.getItem('food_orders') || '[]');
             orders.sort((a,b) => a.id - b.id); 
             let waitingNums = orders.filter(o => o.status === 'waiting' || o.status === 'ready').map(o => o.number);
             document.getElementById('waiting-list').innerHTML = waitingNums.map(n => `<span>${n}</span>`).join(' , ');
