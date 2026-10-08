@@ -1,0 +1,939 @@
+/*!
+ * 追加CSSファイル
+ * styles.cssの不具合の場合のみ使用
+ */
+
+
+.mobile .inner__column2>*:nth-child(1) {
+  width: 100%;
+}
+
+.mobile .heading1 {
+  width: 37px;
+  margin: 0 auto;
+}
+
+
+/* トップ
+---------------------------------- */
+.top_page .mv:before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 30%;
+  background: linear-gradient(rgba(238, 236, 232, 0), rgb(238 236 232));
+}
+
+.gnav__other_list a {
+  border-width: 0.8px;
+}
+
+
+/* ヤマチクのこと
+---------------------------------- */
+.mobile .about_page .message .heading1 {
+  width: 128px;
+}
+
+
+.mobile .journal_page .pickup__title {
+  margin: 0 auto;
+}
+
+.mobile .takenoohashi_page .achievement li {
+  border-width: 0.8px;
+}
+
+.flow .row:last-child:after {
+  height: auto;
+}
+
+.mobile .about_page .mvv .sec_title .ja .line {
+  white-space: nowrap;
+  line-height: 1;
+}
+
+
+/* ニホンをとどけよう - 概要
+---------------------------------- */
+.mobile .collab_type__head .heading1 {
+  width: 70px;
+}
+
+.mobile .projects_page .company__logo {
+  gap: 8px;
+}
+
+.mobile .projects_page .company__logo img {
+  height: 50px;
+  object-fit: contain;
+}
+
+
+/* 詳細ページ
+---------------------------------- */
+.single_page .wp-caption {
+  width: 100% !important;
+  max-width: 750px;
+}
+
+.single_page .wp-caption img {
+  max-width: 100%;
+  height: auto;
+}
+
+.single_page .wp-caption-text {
+  margin-top: 16px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 190%;
+}
+
+.single_page .wp-caption-text a:after {
+  margin-top: -5px;
+}
+
+
+/* .projects_single */
+.projects_single .wp-caption {
+  margin: 30px 0;
+}
+
+.projects_single .wp-caption-text {
+  font-size: 11px;
+}
+
+
+/* .contact_page */
+.contact_page .contact {
+  padding: 120px 0;
+}
+.mobile .contact_page .contact {
+  padding: 120px 0 80px 0;
+}
+
+.contact_page .contact__heading {
+  font-feature-settings: normal;
+  writing-mode: tb-rl;
+  font-size: 25px;
+  letter-spacing: 0.1em;
+  line-height: 100%;
+}
+.mobile .contact_page .contact__heading {
+  margin: 0 auto;
+}
+
+.contact_page .contact__main {
+  padding: 100px 0 0 0;
+}
+.mobile .contact_page .contact__main {
+  padding: 0;
+}
+
+.contact_page .contact__description a {
+  display: inline-flex;
+  flex-direction: column;
+  transition: color 0.16s cubic-bezier(0.33, 1, 0.68, 1) 0s;
+}
+@media (hover:hover){
+  .contact_page .contact__description a:hover {
+    color: #E64729;
+  }
+}
+
+.contact_page .contact__description a:after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 0.5px;
+  transform-origin: right;
+  background-color: #2d2d35;
+  transition: background-color 0.16s cubic-bezier(0.33, 1, 0.68, 1) 0s, transform 0.3s cubic-bezier(0.33, 1, 0.68, 1) 0s;
+}
+@media (hover:hover) {
+  .contact_page .contact__description a:hover:after {
+    transform: scaleX(0);
+    background-color: #E64729;
+  }
+}
+
+/* .contact__progress */
+.contact_page .contact__progress {
+  display: flex;
+  margin-top: 64px;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  line-height: 180%;
+  counter-reset: step_number 0;
+}
+.mobile .contact_page .contact__progress {
+  justify-content: center;
+}
+
+.contact_page .contact__progress .step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.5;
+}
+
+.contact_page.input_page .contact__progress .step1 {
+  opacity: 1;
+}
+.contact_page.confirm_page .contact__progress .step2 {
+  opacity: 1;
+}
+.contact_page.thanks_page .contact__progress .step3 {
+  opacity: 1;
+}
+
+.contact_page .contact__progress .step:before {
+  counter-increment: step_number 1;
+  content: counter(step_number);
+  width: 17px;
+  height: 17px;
+  margin-top: 2px;
+  padding-left: 1px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  line-height: 14px;
+  border-radius: 50%;
+  color: #fff;
+  background-color: #2d2d35;
+}
+
+.contact_page.input_page .contact__progress .step1:before {
+  opacity: 1;
+  background-color: #E64729;
+}
+.contact_page.confirm_page .contact__progress .step2:before {
+  opacity: 1;
+  background-color: #E64729;
+}
+.contact_page.thanks_page .contact__progress .step3:before {
+  opacity: 1;
+  background-color: #E64729;
+}
+
+.contact_page .contact__progress .step:not(:last-child):after {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 0.5px;
+  margin: 0 16px 0 8px;
+  background-color: #2d2d35;
+}
+
+/* .contact__form */
+.contact__form {
+  margin-top: 76px;
+}
+.mobile .contact__form {
+  margin-top: 64px;
+}
+
+.contact__form dl {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.contact__form dl > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact__form dt {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  line-height: 240%;
+}
+
+.contact__form dd {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.mobile .contact__form dd {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact__form .required {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  line-height: 190%;
+  color: #E64729;
+}
+
+.mw_wp_form .horizontal-item+.horizontal-item {
+  margin: 0 !important;
+}
+
+/* テキスト */
+.contact__form input[type="text"],
+.contact__form input[type="email"]{
+  width: 100%;
+  height: 65px;
+  padding: 17px 20px 20px 20px;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  line-height: 190%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.mobile .contact__form input[type="text"],
+.mobile .contact__form input[type="email"] {
+  padding: 17px 16px 20px 16px;
+}
+
+.contact__form input[type="text"]:focus,
+.contact__form input[type="email"]:focus {
+  border: 0.8px solid #000;
+}
+
+.contact__form dd:has(.error) input[type="text"],
+.contact__form dd:has(.error) input[type="email"] {
+  border-color: #E64729;
+}
+
+.contact__form input[type="text"]:focus-visible,
+.contact__form input[type="email"]:focus-visible {
+  outline: none;
+}
+
+/* テキストエリア */
+.contact__form textarea {
+  width: 100%;
+  min-width: 100%;
+  min-height: 250px;
+  padding: 17px 20px 20px 20px;
+  font-style: normal;
+  font-weight: 400;
+  font-family: Shippori Mincho, serif;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  line-height: 190%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(255,255,255,0);
+  appearance: none;
+  border-radius: 0;
+}
+.contact__form dd:has(.error) textarea {
+  border-color: #E64729;
+}
+
+.contact__form textarea:focus {
+  border: 0.8px solid #000;
+}
+
+.contact__form textarea:focus-visible {
+  outline: none;
+}
+
+/* ラジオ */
+.contact__form .mwform-radio-field {
+  width: calc((100% - 16px) / 2);
+}
+.mobile .contact__form .mwform-radio-field {
+  width: 100%;
+}
+
+.contact__form .mwform-radio-field label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 65px;
+  padding: 0 24px 2px 24px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+.mobile .contact__form .mwform-radio-field label {
+  gap: 1px;
+  padding: 0 18px 2px 18px;
+}
+
+.contact__form dl>div:has(.error) .mwform-radio-field label {
+  border-color: #E64729;
+}
+
+.contact__form .mwform-radio-field:has(input:checked) label {
+  /* border: none;
+  color: #fff; */
+  border-color: #000;
+}
+
+.contact__form .mwform-radio-field label:before {
+  content: "";
+  display: block;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 0.5px solid rgba(0, 0, 0, 0.5);
+}
+.contact__form .mwform-radio-field:has(input:checked) label:before {
+  /* border: none;
+  background-color: rgba(255, 255, 255, 0.5); */
+}
+
+.contact__form .mwform-radio-field:has(input:checked) label:after {
+  content: "";
+  position: absolute;
+  top: 25px;
+  left: 26px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #E64729;
+}
+.mobile .contact__form .mwform-radio-field:has(input:checked) label:after {
+  left: 20px;
+}
+
+.contact__form .mwform-radio-field-text {
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  line-height: 150%;
+}
+
+/* チェックボックス */
+.contact__form .mwform-checkbox-field label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.contact__form .mwform-checkbox-field label:before {
+  content: "";
+  display: block;
+  width: 14px;
+  height: 14px;
+  border: 0.5px solid rgba(0, 0, 0, 0.5);
+}
+
+.contact__form .mwform-checkbox-field:has(input:checked) label:after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 3px;
+  width: 16px;
+  height: 9px;
+  border-top: 2px solid #E64729;
+  border-right: 2px solid #E64729;
+  transform: rotate(135deg);
+}
+
+.contact__form .mwform-checkbox-field-text {
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  line-height: 190%;
+}
+
+/* ファイル添付 */
+.contact__form input[type="file"] {
+  display: block;
+  width: 100%;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  line-height: 190%;
+}
+
+.contact__form input[type="file"]::file-selector-button {
+  appearance: none;
+  margin-right: 16px;
+  width: 180px;
+  height: 44px;
+  color: #2d2d35;
+  font-size: 14px;
+  background-color: rgba(255, 255, 255, 0);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+.contact__form .file:has(.error) input[type="file"]::file-selector-button {
+  border-color: #E64729;
+}
+
+.contact__form .mwform-file-delete {
+  display: none;
+}
+
+/* 資料請求 */
+.contact__form .document dd {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  padding: 10px;
+  border: 0.5px solid rgba(0, 0, 0, 0.3);
+}
+.mobile .contact__form .document dd {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact__form .document:has(input:checked) dd {
+  border-color: #000;
+}
+
+.contact__form .document .mwform-checkbox-field {
+  margin-top: 20px;
+  padding: 0 0 30px 6%;
+}
+.mobile .contact__form .document .mwform-checkbox-field {
+  order: 1;
+  padding: 0 14px;
+}
+
+.contact__form .document .description {
+  grid-column-start: 1;
+  grid-row-start: 2;
+  margin: auto 0 30px 0;
+  padding: 0 9% 0 6%;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  line-height: 190%;
+}
+.mobile .contact__form .document .description {
+  order: 2;
+  margin: 6px 0 5px 0;
+  padding: 0 14px;
+}
+
+.contact__form .document .img {
+  grid-row: span 2 / span 2;
+  grid-column-start: 2;
+  grid-row-start: 1;
+}
+
+.contact__form .document .img img {
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 同意 */
+.contact__form .agree {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  margin: 64px 0;
+}
+.mobile .contact__form .agree {
+  flex-direction: column;
+  gap: 24px;
+  margin: 40px 0;
+}
+
+.contact__form .agree a {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  transition: color 0.16s cubic-bezier(0.33, 1, 0.68, 1) 0s;
+}
+@media (hover:hover) {
+  .contact__form .agree a:hover {
+    color: #E64729;
+  } 
+}
+
+.contact__form .agree a:after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 0.5px;
+  background-color: #2d2d35;
+  transform-origin: right;
+  transition: background-color 0.16s cubic-bezier(0.33, 1, 0.68, 1) 0s, transform 0.3s cubic-bezier(0.33, 1, 0.68, 1) 0s;
+}
+@media (hover:hover) {
+  .contact__form .agree a:hover:after {
+    background-color: #E64729;
+    transform: scaleX(0);
+  }
+}
+
+.contact__form .agree:has(.error) label:before {
+  border-color: #E64729;
+}
+
+.contact__form .agree .error {
+  margin-top: 8px;
+}
+
+/* 確認ボタン */
+.contact__form input[type="submit"] {
+  display: block;
+  width:100%;
+  max-width: 402px;
+  height: 84px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+  line-height: 110%;
+  color: #fff;
+  background-color: #2d2d35;
+  cursor: pointer;
+  transition: all 0.16s cubic-bezier(0.33, 1, 0.68, 1) 0s;
+}
+.mobile .contact__form input[type="submit"] {
+  max-width: 295px;
+  height: 64px;
+  font-size: 15px;
+}
+@media (hover:hover) {
+  .contact__form input[type="submit"]:hover {
+    color: #2d2d35;
+    border: 0.5px solid #2d2d35;
+    background-color: rgba(0,0,0,0);
+  }
+}
+
+.contact__form input[type="submit"].back {
+  margin: 64px auto 24px auto;
+}
+.mobile .contact__form input[type="submit"].back {
+  margin-bottom: 8px;
+}
+
+.contact__form .attention {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 190%;
+}
+.mobile .contact__form .attention {
+  margin-top: 16px;
+  padding: 0 14px;
+  text-align: left;
+  font-size: 12px;
+}
+
+.contact__form .recaptcha_text {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.mobile .contact__form .recaptcha_text {
+  text-align: left;
+}
+
+.grecaptcha-badge {
+  display: none;
+}
+
+
+/* エラー */
+.contact__form .mw_wp_form .error {
+  width: 100%;
+  font-size: 12px;
+  color: #E64729;
+}
+
+
+
+
+/* 確認ページ
+---------------------------------- */
+.confirm_page .contact__form dt {
+  font-size: 11px;
+}
+
+.confirm_page .contact__form .required {
+  display: none;
+}
+
+.confirm_page .contact__form dd {
+  padding-left: 0.8em;
+  font-size: 15px;
+}
+
+.confirm_page .contact__form .document dd {
+  padding: 0;
+  border: none;
+}
+
+.confirm_page .contact__form .document .img,
+.confirm_page .contact__form .document .description {
+  display: none;
+}
+
+.confirm_page .contact__form .agree {
+  display: none;
+}
+
+
+/* 完了ページ
+---------------------------------- */
+.back_to_top {
+  margin-top: 64px;
+}
+
+.back_to_top a {
+  display: inline-flex;
+  flex-direction: column;
+  font-size: 13px;
+  transition: color 0.16s cubic-bezier(0.33, 1, 0.68, 1) 0s;
+}
+@media (hover:hover) {
+  .back_to_top a:hover {
+    color: #E64729;
+  }
+}
+
+.back_to_top a:after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 0.5px;
+  background-color: #2d2d35;
+  transform-origin: right;
+  transition: background-color 0.16s cubic-bezier(0.33, 1, 0.68, 1) 0s, transform 0.3s cubic-bezier(0.33, 1, 0.68, 1) 0s;
+}
+@media (hover:hover) {
+  .back_to_top a:hover:after {
+    transform: scaleX(0);
+    background-color: #E64729;
+  }
+}
+
+
+.mobile .journal_page.taxonomy_archive .archive {
+  padding-top: 120px;
+}
+
+
+/* 404
+----------------------------------------------*/
+.error_page .notfound {
+  padding: 120px 0;
+}
+.mobile .error_page .notfound {
+  padding: 200px 0 80px 0;
+}
+
+.error_page .notfound__title {
+  font-size: 24px;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+}
+.mobile .error_page .notfound__title {
+  font-size: 21px;
+}
+
+.error_page .notfound__description {
+  margin-top: 24px;
+}
+
+
+/* プライバシーポリシー
+----------------------------------------------*/
+.privacy_page .privacy {
+  padding: 120px 0;
+}
+
+.privacy_page .privacy__main {
+  padding-top: 50px;
+}
+.mobile .privacy_page .privacy__main {
+  padding: 0;
+}
+
+.privacy_page .content {
+  max-width: 750px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mobile .journal_single .content > *:not(img, figure, a, strong, del, .wp-caption),
+.mobile .privacy_page .content > *:not(img, figure, a, strong, del, .wp-caption) {
+  padding: 0 14px;
+}
+
+.journal_single .content iframe {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16/9;
+}
+
+.journal_single .content>*+*,
+.privacy_page .content>*+* {
+  margin: 40px 0 0 0;
+}
+
+.content p a {
+  display: inline-flex;
+  flex-direction: column;
+  color: #E64729;
+}
+
+.content p a:after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 0.5px;
+  margin-top: -9px;
+  background-color: #E64729;
+  transform-origin: right;
+  transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1) 0s;
+}
+
+@media (hover: hover) {
+  .content p a:hover:after {
+    transform: scaleX(0);
+  }
+}
+
+.journal_single .content img,
+.privacy_page .content img {
+  width: 100%;
+  height: 100%;
+  max-height: 620px;
+  object-fit: contain;
+  object-position: left;
+}
+
+.journal_single .content .strikethrough,
+.privacy_page .content .strikethrough {
+  text-decoration: line-through;
+}
+
+.journal_single .content h2,
+.privacy_page .content h2 {
+  margin: 80px 0 16px 0;
+  font-size: 24px;
+  letter-spacing: 0.08em;
+  line-height: 180%;
+}
+
+.journal_single .content h2+*,
+.privacy_page .content h2+* {
+  margin-top: 16px;
+}
+
+.journal_single .content h3,
+.privacy_page .content h3 {
+  margin: 80px 0 16px 0;
+  font-size: 24px;
+  letter-spacing: 0.08em;
+  line-height: 180%;
+}
+
+.mobile .journal_single .content h3,
+.mobile .privacy_page .content h3 {
+  margin-top: 64px;
+  font-size: 21px;
+}
+
+.journal_single .content h3+*,
+.privacy_page .content h3+* {
+  margin-top: 16px;
+}
+
+.journal_single .content h4,
+.privacy_page .content h4 {
+  margin: 80px 0 16px 0;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  line-height: 180%;
+}
+
+.mobile .journal_single .content h4,
+.mobile .privacy_page .content h4 {
+  margin-top: 64px;
+  font-size: 18px;
+}
+
+.journal_single .content h4+*,
+.privacy_page .content h4+* {
+  margin-top: 16px;
+}
+
+.journal_single .content hr,
+.privacy_page .content hr {
+  margin: 80px 0;
+  border-top-width: 0.5px;
+}
+
+.journal_single .content ul,
+.journal_single .content ol,
+.privacy_page .content ul,
+.privacy_page .content ol {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journal_single .content li,
+.privacy_page .content li {
+  display: flex;
+  gap: 8px;
+  letter-spacing: 0.06em;
+  line-height: 180%;
+}
+
+.journal_single .content ul li:before,
+.privacy_page .content ul li:before {
+  content: "";
+  display: block;
+  flex-shrink: 0;
+  width: 4px;
+  height: 4px;
+  margin: 12px 4px 0 4px;
+  border-radius: 50%;
+  background-color: #2d2d35;
+}
+
+.journal_single .content ol,
+.privacy_page .content ol {
+  counter-reset: cnt 0;
+}
+
+.journal_single .content ol li:before,
+.privacy_page .content ol li:before {
+  counter-increment: cnt 1;
+  content: counter(cnt) ".";
+}
+
+.wp-pagenavi {
+  margin-top: 120px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 40px;
+}
+
+.wp-pagenavi > a {
+  opacity: 0.5;
+  transition: opacity 0.16s cubic-bezier(0.33, 1, 0.68, 1) 0s;
+}
+@media (hover:hover) {
+  .wp-pagenavi>a:hover {
+    opacity: 1;
+  }
+}
+
+.wp-pagenavi>.nextpostslink,
+.wp-pagenavi>.previouspostslink {
+  text-indent: -9999px;
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  border-top: 1px solid #333;
+  border-right: 1px solid;
+}
+
+.wp-pagenavi>.previouspostslink {
+  transform: rotate(-135deg);
+}

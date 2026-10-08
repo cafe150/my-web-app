@@ -1,0 +1,11 @@
+{
+  "name": "relation-map",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test/logic.test.mjs && node test/suggest_full.test.mjs && node test/step5_benchmark.test.mjs && node test/step6_features.test.mjs && node test/storage.test.mjs"
+  },
+  "dependencies": {
+    "vis-network": "^10.1.2"
+  }
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="自分と相手の共通点・相補関係を静かに結び、対話の糸口を見つける関係性可視化ツール" />
+  <title>RelationMap ── ふたりを結ぶ、共通点と関係性の地図</title>
+  
+  <!-- Google Fonts: しっぽり明朝 & 禅角ゴシック -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <div class="site-container">
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-crest" aria-hidden="true">縁</div>
+        <div class="brand-titles">
+          <span class="brand-sub">共通点・相補関係の可視化</span>
+          <h1 class="app-title">RelationMap</h1>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="sync-score-card">
+          <span class="sync-label">シンクロ率</span>
+          <div class="sync-val-wrap">
+            <span id="sync-score" class="sync-number">--</span>
+            <span class="sync-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-save" class="btn btn-outline" type="button">
+          <span>記録する</span>
+        </button>
+        <button id="btn-reset" class="btn btn-text" type="button">
+          <span>初期化</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <!-- 2カラム入力エリア -->
+      <section class="input-area" aria-label="人物情報入力">
+        <!-- 自分パネル -->
+        <article class="person-panel person-panel--user" id="panel-user">
+          <div class="panel-header">
+            <div class="panel-tag user-accent">自分</div>
+            <div class="person-name-wrap">
+              <input id="user-name" class="input-name" type="text" value="自分" placeholder="名前を入力" />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="user-tag-input">
+              <span class="label-text">関心・性格・価値観のタグ</span>
+              <span class="label-hint">Enterで追加 / 候補から選択</span>
+            </label>
+            <div class="tag-input-wrapper">
+              <input id="user-tag-input" class="input-tag" type="text" placeholder="例：夜型、聞き上手、散歩..." autocomplete="off" />
+              <ul class="suggest-list" id="user-suggest" hidden></ul>
+            </div>
+          </div>
+
+          <div class="chips-container">
+            <span class="chips-label">登録済みタグ</span>
+            <div class="chip-list" id="user-chips">
+              <span class="chip-placeholder">タグがまだありません</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- 相手パネル -->
+        <article class="person-panel person-panel--target" id="panel-target">
+          <div class="panel-header">
+            <div class="panel-tag target-accent">相手</div>
+            <div class="person-name-wrap">
+              <input id="target-name" class="input-name" type="text" value="相手" placeholder="相手の名前を入力" />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="target-tag-input">
+              <span class="label-text">関心・性格・価値観のタグ</span>
+              <span class="label-hint">Enterで追加 / 候補から選択</span>
+            </label>
+            <div class="tag-input-wrapper">
+              <input id="target-tag-input" class="input-tag" type="text" placeholder="例：一途、旅好き、読書..." autocomplete="off" />
+              <ul class="suggest-list" id="target-suggest" hidden></ul>
+            </div>
+          </div>
+
+          <div class="chips-container">
+            <span class="chips-label">登録済みタグ</span>
+            <div class="chip-list" id="target-chips">
+              <span class="chip-placeholder">タグがまだありません</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- グラフ可視化エリア -->
+      <section class="graph-area" aria-label="関係図可視化">
+        <div class="area-header">
+          <div class="area-title-wrap">
+            <span class="area-crest" aria-hidden="true">図</span>
+            <h2 class="section-title">関係図・マインドマップ</h2>
+          </div>
+          <div class="legend-list">
+            <span class="legend-item"><span class="legend-dot dot-user"></span>自分</span>
+            <span class="legend-item"><span class="legend-dot dot-target"></span>相手</span>
+            <span class="legend-item"><span class="legend-dot dot-common"></span>共通点</span>
+            <span class="legend-item"><span class="legend-line line-synergy"></span>相補（シナジー）</span>
+          </div>
+        </div>
+        <div id="graph" class="graph-canvas">
+          <div class="graph-placeholder-msg">
+            <span class="msg-icon">❖</span>
+            <p>タグを入力すると、ふたりの結びつきがここに描かれます</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 対話アシストエリア -->
+      <section class="assist-area" aria-label="対話アシスト">
+        <div class="area-header">
+          <div class="area-title-wrap">
+            <span class="area-crest crest-vermilion" aria-hidden="true">語</span>
+            <h2 class="section-title">対話の糸口</h2>
+          </div>
+          <span class="assist-sub">共通点や結ばれた関係線から見つける、会話のきっかけ</span>
+        </div>
+        <div class="assist-card">
+          <div class="assist-tanzaku">
+            <div id="assist-sign" class="tanzaku-sign">心得</div>
+            <div class="assist-content-wrap">
+              <h3 id="assist-title" class="assist-headline">ふたりを結ぶ対話のヒント</h3>
+              <p id="assist-text" class="assist-body">
+                グラフ上の「共通点」や「相補関係（点線）」をクリックすると、ふたりの会話を深める切り口が表示されます。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 保存時トースト通知 -->
+    <div id="toast" class="toast" hidden role="status" aria-live="polite">
+      <span class="toast-crest">済</span>
+      <span id="toast-text">状態を記録しました</span>
+    </div>
+
+    <footer class="app-footer">
+      <span class="footer-note">RelationMap ── 人と人とのあわいに、あたたかな理解を。</span>
+    </footer>
+  </div>
+
+  <script src="./lib/vis-network.min.js"></script>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>

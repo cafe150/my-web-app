@@ -1,0 +1,794 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   RelationMap: 和のデザイン・優しいテイスト
+   参考テイスト: 株式会社ヤマチク（竹の工芸美・生成り色・墨色・朱印アクセント）
+   ========================================================================== */
+
+:root {
+  /* 和の色彩パレット */
+  --bg-kinari: #f6f3eb;        /* 生成り（きなり）色・素朴で温かみのある地色 */
+  --bg-washi: #fdfbf7;         /* 和紙の白・カード地 */
+  --bg-washi-sub: #f2ece1;     /* 薄茶鼠・入力欄やタグ背景 */
+  --ink-sumi: #2b2b33;         /* 墨色（文字メイン） */
+  --ink-faint: #5f5e67;        /* 薄墨色（補助文字） */
+  --ink-dust: #9b99a3;         /* 灰墨（薄いヒント文字） */
+  
+  /* 伝統色アクセント */
+  --color-ai: #2d516d;         /* 藍色（自分・深みのある和ブルー） */
+  --color-ai-light: #eaf1f6;   /* 薄藍 */
+  --color-fuji: #6a4c74;       /* 藤紫（相手・上品な和パープル） */
+  --color-fuji-light: #f4ecf7; /* 薄藤 */
+  --color-yamabuki: #b5832c;   /* 山吹・金茶（共通点・結び） */
+  --color-yamabuki-light: #fbf5e5;
+  --color-wakatake: #2c6e54;   /* 若竹・常磐（シナジー・相補） */
+  --color-wakatake-light: #e8f5ef;
+  --color-shyu: #c73c24;       /* 朱赤・茜（落款・要所アクセント） */
+  --color-shyu-light: #fdf0ee;
+
+  /* 境界線 & 影 */
+  --border-fine: 1px solid rgba(43, 43, 51, 0.12);
+  --border-faint: 1px solid rgba(43, 43, 51, 0.06);
+  --border-strong: 1px solid rgba(43, 43, 51, 0.28);
+  --shadow-washi: 0 4px 20px rgba(43, 43, 51, 0.04);
+  --shadow-hover: 0 8px 30px rgba(43, 43, 51, 0.08);
+
+  /* タイポグラフィ */
+  --font-mincho: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", "BIZ UDPMincho", serif;
+  --font-sans: "Zen Kaku Gothic New", "Hiragino Sans", "Meiryo", sans-serif;
+}
+
+/* リセット & 基本設定 */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-kinari);
+  background-image: 
+    radial-gradient(ellipse at 85% 10%, rgba(199, 60, 36, 0.02) 0%, transparent 40%),
+    radial-gradient(ellipse at 15% 90%, rgba(45, 81, 109, 0.03) 0%, transparent 40%);
+  color: var(--ink-sumi);
+  font-family: var(--font-mincho);
+  line-height: 1.75;
+  letter-spacing: 0.04em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 全体ラッパー */
+.site-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px;
+}
+
+/* --------------------------------------------------------------------------
+   ヘッダー (Header)
+   -------------------------------------------------------------------------- */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0 20px;
+  border-bottom: var(--border-fine);
+  position: relative;
+}
+
+/* ブランドロゴ & 和の印 */
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-crest {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-shyu);
+  color: var(--color-shyu);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-radius: 4px;
+  position: relative;
+  background-color: var(--color-shyu-light);
+  user-select: none;
+}
+
+.brand-crest::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border: 0.5px dashed rgba(199, 60, 36, 0.4);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.brand-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-sub {
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.14em;
+  font-family: var(--font-sans);
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--ink-sumi);
+  line-height: 1.2;
+}
+
+/* 中央: シンクロ率表示 */
+.header-center {
+  display: flex;
+  justify-content: center;
+}
+
+.sync-score-card {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 20px;
+  background-color: var(--bg-washi);
+  border: var(--border-fine);
+  border-radius: 24px;
+  box-shadow: var(--shadow-washi);
+}
+
+.sync-label {
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.12em;
+}
+
+.sync-val-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.sync-number {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-yamabuki);
+  line-height: 1;
+  font-family: var(--font-sans);
+}
+
+.sync-unit {
+  font-size: 0.85rem;
+  color: var(--color-yamabuki);
+  font-weight: 500;
+}
+
+/* ヘッダーボタン */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn {
+  font-family: var(--font-mincho);
+  font-size: 0.88rem;
+  letter-spacing: 0.12em;
+  padding: 8px 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--ink-sumi);
+  border: 1px solid var(--ink-sumi);
+}
+
+.btn-outline:hover {
+  background-color: var(--ink-sumi);
+  color: var(--bg-kinari);
+}
+
+.btn-text {
+  background-color: transparent;
+  color: var(--ink-faint);
+  border: 1px solid transparent;
+}
+
+.btn-text:hover {
+  color: var(--color-shyu);
+  background-color: var(--color-shyu-light);
+}
+
+/* --------------------------------------------------------------------------
+   メインコンテンツレイアウト
+   -------------------------------------------------------------------------- */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px 0 40px;
+}
+
+/* --------------------------------------------------------------------------
+   1. 入力エリア (2カラム 和風パネル)
+   -------------------------------------------------------------------------- */
+.input-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.person-panel {
+  background-color: var(--bg-washi);
+  border: var(--border-fine);
+  border-radius: 6px;
+  padding: 24px;
+  box-shadow: var(--shadow-washi);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: relative;
+  transition: box-shadow 0.3s ease;
+}
+
+.person-panel:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+/* パネル上部の和の細帯 */
+.person-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 6px 6px 0 0;
+}
+
+.person-panel--user::before {
+  background: linear-gradient(90deg, var(--color-ai), rgba(45, 81, 109, 0.3));
+}
+
+.person-panel--target::before {
+  background: linear-gradient(90deg, var(--color-fuji), rgba(106, 76, 116, 0.3));
+}
+
+/* パネルヘッダー */
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: var(--border-faint);
+}
+
+.panel-tag {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  padding: 3px 12px;
+  border-radius: 3px;
+  font-weight: 600;
+  user-select: none;
+}
+
+.panel-tag.user-accent {
+  background-color: var(--color-ai-light);
+  color: var(--color-ai);
+  border: 1px solid rgba(45, 81, 109, 0.2);
+}
+
+.panel-tag.target-accent {
+  background-color: var(--color-fuji-light);
+  color: var(--color-fuji);
+  border: 1px solid rgba(106, 76, 116, 0.2);
+}
+
+.person-name-wrap {
+  flex: 1;
+}
+
+.input-name {
+  width: 100%;
+  font-family: var(--font-mincho);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink-sumi);
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed rgba(43, 43, 51, 0.2);
+  padding: 4px 6px;
+  outline: none;
+  transition: border-color 0.2s;
+  letter-spacing: 0.06em;
+}
+
+.input-name:focus {
+  border-bottom: 1.5px solid var(--ink-sumi);
+}
+
+/* 入力グループ */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.label-text {
+  font-size: 0.84rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+}
+
+.label-hint {
+  font-size: 0.72rem;
+  color: var(--ink-dust);
+  font-family: var(--font-sans);
+}
+
+.tag-input-wrapper {
+  position: relative;
+}
+
+.input-tag {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--ink-sumi);
+  background-color: var(--bg-washi-sub);
+  border: 1px solid rgba(43, 43, 51, 0.15);
+  border-radius: 4px;
+  padding: 10px 14px;
+  outline: none;
+  transition: all 0.25s ease;
+  letter-spacing: 0.03em;
+}
+
+.input-tag:focus {
+  background-color: #ffffff;
+  border-color: var(--ink-sumi);
+  box-shadow: 0 0 0 3px rgba(43, 43, 51, 0.05);
+}
+
+/* サジェストドロップダウン */
+.suggest-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  background-color: var(--bg-washi);
+  border: var(--border-fine);
+  border-radius: 4px;
+  box-shadow: var(--shadow-hover);
+  z-index: 100;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.suggest-item {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  transition: background-color 0.15s ease;
+}
+
+.suggest-item:hover,
+.suggest-item.is-selected {
+  background-color: var(--bg-washi-sub);
+  color: var(--color-shyu);
+}
+
+.suggest-item .item-keywords {
+  font-size: 0.72rem;
+  color: var(--ink-dust);
+}
+
+/* タグ一覧・チップ (和紙の短冊調) */
+.chips-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.chips-label {
+  font-size: 0.76rem;
+  color: var(--ink-dust);
+  letter-spacing: 0.08em;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 38px;
+  align-items: center;
+}
+
+.chip-placeholder {
+  font-size: 0.8rem;
+  color: var(--ink-dust);
+  font-style: italic;
+  font-family: var(--font-sans);
+}
+
+/* タグチップの意匠 */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background-color: #ffffff;
+  border: 1px solid rgba(43, 43, 51, 0.14);
+  border-radius: 3px;
+  font-size: 0.84rem;
+  font-family: var(--font-mincho);
+  letter-spacing: 0.04em;
+  color: var(--ink-sumi);
+  box-shadow: 0 1px 3px rgba(43, 43, 51, 0.03);
+  transition: all 0.2s ease;
+}
+
+.chip:hover {
+  border-color: rgba(43, 43, 51, 0.3);
+  background-color: var(--bg-washi-sub);
+}
+
+.chip-btn-remove {
+  background: transparent;
+  border: none;
+  color: var(--ink-dust);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.chip-btn-remove:hover {
+  color: var(--color-shyu);
+}
+
+/* 共通タグは金茶で強調 */
+.chip--common {
+  border-color: var(--color-yamabuki);
+  background-color: var(--color-yamabuki-light);
+}
+
+/* 追加時のフェードイン（新しく追加したチップのみ） */
+.chip--new {
+  animation: chip-in 0.25s ease-out;
+}
+
+@keyframes chip-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* 重複入力時に既存チップを知らせる */
+.chip--flash {
+  animation: chip-flash 0.6s ease;
+}
+
+@keyframes chip-flash {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(199, 60, 36, 0); }
+  30% { box-shadow: 0 0 0 3px rgba(199, 60, 36, 0.35); border-color: var(--color-shyu); }
+}
+
+/* --------------------------------------------------------------------------
+   2. グラフ可視化エリア (関係図・マインドマップ)
+   -------------------------------------------------------------------------- */
+.graph-area {
+  background-color: var(--bg-washi);
+  border: var(--border-fine);
+  border-radius: 6px;
+  padding: 24px;
+  box-shadow: var(--shadow-washi);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.area-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: var(--border-faint);
+}
+
+.area-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.area-crest {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--ink-sumi);
+  color: var(--ink-sumi);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 2px;
+  background-color: var(--bg-kinari);
+}
+
+.area-crest.crest-vermilion {
+  border-color: var(--color-shyu);
+  color: var(--color-shyu);
+  background-color: var(--color-shyu-light);
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--ink-sumi);
+}
+
+/* 凡例 (レジェンド) */
+.legend-list {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  font-family: var(--font-sans);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-user { background-color: var(--color-ai); }
+.dot-target { background-color: var(--color-fuji); }
+.dot-common { background-color: var(--color-yamabuki); }
+
+.legend-line.line-synergy {
+  width: 16px;
+  height: 0;
+  border-top: 2px dashed var(--color-wakatake);
+  display: inline-block;
+}
+
+/* キャンバス本体 (和のキャンバス) */
+.graph-canvas {
+  height: 460px;
+  background-color: #faf8f5;
+  border: 1px solid rgba(43, 43, 51, 0.08);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.graph-placeholder-msg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--ink-dust);
+  pointer-events: none;
+}
+
+.graph-placeholder-msg .msg-icon {
+  font-size: 1.4rem;
+  color: rgba(43, 43, 51, 0.2);
+}
+
+.graph-placeholder-msg p {
+  margin: 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+}
+
+/* --------------------------------------------------------------------------
+   3. 対話アシストエリア (短冊調デザイン)
+   -------------------------------------------------------------------------- */
+.assist-area {
+  background-color: var(--bg-washi);
+  border: var(--border-fine);
+  border-radius: 6px;
+  padding: 24px;
+  box-shadow: var(--shadow-washi);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.assist-sub {
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.06em;
+}
+
+.assist-card {
+  background-color: var(--bg-kinari);
+  border: 1px solid rgba(43, 43, 51, 0.09);
+  border-radius: 4px;
+  padding: 20px 24px;
+  position: relative;
+}
+
+.assist-tanzaku {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.tanzaku-sign {
+  writing-mode: vertical-rl;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  color: var(--color-shyu);
+  background-color: var(--color-shyu-light);
+  border: 1px solid rgba(199, 60, 36, 0.25);
+  padding: 8px 4px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.assist-content-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.assist-headline {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink-sumi);
+  letter-spacing: 0.06em;
+}
+
+.assist-body {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.85;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+  transition: opacity 0.2s ease;
+}
+
+/* 和風トースト通知 */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background-color: var(--bg-washi);
+  border: 1px solid var(--color-shyu);
+  border-radius: 4px;
+  box-shadow: var(--shadow-hover);
+  padding: 12px 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: var(--ink-sumi);
+  z-index: 1000;
+  animation: toast-in 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.toast-crest {
+  width: 24px;
+  height: 24px;
+  border-radius: 2px;
+  background-color: var(--color-shyu);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --------------------------------------------------------------------------
+   フッター
+   -------------------------------------------------------------------------- */
+.app-footer {
+  padding: 16px 0 32px;
+  text-align: center;
+  border-top: var(--border-faint);
+  margin-top: auto;
+}
+
+.footer-note {
+  font-size: 0.78rem;
+  color: var(--ink-dust);
+  letter-spacing: 0.12em;
+}
+
+/* --------------------------------------------------------------------------
+   レスポンシブ (スマホ・タブレット)
+   -------------------------------------------------------------------------- */
+@media (max-width: 820px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header-center {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .input-area {
+    grid-template-columns: 1fr;
+  }
+
+  .graph-canvas {
+    height: 380px;
+  }
+}

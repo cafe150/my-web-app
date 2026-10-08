@@ -1,0 +1,1102 @@
+[
+  {
+    "id": "highly_sensitive_person",
+    "name": "繊細・HSP気質",
+    "category": "personality",
+    "reading": "せんさいえいちえすぴーきしつ",
+    "synonyms": ["HSP", "敏感肌質", "刺激に敏感", "人一倍繊細", "ハイリーセンシティブ"],
+    "search_phrases": ["HSPかも", "些細なことが気になる", "周りの感情に敏感", "人疲れしやすい", "刺激に弱い"],
+    "antonyms": ["鈍感力・おおらか", "ドライ・サバサバ"],
+    "compatible_tags": ["おっとり・癒やし系", "大音量・騒音苦手", "感情安定・不動心"]
+  },
+  {
+    "id": "high_self_esteem",
+    "name": "自己肯定感高め",
+    "category": "personality",
+    "reading": "じここうていかんたかめ",
+    "synonyms": ["ポジティブ自尊心", "自己受容", "セルフラブ", "メンタルタフネス"],
+    "search_phrases": ["自分が好き", "自己肯定感高い", "落ち込みにくい", "自信がある", "前向きな性格"],
+    "antonyms": ["心配性・不安気質"],
+    "compatible_tags": ["ポジティブ変換力", "お互い褒め合いたい", "打たれ強い・タフ"]
+  },
+  {
+    "id": "positive_reframing",
+    "name": "ポジティブ変換力",
+    "category": "personality",
+    "reading": "ぽじてぃぶへんかんりょく",
+    "synonyms": ["リフレーミング", "前向き解釈", "好転思考", "陽気思考", "楽観的変換"],
+    "search_phrases": ["なんでも前向きに捉える", "いい意味で捉える", "ポジティブ思考", "明るい人", "切り替えが得意"],
+    "antonyms": ["心配性・不安気質"],
+    "compatible_tags": ["自己肯定感高め", "素でいられる関係", "日常雑談LINE歓迎"]
+  },
+  {
+    "id": "dry_and_candid",
+    "name": "ドライ・サバサバ",
+    "category": "personality",
+    "reading": "どらいさばさば",
+    "synonyms": ["あっさり", "淡泊", "執着しない", "引きずらない", "サバサバ系"],
+    "search_phrases": ["サバサバ系", "さっぱりした性格", "ベタベタしない", "執着がない", "引きずらない性格"],
+    "antonyms": ["繊細・HSP気質", "スキンシップ多め"],
+    "compatible_tags": ["要件のみ・短文連絡", "程よい自立・依存なし", "束縛NG・自由主義"]
+  },
+  {
+    "id": "frank_honest",
+    "name": "素直・表裏なし",
+    "category": "personality",
+    "reading": "すなおひょうりなし",
+    "synonyms": ["純粋", "実直", "オープンマインド", "裏表がない", "実直一筋"],
+    "search_phrases": ["裏表がない", "素直な性格", "嘘がつけない", "感情が顔に出る", "隠し事が苦手"],
+    "antonyms": ["ツンデレ・天の邪鬼"],
+    "compatible_tags": ["好意は言葉で伝える", "対話重視・話し合い", "素でいられる関係"]
+  },
+  {
+    "id": "healing_soothing",
+    "name": "おっとり・癒やし系",
+    "category": "personality",
+    "reading": "おっとりいやしけい",
+    "synonyms": ["温厚", "のんびり", "癒やし枠", "和み系", "柔和", "ほんわか"],
+    "search_phrases": ["癒やし系って言われる", "ほんわか", "のほほん", "怒らない人", "落ち着く雰囲気"],
+    "antonyms": ["毒舌・いじりキャラ"],
+    "compatible_tags": ["繊細・HSP気質", "毎日湯船に浸かる", "素でいられる関係"]
+  },
+  {
+    "id": "witty_teasing",
+    "name": "毒舌・いじりキャラ",
+    "category": "personality",
+    "reading": "どくぜついじりきゃら",
+    "synonyms": ["ツッコミ役", "軽口", "ブラックユーモア", "茶化し上手", "辛口トーク"],
+    "search_phrases": ["いじるのが好き", "ツッコミ気質", "毒舌って言われる", "冗談が通じる人がいい", "軽口を叩き合いたい"],
+    "antonyms": ["おっとり・癒やし系", "繊細・HSP気質"],
+    "compatible_tags": ["お調子者・陽キャ", "ラジオ・深夜番組好き", "赤提灯・大衆酒場"]
+  },
+  {
+    "id": "tsundere_personality",
+    "name": "ツンデレ・天の邪鬼",
+    "category": "personality",
+    "reading": "つんでれあまのじゃく",
+    "synonyms": ["照れ屋", "不器用", "あまのじゃく", "素直になれない", "ツンデレ"],
+    "search_phrases": ["ツンデレ", "照れ隠ししがち", "意地を張ってしまう", "実は甘えたい", "素直になれない性格"],
+    "antonyms": ["素直・表裏なし", "好意は言葉で伝える"],
+    "compatible_tags": ["世話焼き・おかん肌", "感情安定・不動心"]
+  },
+  {
+    "id": "stoic_disciplined",
+    "name": "ストイック・自制心",
+    "category": "personality",
+    "reading": "すといっくじせいしん",
+    "synonyms": ["自己規律", "克己心", "禁欲的", "ストイック", "自制心"],
+    "search_phrases": ["自分に厳しい", "ストイックが好き", "目標に向かって我慢できる", "自制心がある", "ストイック派"],
+    "antonyms": ["気分屋・気まぐれ"],
+    "compatible_tags": ["資格勉強・自己投資", "健康志向・無添加", "オンオフ完全分離"]
+  },
+  {
+    "id": "worrying_anxious",
+    "name": "心配性・不安気質",
+    "category": "personality",
+    "reading": "しんぱいしょうふあんきしつ",
+    "synonyms": ["杞憂", "不安症", "念入り", "取り越し苦労", "先回り思考"],
+    "search_phrases": ["心配性", "先のことが不安", "確認癖がある", "段取り過剰", "石橋を叩きすぎる"],
+    "antonyms": ["自己肯定感高め", "鈍感力・おおらか"],
+    "compatible_tags": ["感情安定・不動心", "じっくりメッセージ", "ポジティブ変換力"]
+  },
+  {
+    "id": "moody_temperamental",
+    "name": "気分屋・気まぐれ",
+    "category": "personality",
+    "reading": "きぶんやきまぐれ",
+    "synonyms": ["情緒的", "気まぐれ", "テンションの波", "直感行動派", "フィーリング重視"],
+    "search_phrases": ["気分屋", "その日のテンション次第", "感情の起伏がある", "気まぐれな性格", "マイペースな気分"],
+    "antonyms": ["ストイック・自制心", "感情安定・不動心"],
+    "compatible_tags": ["気が長い・温厚", "束縛NG・自由主義"]
+  },
+  {
+    "id": "emotionally_stable",
+    "name": "感情安定・不動心",
+    "category": "personality",
+    "reading": "かんじょうあんていふどうしん",
+    "synonyms": ["情緒安定", "メンタル強者", "泰然自若", "動じない", "穏健"],
+    "search_phrases": ["不機嫌にならない", "メンタルが安定している", "情緒が一定", "落ち着いている人", "感情の波が少ない"],
+    "antonyms": ["気分屋・気まぐれ", "心配性・不安気質"],
+    "compatible_tags": ["対話重視・話し合い", "おっとり・癒やし系", "繊細・HSP気質"]
+  },
+  {
+    "id": "resilient_bounceback",
+    "name": "打たれ強い・タフ",
+    "category": "personality",
+    "reading": "うたれづよいたふ",
+    "synonyms": ["レジリエンス", "立ち直りが早い", "タフネス", "不屈", "切り替え上手"],
+    "search_phrases": ["寝たら忘れる", "切り替えが早い", "打たれ強い", "引きずらないタイプ", "メンタルタフ"],
+    "antonyms": ["繊細・HSP気質", "心配性・不安気質"],
+    "compatible_tags": ["ポジティブ変換力", "自己肯定感高め"]
+  },
+  {
+    "id": "thick_skinned_easygoing",
+    "name": "鈍感力・おおらか",
+    "category": "personality",
+    "reading": "どんかんりょくおおらか",
+    "synonyms": ["大らか", "寛容", "細かいことは気にしない", "器が大きい", "大度"],
+    "search_phrases": ["おおらか", "気にしない性格", "鈍感力がある", "大雑把だけど優しい", "細かいこと気にしない"],
+    "antonyms": ["繊細・HSP気質", "潔癖・綺麗好き"],
+    "compatible_tags": ["心配性・不安気質", "大雑把・ズボラ気質"]
+  },
+  {
+    "id": "playful_humorous",
+    "name": "お調子者・陽キャ",
+    "category": "personality",
+    "reading": "おちょうしものようきゃ",
+    "synonyms": ["ムードメーカー", "おどけ役", "コミカル", "陽キャ気質", "盛り上げ上手"],
+    "search_phrases": ["笑わせたい", "ふざけるのが好き", "ボケ倒す", "お調子者", "陽気な性格"],
+    "antonyms": ["生真面目・律儀"],
+    "compatible_tags": ["毒舌・いじりキャラ", "カラオケ・アニソン", "日常雑談LINE歓迎"]
+  },
+  {
+    "id": "serious_conscientious",
+    "name": "生真面目・律儀",
+    "category": "personality",
+    "reading": "きまじめりちぎ",
+    "synonyms": ["几帳面", "律義", "実直", "堅実肌", "一本気", "誠実一筋"],
+    "search_phrases": ["真面目すぎる", "融通が利かないと言われる", "几帳面", "約束は絶対守る", "義理堅い"],
+    "antonyms": ["お調子者・陽キャ", "気分屋・気まぐれ"],
+    "compatible_tags": ["マナー違反に厳しい", "1〜2年以内に結婚", "オンオフ完全分離"]
+  },
+  {
+    "id": "naturally_airheaded",
+    "name": "天然・愛されキャラ",
+    "category": "personality",
+    "reading": "てんねんあいされきゃら",
+    "synonyms": ["天然ボケ", "ドジっ子", "お茶目", "愛嬌抜群", "天然属性"],
+    "search_phrases": ["天然って言われる", "抜けてるところがある", "愛嬌がある", "いじられ役", "愛されキャラ"],
+    "antonyms": ["要領良し・スマート"],
+    "compatible_tags": ["世話焼き・おかん肌", "毒舌・いじりキャラ"]
+  },
+  {
+    "id": "clever_tactful",
+    "name": "要領良し・スマート",
+    "category": "personality",
+    "reading": "ようりょうよしすまーと",
+    "synonyms": ["如才ない", "要領がいい", "機転が利く", "スマート", "立ち回り上手"],
+    "search_phrases": ["要領がいい", "そつなくこなす", "立ち回りがうまい", "スマートに生きる", "機転が利く"],
+    "antonyms": ["天然・愛されキャラ", "生真面目・律儀"],
+    "compatible_tags": ["まず会って話したい", "固定費削減・ポイ活"]
+  },
+  {
+    "id": "romantic_dreamer",
+    "name": "ロマンチスト",
+    "category": "personality",
+    "reading": "ろまんちすと",
+    "synonyms": ["夢想家", "情緒的", "ロマン重視", "感傷的", "ポエティック"],
+    "search_phrases": ["ロマンチックが好き", "夜景や雰囲気に弱い", "情緒を大事にしたい", "ドラマチック好き", "記念日演出好き"],
+    "antonyms": ["ドライ・サバサバ"],
+    "compatible_tags": ["恋人最優先", "ホカンス・ホテル泊", "観劇・ミュージカル"]
+  },
+  {
+    "id": "supportive_caregiver",
+    "name": "世話焼き・おかん肌",
+    "category": "personality",
+    "reading": "せわやきおかんはだ",
+    "synonyms": ["面倒見", "アシスト上手", "母性", "父性", "世話女房気質"],
+    "search_phrases": ["人の世話を焼くのが好き", "ほっとけない", "気が利く", "フォローが得意", "おかん気質"],
+    "antonyms": ["ドライ・サバサバ"],
+    "compatible_tags": ["天然・愛されキャラ", "ツンデレ・天の邪鬼", "手先が不器用"]
+  },
+  {
+    "id": "patience_tolerant",
+    "name": "気が長い・温厚",
+    "category": "personality",
+    "reading": "きがながいおんこう",
+    "synonyms": ["温厚篤実", "忍耐力", "我慢強い", "滅多に怒らない", "仏の心"],
+    "search_phrases": ["怒ったことがない", "気が長い", "待たされても平気", "仏メンタル", "穏やかな性格"],
+    "antonyms": ["急かされるのが嫌"],
+    "compatible_tags": ["気分屋・気まぐれ", "おっとり・癒やし系", "急かされるのが嫌"]
+  },
+  {
+    "id": "unpretentious_natural",
+    "name": "等身大・飾らない",
+    "category": "personality",
+    "reading": "とうしんだいかざらない",
+    "synonyms": ["自然体", "見栄を張らない", "ありのまま", "庶民派", "素朴"],
+    "search_phrases": ["飾らない自分でいたい", "見栄を張るのが嫌い", "自然体が一番", "等身大の付き合い", "ありのままでいたい"],
+    "antonyms": [],
+    "compatible_tags": ["素直・表裏なし", "素でいられる関係", "赤提灯・大衆酒場"]
+  },
+  {
+    "id": "remote_worker",
+    "name": "在宅・リモート中心",
+    "category": "lifestyle",
+    "reading": "ざいたくりもーとちゅうしん",
+    "synonyms": ["テレワーク", "在宅勤務", "フルリモート", "WFH", "リモートワーカー"],
+    "search_phrases": ["家で仕事", "出社しない", "在宅ワーク", "おうち勤務", "平日家で仕事"],
+    "antonyms": ["完全出社・現場主義"],
+    "compatible_tags": ["おうち珈琲・紅茶", "完全キャッシュレス", "スマート家電愛用"]
+  },
+  {
+    "id": "office_commuter",
+    "name": "完全出社・現場主義",
+    "category": "lifestyle",
+    "reading": "かんぜんしゅっしゃげんばしゅぎ",
+    "synonyms": ["出社派", "オンオフ明確", "現場勤務", "通勤スタイル", "オフィスワーク"],
+    "search_phrases": ["毎日出社", "会社に行くのが好き", "仕事と家は分けたい", "現場仕事", "出社メイン"],
+    "antonyms": ["在宅・リモート中心"],
+    "compatible_tags": ["オンオフ完全分離", "赤提灯・大衆酒場"]
+  },
+  {
+    "id": "strictly_non_smoking",
+    "name": "非喫煙・タバコNG",
+    "category": "lifestyle",
+    "reading": "ひきつえんたばこえぬじー",
+    "synonyms": ["ノンスモーカー", "タバコ吸わない", "煙草NG", "完全禁煙", "禁煙派"],
+    "search_phrases": ["タバコ吸わない人がいい", "タバコ無理", "副流煙嫌い", "完全禁煙", "タバコNG"],
+    "antonyms": ["愛煙家・紙タバコ", "電子タバコ派"],
+    "compatible_tags": ["タバコの煙無理", "健康志向・無添加"]
+  },
+  {
+    "id": "e_cigarette_vaper",
+    "name": "電子タバコ派",
+    "category": "lifestyle",
+    "reading": "でんしたばこは",
+    "synonyms": ["加熱式タバコ", "VAPE", "アイコス愛用", "プルーム", "電子煙草"],
+    "search_phrases": ["電子タバコのみ", "アイコス吸う", "紙巻きは吸わない", "加熱式たばこ", "ベイプ愛用"],
+    "antonyms": ["非喫煙・タバコNG"],
+    "compatible_tags": ["愛煙家・紙タバコ", "赤提灯・大衆酒場"]
+  },
+  {
+    "id": "traditional_smoker",
+    "name": "愛煙家・紙タバコ",
+    "category": "lifestyle",
+    "reading": "あいえんかかみたばこ",
+    "synonyms": ["紙タバコ", "喫煙家", "愛煙家", "たばこ吸う", "スモーカー"],
+    "search_phrases": ["タバコ吸う", "喫煙席派", "喫煙者同士がいい", "一服が好き", "紙巻きタバコ"],
+    "antonyms": ["非喫煙・タバコNG"],
+    "compatible_tags": ["赤提灯・大衆酒場", "電子タバコ派"]
+  },
+  {
+    "id": "caffeine_addict",
+    "name": "カフェイン中毒",
+    "category": "lifestyle",
+    "reading": "かふぇいんちゅうどく",
+    "synonyms": ["コーヒー好き", "珈琲フリーク", "カフェイン補給", "コーヒー欠かせない", "エナドリ派"],
+    "search_phrases": ["毎朝コーヒー", "コーヒーがないと始まらない", "エナドリ愛好", "カフェイン漬け", "珈琲大好き"],
+    "antonyms": [],
+    "compatible_tags": ["おうち珈琲・紅茶", "純喫茶・昭和レトロ"]
+  },
+  {
+    "id": "morning_bath_lover",
+    "name": "朝風呂・朝シャワー",
+    "category": "lifestyle",
+    "reading": "あさぶろあさしゃわー",
+    "synonyms": ["朝シャン", "朝風呂派", "朝浴びる", "朝の目覚ましシャワー", "モーニングシャワー"],
+    "search_phrases": ["朝にお風呂入る", "朝シャワー浴びたい", "朝スッキリしたい", "夜より朝派", "朝シャン派"],
+    "antonyms": ["毎日湯船に浸かる"],
+    "compatible_tags": ["シャワー派・時短", "オンオフ完全分離"]
+  },
+  {
+    "id": "evening_bath_soaker",
+    "name": "毎日湯船に浸かる",
+    "category": "lifestyle",
+    "reading": "まいにちゆぶねにつかる",
+    "synonyms": ["毎日入浴", "湯船派", "入浴剤好き", "バスタイム重視", "お風呂好き"],
+    "search_phrases": ["毎日湯船に浸かりたい", "お風呂でリラックス", "シャワーだけは無理", "入浴剤マニア", "お風呂タイムが至福"],
+    "antonyms": ["シャワー派・時短", "朝風呂・朝シャワー"],
+    "compatible_tags": ["銭湯・日帰り温泉", "睡眠環境こだわり", "寒がり・冷え性"]
+  },
+  {
+    "id": "quick_shower_person",
+    "name": "シャワー派・時短",
+    "category": "lifestyle",
+    "reading": "しゃわーはじたん",
+    "synonyms": ["カラスの行水", "シャワーだけ", "入浴時短", "サッと浴びる", "非湯船派"],
+    "search_phrases": ["シャワーで済ませる", "湯船浸からない", "お風呂は時短", "パパッと浴びる", "シャワー派"],
+    "antonyms": ["毎日湯船に浸かる"],
+    "compatible_tags": ["朝風呂・朝シャワー", "要領良し・スマート"]
+  },
+  {
+    "id": "complete_cashless",
+    "name": "完全キャッシュレス",
+    "category": "lifestyle",
+    "reading": "かんぜんきゃっしゅれす",
+    "synonyms": ["スマホ決済", "クレカ決済", "財布持たない", "キャッシュレス派", "電子決済"],
+    "search_phrases": ["現金持ち歩かない", "PayPay派", "カード決済のみ", "現金使わない", "キャッシュレス生活"],
+    "antonyms": ["現金派・手元管理"],
+    "compatible_tags": ["固定費削減・ポイ活", "スマート家電愛用"]
+  },
+  {
+    "id": "cash_traditionalist",
+    "name": "現金派・手元管理",
+    "category": "lifestyle",
+    "reading": "げんきんはてもとかんり",
+    "synonyms": ["現金主義", "手渡し重視", "小銭持ち", "現金決済", "現金管理"],
+    "search_phrases": ["現金派", "小銭持ち歩く", "クレカあまり使わない", "現金の方が安心", "現金払い"],
+    "antonyms": ["完全キャッシュレス"],
+    "compatible_tags": ["赤提灯・大衆酒場", "生真面目・律儀"]
+  },
+  {
+    "id": "fixed_cost_cutter",
+    "name": "固定費削減・ポイ活",
+    "category": "lifestyle",
+    "reading": "こていひさくげんぽいかつ",
+    "synonyms": ["家計見直し", "通信費見直し", "ふるさと納税", "ポイント経済圏", "ポイ活極める"],
+    "search_phrases": ["固定費削るのが好き", "格安SIM使ってる", "ポイント貯める", "還元率重視", "お得情報が好き"],
+    "antonyms": ["ご褒美消費・プチ贅沢"],
+    "compatible_tags": ["完全キャッシュレス", "つみたてNISA・株"]
+  },
+  {
+    "id": "reward_spender",
+    "name": "ご褒美消費・プチ贅沢",
+    "category": "lifestyle",
+    "reading": "ごほうびしょうひぷちぜいたく",
+    "synonyms": ["プチ贅沢", "自分へのご褒美", "パーッと使う", "体験にお金を使う", "消費楽しむ派"],
+    "search_phrases": ["週末はプチ贅沢", "自分へのご褒美", "たまにはパーッと使いたい", "美味しいものにお金かける", "ご褒美消費派"],
+    "antonyms": ["固定費削減・ポイ活"],
+    "compatible_tags": ["ホカンス・ホテル泊", "週末プチ旅行", "甘党・スイーツ巡り"]
+  },
+  {
+    "id": "neat_freak_clean",
+    "name": "潔癖・綺麗好き",
+    "category": "lifestyle",
+    "reading": "けっぺききれいずき",
+    "synonyms": ["整理魔", "除菌マニア", "清潔感重視", "ハウスダスト対策", "綺麗好き"],
+    "search_phrases": ["掃除が好き", "床に物置きたくない", "除菌スプレー持ち歩く", "汚い部屋無理", "清潔感重視"],
+    "antonyms": ["大雑把・ズボラ気質", "鈍感力・おおらか"],
+    "compatible_tags": ["スマート家電愛用", "ホカンス・ホテル泊"]
+  },
+  {
+    "id": "carefree_messy",
+    "name": "大雑把・ズボラ気質",
+    "category": "lifestyle",
+    "reading": "おおざっぱずぼらきしつ",
+    "synonyms": ["大雑把", "多少の散らかり平気", "ズボラ", "気楽な部屋", "ラフな暮らし"],
+    "search_phrases": ["多少散らかってても平気", "片付け後回し", "ズボラ生活", "神経質じゃない", "大雑把な生活"],
+    "antonyms": ["潔癖・綺麗好き"],
+    "compatible_tags": ["鈍感力・おおらか", "素でいられる関係"]
+  },
+  {
+    "id": "allergy_careful",
+    "name": "アレルギー配慮",
+    "category": "lifestyle",
+    "reading": "あれるぎーはいりょ",
+    "synonyms": ["アレルギー持ち", "食物アレルギー", "敏感体質", "グルテンフリー", "成分チェック"],
+    "search_phrases": ["アレルギーある", "食べられないものがある", "体質に配慮してほしい", "肌が弱い", "成分気になる"],
+    "antonyms": [],
+    "compatible_tags": ["健康志向・無添加", "おうち珈琲・紅茶"]
+  },
+  {
+    "id": "organic_health_freak",
+    "name": "健康志向・無添加",
+    "category": "lifestyle",
+    "reading": "けんこうしこうむてんか",
+    "synonyms": ["オーガニック", "無添加", "ウェルネス", "PFCバランス", "自然派志向"],
+    "search_phrases": ["添加物気にしちゃう", "体にいいもの食べる", "健康診断オールA", "早寝早起き自炊", "無添加食品好き"],
+    "antonyms": ["ジャンクフード好き"],
+    "compatible_tags": ["アレルギー配慮", "ストイック・自制心"]
+  },
+  {
+    "id": "junk_food_lover",
+    "name": "ジャンクフード好き",
+    "category": "lifestyle",
+    "reading": "じゃんくふーどずき",
+    "synonyms": ["深夜ラーメン", "ファストフード", "背徳グルメ", "高カロリー飯", "マック好き"],
+    "search_phrases": ["深夜のラーメン最高", "ジャンクフード好き", "たまには暴飲暴食", "カロリーは正義", "マック食べたい"],
+    "antonyms": ["健康志向・無添加"],
+    "compatible_tags": ["サブスク一気見", "激辛料理・麻辣"]
+  },
+  {
+    "id": "smart_home_geek",
+    "name": "スマート家電愛用",
+    "category": "lifestyle",
+    "reading": "すまーとかでんあいよう",
+    "synonyms": ["IoT住宅", "スマートホーム", "アレクサ愛用", "ロボット掃除機", "家電自動化"],
+    "search_phrases": ["スマート家電で固めてる", "声で電気消す", "ガジェット好き", "生活を自動化", "スマートホーム派"],
+    "antonyms": ["アナログ派・紙手帳"],
+    "compatible_tags": ["完全キャッシュレス", "在宅・リモート中心"]
+  },
+  {
+    "id": "analog_warmth",
+    "name": "アナログ派・紙手帳",
+    "category": "lifestyle",
+    "reading": "あなろぐはかみてちょう",
+    "synonyms": ["手書き手帳", "紙の本派", "アナログライフ", "素朴な暮らし", "紙派"],
+    "search_phrases": ["デジタルデトックスしたい", "紙の手帳が好き", "スマホ見すぎたくない", "手書きが好き", "アナログ派"],
+    "antonyms": ["スマート家電愛用"],
+    "compatible_tags": ["文房具・手帳デコ", "純喫茶・昭和レトロ"]
+  },
+  {
+    "id": "sleep_environment_focused",
+    "name": "睡眠環境こだわり",
+    "category": "lifestyle",
+    "reading": "すいみんかんきょうこだわり",
+    "synonyms": ["寝具マニア", "高級マットレス", "遮光カーテン", "快眠グッズ", "安眠追求"],
+    "search_phrases": ["枕にこだわってる", "いいベッドで寝たい", "遮光1級必須", "睡眠の質を上げたい", "寝具に課金"],
+    "antonyms": [],
+    "compatible_tags": ["毎日湯船に浸かる", "ホカンス・ホテル泊"]
+  },
+  {
+    "id": "work_life_separated",
+    "name": "オンオフ完全分離",
+    "category": "lifestyle",
+    "reading": "おんおふかんぜんぶんり",
+    "synonyms": ["ワークライフバランス", "定時退社派", "休日は仕事忘れる", "メリハリ生活", "仕事引きずらない"],
+    "search_phrases": ["休日に仕事の連絡見ない", "定時ダッシュ", "オンオフ切り替えたい", "プライベート最優先", "仕事は仕事"],
+    "antonyms": [],
+    "compatible_tags": ["完全出社・現場主義", "週末プチ旅行"]
+  },
+  {
+    "id": "chitchat_welcome_messaging",
+    "name": "日常雑談LINE歓迎",
+    "category": "values_social",
+    "reading": "にちじょうざつだんらいんかんげい",
+    "synonyms": ["日常シェア", "たわいもない会話", "雑談LINE", "写真共有", "こまめなチャット"],
+    "search_phrases": ["何気ないことも話したい", "雑談LINE好き", "写真送り合いたい", "日常を共有したい", "たわいもないLINE"],
+    "antonyms": ["要件のみ・短文連絡"],
+    "compatible_tags": ["長電話・寝落ち通話", "恋人最優先", "日常系・ほのぼのアニメ"]
+  },
+  {
+    "id": "business_only_messaging",
+    "name": "要件のみ・短文連絡",
+    "category": "values_social",
+    "reading": "ようけんのみたんぶんれんらく",
+    "synonyms": ["用件のみ", "業務連絡スタイル", "短文派", "報連相のみ", "あっさりチャット"],
+    "search_phrases": ["用事がある時だけでいい", "LINEは要件のみ", "雑談は会った時派", "長文苦手", "要件だけ伝えたい"],
+    "antonyms": ["日常雑談LINE歓迎"],
+    "compatible_tags": ["ドライ・サバサバ", "程よい自立・依存なし"]
+  },
+  {
+    "id": "night_call_enthusiast",
+    "name": "長電話・寝落ち通話",
+    "category": "values_social",
+    "reading": "ながでんわねおちつうあ",
+    "synonyms": ["通話好き", "夜の電話", "寝落ち通話", "電話魔", "ボイスチャット派"],
+    "search_phrases": ["寝落ち通話したい", "電話が好き", "声が聞きたい", "夜ゆっくり話したい", "長電話が好き"],
+    "antonyms": ["テキスト派・通話苦手"],
+    "compatible_tags": ["日常雑談LINE歓迎", "恋人最優先"]
+  },
+  {
+    "id": "text_only_communicator",
+    "name": "テキスト派・通話苦手",
+    "category": "values_social",
+    "reading": "てきすとはつうあにがて",
+    "synonyms": ["チャット専任", "電話苦手派", "文章派", "非通話派", "文字派"],
+    "search_phrases": ["電話は緊張する", "LINEだけで済ませたい", "急な通話は出られない", "文字が好き", "通話よりチャット"],
+    "antonyms": ["長電話・寝落ち通話"],
+    "compatible_tags": ["要件のみ・短文連絡", "じっくりメッセージ"]
+  },
+  {
+    "id": "slow_messaging_first",
+    "name": "じっくりメッセージ",
+    "category": "values_social",
+    "reading": "じっくりめっせーじ",
+    "synonyms": ["慎重派マッチング", "人柄見極め", "会う前丁寧", "メッセージ長め", "段階的アプローチ"],
+    "search_phrases": ["会う前にしっかり話したい", "メッセージで仲良くなってから", "急に会うのは不安", "じっくり派", "メッセージ重視"],
+    "antonyms": ["まず会って話したい"],
+    "compatible_tags": ["心配性・不安気質", "生真面目・律儀"]
+  },
+  {
+    "id": "meet_soon_prefer",
+    "name": "まず会って話したい",
+    "category": "values_social",
+    "reading": "まずあってはなしたい",
+    "synonyms": ["対面重視", "フィーリング確認", "カフェ即会", "お茶からスタート", "対面ファースト"],
+    "search_phrases": ["メッセージより会った方が早い", "まずはお茶したい", "会ってフィーリング確かめたい", "サクッとご飯", "対面派"],
+    "antonyms": ["じっくりメッセージ"],
+    "compatible_tags": ["要領良し・スマート", "赤提灯・大衆酒場"]
+  },
+  {
+    "id": "physical_affection_heavy",
+    "name": "スキンシップ多め",
+    "category": "values_social",
+    "reading": "すきんしっぷおおめ",
+    "synonyms": ["触れ合い重視", "手をつなぎたい", "ハグ好き", "イチャイチャ派", "愛情表現接触"],
+    "search_phrases": ["スキンシップが好き", "手をつないで歩きたい", "くっつきたい", "愛情は肌で感じたい", "イチャイチャしたい"],
+    "antonyms": ["パーソナルスペース広", "ドライ・サバサバ"],
+    "compatible_tags": ["好意は言葉で伝える", "恋人最優先"]
+  },
+  {
+    "id": "wide_personal_space",
+    "name": "パーソナルスペース広",
+    "category": "values_social",
+    "reading": "ぱーそなるすぺーすひろ",
+    "synonyms": ["適切な距離感", "ベタベタ嫌い", "距離を保ちたい", "過度な接触NG", "自領域重視"],
+    "search_phrases": ["ベタベタされるのは苦手", "適度な距離感が欲しい", "人前で手をつなぐの恥ずかしい", "自分だけの領域", "距離感大事"],
+    "antonyms": ["スキンシップ多め"],
+    "compatible_tags": ["程よい自立・依存なし", "ドライ・サバサバ"]
+  },
+  {
+    "id": "anti_possessive_freedom",
+    "name": "束縛NG・自由主義",
+    "category": "values_social",
+    "reading": "そくばくえぬじーじゆうしゅぎ",
+    "synonyms": ["放任主義", "GPS共有NG", "自由尊重", "詮索嫌い", "束縛嫌い"],
+    "search_phrases": ["束縛されたくない", "行動を監視されたくない", "異性の友達も自由", "お互い自由にしよう", "詮索しないで"],
+    "antonyms": ["ちょい嫉妬・束縛歓迎"],
+    "compatible_tags": ["友人優先・仲間想い", "程よい自立・依存なし"]
+  },
+  {
+    "id": "jealousy_cute_welcome",
+    "name": "ちょい嫉妬・束縛歓迎",
+    "category": "values_social",
+    "reading": "ちょいしっとそくばくかんげい",
+    "synonyms": ["ヤキモチ好き", "愛されてる実感", "位置情報共有OK", "可愛らしい嫉妬", "適度な独占欲"],
+    "search_phrases": ["少しは嫉妬してほしい", "ヤキモチ焼いてくれると嬉しい", "心配されたい", "愛されてる証拠", "ちょい束縛歓迎"],
+    "antonyms": ["束縛NG・自由主義"],
+    "compatible_tags": ["恋人最優先", "日常雑談LINE歓迎"]
+  },
+  {
+    "id": "lover_first_priority",
+    "name": "恋人最優先",
+    "category": "values_social",
+    "reading": "こいびとさいゆうせん",
+    "synonyms": ["パートナー第一", "恋人命", "恋愛重視", "恋人との予定最優先", "一途専心"],
+    "search_phrases": ["恋人を一番にしたい", "何よりも恋人優先", "休日は一緒にいたい", "恋人ができると一筋", "パートナー最優先"],
+    "antonyms": ["友人優先・仲間想い"],
+    "compatible_tags": ["長電話・寝落ち通話", "スキンシップ多め", "ロマンチスト"]
+  },
+  {
+    "id": "friends_first_priority",
+    "name": "友人優先・仲間想い",
+    "category": "values_social",
+    "reading": "ゆうじんゆうせんなかまおもい",
+    "synonyms": ["友達大事", "友情至上", "仲間想い", "交友関係重視", "友達優先"],
+    "search_phrases": ["友達との約束も大切にしたい", "恋人だけにはなりたくない", "仲間と飲むのが好き", "友情優先", "友達も大事にしたい"],
+    "antonyms": ["恋人最優先"],
+    "compatible_tags": ["束縛NG・自由主義", "週末プチ旅行"]
+  },
+  {
+    "id": "marriage_soon_oriented",
+    "name": "1〜2年以内に結婚",
+    "category": "values_social",
+    "reading": "いちにねんいないにけっこん",
+    "synonyms": ["早期成婚", "結婚前提交際", "結婚意欲強め", "スピード婚希望", "婚活本気度高め"],
+    "search_phrases": ["早く結婚したい", "1年以内に結婚したい", "付き合うなら結婚前提", "結婚を見据えて付き合いたい", "成婚希望"],
+    "antonyms": ["まずは恋愛から", "事実婚・別姓希望"],
+    "compatible_tags": ["子供が欲しい", "対話重視・話し合い", "生真面目・律儀"]
+  },
+  {
+    "id": "romance_first_dating",
+    "name": "まずは恋愛から",
+    "category": "values_social",
+    "reading": "まずはれんあいから",
+    "synonyms": ["恋愛重視", "交際から見極め", "好きになってから", "結婚は後から", "恋人期間重視"],
+    "search_phrases": ["まずは好きになりたい", "結婚を焦りたくない", "恋愛を楽しみたい", "相性を確かめてから", "まずは恋人として"],
+    "antonyms": ["1〜2年以内に結婚"],
+    "compatible_tags": ["等身大・飾らない", "素でいられる関係"]
+  },
+  {
+    "id": "common_law_marriage_fan",
+    "name": "事実婚・別姓希望",
+    "category": "values_social",
+    "reading": "じじつこんべっせいきぼう",
+    "synonyms": ["事実婚", "夫婦別姓希望", "法律婚にこだわらない", "契約パートナー", "柔軟なパートナーシップ"],
+    "search_phrases": ["事実婚がいい", "苗字変えたくない", "形式に縛られない関係", "入籍にこだわらない", "別姓希望"],
+    "antonyms": ["1〜2年以内に結婚"],
+    "compatible_tags": ["程よい自立・依存なし", "束縛NG・自由主義"]
+  },
+  {
+    "id": "wants_children_family",
+    "name": "子供が欲しい",
+    "category": "values_social",
+    "reading": "こどもがほしい",
+    "synonyms": ["子育て希望", "温かい家庭", "子ども好き", "ファミリー志向", "育児希望"],
+    "search_phrases": ["子どもが欲しい", "子育て一緒にしたい", "賑やかな家庭", "家族を作りたい", "子供好き"],
+    "antonyms": ["DINKs希望・子なし"],
+    "compatible_tags": ["1〜2年以内に結婚", "家族仲良し・親孝行"]
+  },
+  {
+    "id": "dinks_no_kids",
+    "name": "DINKs希望・子なし",
+    "category": "values_social",
+    "reading": "でぃんくすきぼうこなし",
+    "synonyms": ["子なし夫婦", "夫婦2人暮らし", "チャイルドフリー", "大人の2人暮らし", "DINKs"],
+    "search_phrases": ["子どもは作らない派", "夫婦2人で楽しく暮らしたい", "DINKs希望", "大人の時間を楽しむ", "子供不要"],
+    "antonyms": ["子供が欲しい"],
+    "compatible_tags": ["程よい自立・依存なし", "ホカンス・ホテル泊", "週末プチ旅行"]
+  },
+  {
+    "id": "close_to_family",
+    "name": "家族仲良し・親孝行",
+    "category": "values_social",
+    "reading": "かぞくなかよしおやこうこう",
+    "synonyms": ["親孝行", "実家頻繁", "家族イベント好き", "仲良し家族", "家族優先"],
+    "search_phrases": ["家族と仲がいい", "実家に月1で帰る", "親と旅行行く", "家族を大事にする人", "親孝行したい"],
+    "antonyms": ["家族とは程よい距離"],
+    "compatible_tags": ["子供が欲しい", "マナー違反に厳しい"]
+  },
+  {
+    "id": "moderate_family_distance",
+    "name": "家族とは程よい距離",
+    "category": "values_social",
+    "reading": "かぞくとはほどよいきょり",
+    "synonyms": ["自立心強め", "実家離れ", "個人の人生優先", "家族と干渉し合わない", "ドライな家族観"],
+    "search_phrases": ["家族とは適度に離れていたい", "実家にはあまり帰らない", "親離れ子離れ", "干渉されたくない", "自立した家族関係"],
+    "antonyms": ["家族仲良し・親孝行"],
+    "compatible_tags": ["程よい自立・依存なし", "ドライ・サバサバ"]
+  },
+  {
+    "id": "dialogue_oriented_couple",
+    "name": "対話重視・話し合い",
+    "category": "values_social",
+    "reading": "たいわじゅうしはなしあい",
+    "synonyms": ["対話重視", "溜め込まない", "家族会議", "擦り合わせ文化", "言語化重視"],
+    "search_phrases": ["不満はその都度話し合いたい", "溜め込まずに言いたい", "ちゃんと言葉で対話する", "擦り合わせが大事", "話し合いができる人"],
+    "antonyms": [],
+    "compatible_tags": ["感情安定・不動心", "素直・表裏なし"]
+  },
+  {
+    "id": "direct_affection_words",
+    "name": "好意は言葉で伝える",
+    "category": "values_social",
+    "reading": "こういはことばでつたえる",
+    "synonyms": ["好意を言葉にする", "好きと伝える", "言葉での愛情表現", "オープンラブ", "ストレート表現"],
+    "search_phrases": ["好きってちゃんと言いたい", "言葉で伝えてほしい", "愛情表現はストレート", "恥ずかしがらずに褒める", "言葉にしてほしい"],
+    "antonyms": ["ツンデレ・天の邪鬼"],
+    "compatible_tags": ["スキンシップ多め", "お互い褒め合いたい"]
+  },
+  {
+    "id": "praise_each_other",
+    "name": "お互い褒め合いたい",
+    "category": "values_social",
+    "reading": "おたがいほめあいたい",
+    "synonyms": ["リスペクト", "肯定的な声かけ", "感謝の言葉", "自己肯定感アップ", "承認し合う"],
+    "search_phrases": ["お互いに褒め合いたい", "感謝を言葉にしたい", "ありがとうを忘れない", "肯定してくれる関係", "褒め合いたい"],
+    "antonyms": ["毒舌・いじりキャラ"],
+    "compatible_tags": ["自己肯定感高め", "好意は言葉で伝える"]
+  },
+  {
+    "id": "balanced_space_autonomy",
+    "name": "程よい自立・依存なし",
+    "category": "values_social",
+    "reading": "ほどよいじりついぞんなし",
+    "synonyms": ["大人の関係", "ベタベタしない", "依存しない", "精神的自立", "個の確立"],
+    "search_phrases": ["適度な距離感が心地いい", "依存し合わない関係", "それぞれの時間も大事", "大人の付き合い", "自立した関係"],
+    "antonyms": ["恋人最優先", "スキンシップ多め"],
+    "compatible_tags": ["ドライ・サバサバ", "事実婚・別姓希望"]
+  },
+  {
+    "id": "comfortable_authenticity",
+    "name": "素でいられる関係",
+    "category": "values_social",
+    "reading": "すでいられるかんけい",
+    "synonyms": ["自然体の関係", "背伸びしない", "安心感", "リラックスできる仲", "気取らない仲"],
+    "search_phrases": ["一緒にいて疲れない人", "素の自分を出せる", "気を遣わない関係", "沈黙でも気まずくない", "自然体でいられる"],
+    "antonyms": [],
+    "compatible_tags": ["等身大・飾らない", "おっとり・癒やし系"]
+  },
+  {
+    "id": "shonen_battle_manga",
+    "name": "少年漫画・バトル系",
+    "category": "hobbies_interests",
+    "reading": "しょうねんまんがばとるけい",
+    "synonyms": ["ジャンプ作品", "王道バトル", "アニメ化作品", "熱血漫画", "少年コミック"],
+    "search_phrases": ["少年漫画が好き", "ジャンプ毎週読んでる", "王道バトル漫画", "アニメ毎週リアタイ", "バトル漫画好き"],
+    "antonyms": ["日常系・ほのぼのアニメ"],
+    "compatible_tags": ["カラオケ・アニソン", "レイトショー派"]
+  },
+  {
+    "id": "slice_of_life_anime",
+    "name": "日常系・ほのぼのアニメ",
+    "category": "hobbies_interests",
+    "reading": "にちじょうけいほのぼのあにめ",
+    "synonyms": ["癒やし系アニメ", "きらら系", "ショートアニメ", "空気系アニメ", "ほのぼの系"],
+    "search_phrases": ["日常系アニメが好き", "ほのぼの漫画で癒やされる", "ゆるい漫画が好き", "平和なアニメ", "日常アニメ好き"],
+    "antonyms": ["少年漫画・バトル系"],
+    "compatible_tags": ["おっとり・癒やし系", "おうち珈琲・紅茶"]
+  },
+  {
+    "id": "sento_hot_springs",
+    "name": "銭湯・日帰り温泉",
+    "category": "hobbies_interests",
+    "reading": "せんとうひがえりおんせん",
+    "synonyms": ["温泉旅行", "秘湯巡り", "街の銭湯", "露天風呂", "湯めぐり"],
+    "search_phrases": ["銭湯巡りが好き", "温泉行きたい", "日帰り温泉", "広いお風呂が好き", "銭湯好き"],
+    "antonyms": [],
+    "compatible_tags": ["毎日湯船に浸かる", "週末プチ旅行"]
+  },
+  {
+    "id": "podcast_radio_lover",
+    "name": "ラジオ・深夜番組好き",
+    "category": "hobbies_interests",
+    "reading": "らじおしんやばんぐみずき",
+    "synonyms": ["ポッドキャスト", "オールナイトニッポン", "芸人ラジオ", "耳活", "radikoヘビーリスナー"],
+    "search_phrases": ["ラジオ聴きながら散歩", "芸人ラジオが好き", "ポッドキャストヘビーリスナー", "深夜ラジオ実況", "ラジオ好き"],
+    "antonyms": [],
+    "compatible_tags": ["毒舌・いじりキャラ", "純喫茶・昭和レトロ"]
+  },
+  {
+    "id": "certification_study_grind",
+    "name": "資格勉強・自己投資",
+    "category": "hobbies_interests",
+    "reading": "しかくべんきょうじことうし",
+    "synonyms": ["自己研鑽", "勉強カフェ", "キャリアアップ", "リスキリング", "自己投資"],
+    "search_phrases": ["休日は資格勉強", "勉強が好き", "スキルアップしたい", "自己投資を惜しまない", "勉強習慣がある"],
+    "antonyms": [],
+    "compatible_tags": ["ストイック・自制心", "つみたてNISA・株"]
+  },
+  {
+    "id": "investing_asset_building",
+    "name": "つみたてNISA・株",
+    "category": "hobbies_interests",
+    "reading": "つみたてにーさかぶ",
+    "synonyms": ["株式投資", "インデックス投資", "高配当株", "FIRE志向", "資産運用"],
+    "search_phrases": ["NISAやってる", "株や投資の話が好き", "資産運用に興味ある", "経済ニュース見る", "インデックス投資派"],
+    "antonyms": [],
+    "compatible_tags": ["固定費削減・ポイ活", "資格勉強・自己投資"]
+  },
+  {
+    "id": "diy_crafting_home",
+    "name": "DIY・日曜大工",
+    "category": "hobbies_interests",
+    "reading": "でぃーあいわいにちようだいく",
+    "synonyms": ["家具自作", "ホームセンター巡り", "木工", "部屋の模様替え", "日曜大工"],
+    "search_phrases": ["家具を自分で作る", "ホムセン巡りが好き", "工具が好き", "DIYにハマってる", "日曜大工が好き"],
+    "antonyms": [],
+    "compatible_tags": ["間取り図・模様替え", "手先が不器用"]
+  },
+  {
+    "id": "edm_club_music",
+    "name": "EDM・クラブ系",
+    "category": "hobbies_interests",
+    "reading": "いーでぃーえむくらぶけい",
+    "synonyms": ["ダンスミュージック", "重低音好き", "フェス好き", "ハウス・テクノ", "DJカルチャー"],
+    "search_phrases": ["EDMが好き", "クラブに行きたい", "重低音が好き", "フェスで踊りたい", "クラブミュージック好き"],
+    "antonyms": ["大音量・騒音苦手"],
+    "compatible_tags": ["お調子者・陽キャ", "赤提灯・大衆酒場"]
+  },
+  {
+    "id": "karaoke_enthusiast",
+    "name": "カラオケ・アニソン",
+    "category": "hobbies_interests",
+    "reading": "からおけあにそん",
+    "synonyms": ["歌うのが好き", "ヒトカラ", "精密採点", "アニソン熱唱", "カラオケ好き"],
+    "search_phrases": ["カラオケ行きたい", "歌うの大好き", "ヒトカラ常連", "アニソン歌いまくる", "カラオケで発散"],
+    "antonyms": [],
+    "compatible_tags": ["少年漫画・バトル系", "お調子者・陽キャ"]
+  },
+  {
+    "id": "heavy_boardgames",
+    "name": "重量級ボードゲーム",
+    "category": "hobbies_interests",
+    "reading": "じゅうりょうきゅうぼーどげーむ",
+    "synonyms": ["重ゲー", "ユーロゲーム", "戦略ボードゲーム", "長考ゲー", "ボドゲガチ勢"],
+    "search_phrases": ["2時間以上のボドゲが好き", "重ゲーやりたい", "ボドゲカフェ常連", "戦略を練るゲーム", "重厚ボドゲ好き"],
+    "antonyms": [],
+    "compatible_tags": ["要領良し・スマート", "資格勉強・自己投資"]
+  },
+  {
+    "id": "spicy_food_freak",
+    "name": "激辛料理・麻辣",
+    "category": "hobbies_interests",
+    "reading": "げきからりょうりまーらー",
+    "synonyms": ["辛党", "麻辣マニア", "激辛ラーメン", "蒙古タンメン", "ハバネロ好き"],
+    "search_phrases": ["激辛料理が好き", "蒙古タンメン北極食べる", "辛いもの巡り", "激辛マニア", "激辛グルメ巡り"],
+    "antonyms": ["辛いものが苦手", "甘党・スイーツ巡り"],
+    "compatible_tags": ["ジャンクフード好き", "赤提灯・大衆酒場"]
+  },
+  {
+    "id": "sweet_tooth_desserts",
+    "name": "甘党・スイーツ巡り",
+    "category": "hobbies_interests",
+    "reading": "あまとうすいーつめぐり",
+    "synonyms": ["パフェ巡り", "アフタヌーンティー", "ケーキ好き", "デザート別腹", "スイーツ好き"],
+    "search_phrases": ["甘いものが好き", "パフェ食べに行きたい", "スイーツ巡り", "甘党です", "アフタヌーンティー行きたい"],
+    "antonyms": ["激辛料理・麻辣"],
+    "compatible_tags": ["おうち珈琲・紅茶", "ご褒美消費・プチ贅沢"]
+  },
+  {
+    "id": "specialty_coffee_tea",
+    "name": "おうち珈琲・紅茶",
+    "category": "hobbies_interests",
+    "reading": "おうちこーひーこうちゃ",
+    "synonyms": ["ハンドドリップ", "自家焙煎", "スペシャリティコーヒー", "紅茶マニア", "丁寧な抽出"],
+    "search_phrases": ["豆からコーヒー挽く", "ハンドドリップで淹れる", "おうちカフェ楽しむ", "紅茶の茶葉にこだわる", "コーヒー淹れるのが好き"],
+    "antonyms": [],
+    "compatible_tags": ["カフェイン中毒", "甘党・スイーツ巡り", "在宅・リモート中心"]
+  },
+  {
+    "id": "theatre_musical_goer",
+    "name": "観劇・ミュージカル",
+    "category": "hobbies_interests",
+    "reading": "かんげきみゅーじかる",
+    "synonyms": ["劇団四季", "2.5次元舞台", "宝塚", "舞台鑑賞", "劇場通い"],
+    "search_phrases": ["舞台観に行くのが好き", "ミュージカルが好き", "劇場に足を運ぶ", "生の演技に感動", "観劇が好き"],
+    "antonyms": [],
+    "compatible_tags": ["ロマンチスト", "ホカンス・ホテル泊"]
+  },
+  {
+    "id": "pro_sports_fan",
+    "name": "プロ野球・Jリーグ",
+    "category": "hobbies_interests",
+    "reading": "ぷろやきゅうじぇいりーぐ",
+    "synonyms": ["現地観戦", "スタジアム観戦", "サポーター", "推し球団", "スポーツ応援"],
+    "search_phrases": ["球場に行ってビール飲む", "野球観戦好き", "サッカー観戦好き", "スポーツバーで応援", "現地観戦派"],
+    "antonyms": [],
+    "compatible_tags": ["赤提灯・大衆酒場", "お調子者・陽キャ"]
+  },
+  {
+    "id": "retro_izakaya_lover",
+    "name": "赤提灯・大衆酒場",
+    "category": "hobbies_interests",
+    "reading": "あかちょうちんたいしゅうさかば",
+    "synonyms": ["せんべろ", "立ち飲み", "横丁巡り", "煮込み・焼き鳥", "大衆居酒屋好き"],
+    "search_phrases": ["赤提灯の店が好き", "せんべろ巡りしたい", "渋い居酒屋が好き", "立ち飲み屋開拓", "大衆酒場が好き"],
+    "antonyms": [],
+    "compatible_tags": ["クラフトビール探求", "等身大・飾らない", "愛煙家・紙タバコ"]
+  },
+  {
+    "id": "movie_theater_late_show",
+    "name": "レイトショー派",
+    "category": "hobbies_interests",
+    "reading": "れいとしょーは",
+    "synonyms": ["深夜映画", "映画館派", "IMAX鑑賞", "レイトショー好き", "劇場映画派"],
+    "search_phrases": ["映画は映画館で観たい", "レイトショーが好き", "IMAXで観る", "一人映画館", "夜遅くの映画"],
+    "antonyms": ["サブスク一気見"],
+    "compatible_tags": ["少年漫画・バトル系", "暑がり・夏が苦手"]
+  },
+  {
+    "id": "binge_watching_movies",
+    "name": "サブスク一気見",
+    "category": "hobbies_interests",
+    "reading": "さぶすくいっきみ",
+    "synonyms": ["Netflix一気見", "ドラマ一気見", "おうちシアター", "配信マラソン", "海外ドラマ鑑賞"],
+    "search_phrases": ["休日にネトフリ一気見", "おうちで映画マラソン", "プロジェクターで観る", "夜通し海外ドラマ", "ドラマ一気見派"],
+    "antonyms": ["レイトショー派"],
+    "compatible_tags": ["ジャンクフード好き", "在宅・リモート中心"]
+  },
+  {
+    "id": "stationery_journaling",
+    "name": "文房具・手帳デコ",
+    "category": "hobbies_interests",
+    "reading": "ぶんぼうぐてちょうでこ",
+    "synonyms": ["万年筆好き", "マスキングテープ", "手帳タイム", "文具マニア", "バレットジャーナル"],
+    "search_phrases": ["文房具が好き", "手帳デコるのが好き", "ロフトやハンズで長居", "万年筆愛好", "文具沼"],
+    "antonyms": [],
+    "compatible_tags": ["アナログ派・紙手帳", "純喫茶・昭和レトロ"]
+  },
+  {
+    "id": "retro_kissaten_explore",
+    "name": "純喫茶・昭和レトロ",
+    "category": "hobbies_interests",
+    "reading": "じゅんきっさしょうわれとろ",
+    "synonyms": ["純喫茶巡り", "クリームソーダ", "固めのプリン", "昭和レトロ喫茶", "古民家カフェ"],
+    "search_phrases": ["純喫茶が好き", "昭和レトロな雰囲気が好き", "喫茶店のプリン巡り", "レトロ建築巡り", "純喫茶でまったり"],
+    "antonyms": [],
+    "compatible_tags": ["カフェイン中毒", "文房具・手帳デコ", "おうち珈琲・紅茶"]
+  },
+  {
+    "id": "hotel_staycation",
+    "name": "ホカンス・ホテル泊",
+    "category": "hobbies_interests",
+    "reading": "ほかんすほてるはく",
+    "synonyms": ["ステイケーション", "ホカンス", "ラグジュアリーホテル", "おこもり宿", "ホテルステイ"],
+    "search_phrases": ["いいホテルに泊まりたい", "ホカンス楽しむ", "非日常感を味わいたい", "ホテル朝食巡り", "ホテルステイ好き"],
+    "antonyms": [],
+    "compatible_tags": ["週末プチ旅行", "ご褒美消費・プチ贅沢"]
+  },
+  {
+    "id": "weekend_travel_reward",
+    "name": "週末プチ旅行",
+    "category": "hobbies_interests",
+    "reading": "しゅうまつぷちりょこう",
+    "synonyms": ["週末弾丸旅", "新幹線旅", "週末トリップ", "プチ贅沢旅行", "小旅行好き"],
+    "search_phrases": ["週末にフラッと小旅行", "ご褒美に温泉行く", "休日は遠出したい", "新幹線乗るのが好き", "週末旅に出たい"],
+    "antonyms": [],
+    "compatible_tags": ["銭湯・日帰り温泉", "ホカンス・ホテル泊"]
+  },
+  {
+    "id": "interior_floorplan_lover",
+    "name": "間取り図・模様替え",
+    "category": "hobbies_interests",
+    "reading": "まどりずもようがえ",
+    "synonyms": ["ルームツアー好き", "家具屋巡り", "間取り図鑑賞", "インテリア好き", "部屋づくり"],
+    "search_phrases": ["間取り図見るのが好き", "インテリアにこだわりたい", "家具屋で妄想する", "部屋の模様替え好き", "間取りマニア"],
+    "antonyms": [],
+    "compatible_tags": ["DIY・日曜大工", "潔癖・綺麗好き"]
+  },
+  {
+    "id": "tasting_craft_beer",
+    "name": "クラフトビール探求",
+    "category": "hobbies_interests",
+    "reading": "くらふとびーるたんきゅう",
+    "synonyms": ["IPA好き", "ブルワリー巡り", "限定醸造ビール", "ビアバー開拓", "地ビール好き"],
+    "search_phrases": ["クラフトビールが好き", "ブルワリーに行きたい", "地ビール飲み比べ", "クラフトビール巡り", "IPAが好き"],
+    "antonyms": [],
+    "compatible_tags": ["赤提灯・大衆酒場", "週末プチ旅行"]
+  },
+  {
+    "id": "smoke_sensitive_hate",
+    "name": "タバコの煙無理",
+    "category": "weaknesses",
+    "reading": "たばこのけむりむり",
+    "synonyms": ["煙草アレルギー", "副流煙嫌い", "喫煙席拒否", "タバコ臭NG", "煙無理"],
+    "search_phrases": ["タバコの臭いがダメ", "煙を吸うと頭痛がする", "喫煙者NG", "服にタバコの臭いつくの嫌", "タバコの煙が無理"],
+    "antonyms": [],
+    "compatible_tags": ["非喫煙・タバコNG", "健康志向・無添加"]
+  },
+  {
+    "id": "hates_being_rushed",
+    "name": "急かされるのが嫌",
+    "category": "weaknesses",
+    "reading": "せかされるのがいや",
+    "synonyms": ["催促嫌い", "急かされるの苦手", "マイペース乱されるのNG", "急かさないで", "焦るの嫌い"],
+    "search_phrases": ["早くしてって言われるの嫌い", "急かされると焦る", "ゆっくり決めさせてほしい", "急かされるとパニック", "急かされるのが苦手"],
+    "antonyms": [],
+    "compatible_tags": ["おっとり・癒やし系", "気が長い・温厚"]
+  },
+  {
+    "id": "hates_being_neglected",
+    "name": "放置されるのが嫌",
+    "category": "weaknesses",
+    "reading": "ほうちされるのがいや",
+    "synonyms": ["未読放置無理", "構ってほしい", "放置NG", "疎外感に弱い", "連絡放置嫌い"],
+    "search_phrases": ["返信何日も放置されるの無理", "ほったらかしにされると冷める", "放置プレイ嫌い", "ちゃんと構ってほしい", "放置されるのが辛い"],
+    "antonyms": [],
+    "compatible_tags": ["日常雑談LINE歓迎", "恋人最優先"]
+  },
+  {
+    "id": "strict_on_manners",
+    "name": "マナー違反に厳しい",
+    "category": "weaknesses",
+    "reading": "まなーいはんにきびしい",
+    "synonyms": ["礼儀作法重視", "クチャラーNG", "歩きスマホNG", "割り込み許せない", "常識違反無理"],
+    "search_phrases": ["マナーが悪い人無理", "ポイ捨て許せない", "食事マナーが気になる", "常識がない人NG", "マナーに厳しい"],
+    "antonyms": [],
+    "compatible_tags": ["店員への横柄な態度NG", "生真面目・律儀"]
+  },
+  {
+    "id": "arrogant_to_staff_ng",
+    "name": "店員への横柄な態度NG",
+    "category": "weaknesses",
+    "reading": "てんいんへのおうへいなたいどえぬじー",
+    "synonyms": ["カスハラNG", "タメ口店員NG", "店員に偉そうにする人嫌い", "横柄な態度NG", "横柄な客NG"],
+    "search_phrases": ["店員への態度が悪い人絶対無理", "偉そうにする人冷める", "店員にありがとう言えない人嫌", "最大の地雷", "店員への態度"],
+    "antonyms": [],
+    "compatible_tags": ["マナー違反に厳しい", "素直・表裏なし"]
+  },
+  {
+    "id": "loud_noise_noise_phobia",
+    "name": "大音量・騒音苦手",
+    "category": "weaknesses",
+    "reading": "だいおんりょうそうおんにがて",
+    "synonyms": ["聴覚過敏", "騒がしい場所NG", "大声苦手", "クラブ無理", "静寂希望"],
+    "search_phrases": ["うるさい居酒屋が無理", "大声で話す人苦手", "大きな音が怖い", "静かなカフェがいい", "騒音が苦手"],
+    "antonyms": ["EDM・クラブ系"],
+    "compatible_tags": ["繊細・HSP気質", "純喫茶・昭和レトロ"]
+  },
+  {
+    "id": "heat_sensitive",
+    "name": "暑がり・夏が苦手",
+    "category": "weaknesses",
+    "reading": "あつがりなつがにがて",
+    "synonyms": ["汗かき", "夏バテしやすい", "冷房強め希望", "猛暑無理", "暑さ耐性なし"],
+    "search_phrases": ["暑いのが本当に無理", "夏は外に出たくない", "クーラーガンガンがいい", "汗っかき", "暑がりです"],
+    "antonyms": ["寒がり・冷え性"],
+    "compatible_tags": ["在宅・リモート中心", "レイトショー派"]
+  },
+  {
+    "id": "cold_sensitive",
+    "name": "寒がり・冷え性",
+    "category": "weaknesses",
+    "reading": "さむがりひえしょう",
+    "synonyms": ["冷え性", "冬が苦手", "防寒命", "手足が冷たい", "寒さ耐性なし"],
+    "search_phrases": ["寒いの無理", "冬眠したい", "暖房しっかりつけたい", "冷え性つらい", "寒がりです"],
+    "antonyms": ["暑がり・夏が苦手"],
+    "compatible_tags": ["毎日湯船に浸かる", "銭湯・日帰り温泉"]
+  },
+  {
+    "id": "horror_haunted_ng",
+    "name": "ホラー・お化け屋敷NG",
+    "category": "weaknesses",
+    "reading": "ほらーおばけやしきえぬじー",
+    "synonyms": ["ホラー映画NG", "心霊スポットNG", "グロテスク無理", "怖い話嫌い", "オカルト苦手"],
+    "search_phrases": ["お化け屋敷絶対入れない", "ホラー映画見たら寝られない", "心霊系無理", "脅かさないで", "ホラー無理"],
+    "antonyms": [],
+    "compatible_tags": ["日常系・ほのぼのアニメ", "おっとり・癒やし系"]
+  },
+  {
+    "id": "motion_sickness_prone",
+    "name": "乗り物酔いしやすい",
+    "category": "weaknesses",
+    "reading": "のりものよいしやすい",
+    "synonyms": ["車酔い", "船酔い", "三半規管弱い", "酔い止め必須", "乗り物酔い"],
+    "search_phrases": ["車に酔いやすい", "山道のドライブ苦手", "バスでスマホ見られない", "船は絶対酔う", "乗り物酔い"],
+    "antonyms": [],
+    "compatible_tags": ["純喫茶・昭和レトロ", "在宅・リモート中心"]
+  },
+  {
+    "id": "bad_with_spicy",
+    "name": "辛いものが苦手",
+    "category": "weaknesses",
+    "reading": "からいものがにがて",
+    "synonyms": ["甘口派", "辛味ダメ", "唐辛子NG", "わさび抜き", "ピリ辛無理"],
+    "search_phrases": ["辛いもの食べられない", "カレーは甘口", "キムチも辛い", "スパイス無理", "辛党じゃない"],
+    "antonyms": ["激辛料理・麻辣"],
+    "compatible_tags": ["甘党・スイーツ巡り", "おうち珈琲・紅茶"]
+  },
+  {
+    "id": "dull_with_alcohol",
+    "name": "飲み会のノリが苦手",
+    "category": "weaknesses",
+    "reading": "のみかいののりがにがて",
+    "synonyms": ["飲み会のノリ無理", "コール苦手", "居酒屋のテンション苦手", "シラフ派", "一気飲みNG"],
+    "search_phrases": ["飲み会のテンションについていけない", "一気飲みとか絶対嫌", "お酒の席が疲れる", "カフェで話したい", "飲み会苦手"],
+    "antonyms": [],
+    "compatible_tags": ["純喫茶・昭和レトロ", "おうち珈琲・紅茶"]
+  },
+  {
+    "id": "pessimistic_venting_hate",
+    "name": "愚痴・悪口ばかり苦手",
+    "category": "weaknesses",
+    "reading": "ぐちわるくちばかりにがて",
+    "synonyms": ["ネガティブ拒絶", "悪口NG", "愚痴聞き疲れ", "他人の悪口嫌い", "ポジティブ環境希望"],
+    "search_phrases": ["人の悪口聞きたくない", "愚痴ばかりだと疲れる", "明るい話がしたい", "ネガティブな空気無理", "悪口苦手"],
+    "antonyms": [],
+    "compatible_tags": ["ポジティブ変換力", "自己肯定感高め"]
+  },
+  {
+    "id": "bad_at_flirting",
+    "name": "駆け引き・詮索苦手",
+    "category": "weaknesses",
+    "reading": "かけひきせんさくにがて",
+    "synonyms": ["恋愛の駆け引きNG", "ストレート希望", "焦らし嫌い", "試し行為無理", "探り合い嫌い"],
+    "search_phrases": ["返信わざと遅らせるの嫌い", "駆け引きしないでほしい", "ストレートに言って", "試すようなことしないで", "駆け引き苦手"],
+    "antonyms": [],
+    "compatible_tags": ["素直・表裏なし", "好意は言葉で伝える"]
+  },
+  {
+    "id": "money_reckless_hate",
+    "name": "ギャンブル無理",
+    "category": "weaknesses",
+    "reading": "ぎゃんぶるむり",
+    "synonyms": ["パチンコNG", "競馬競輪NG", "金銭トラブル嫌い", "ギャンブル嫌い", "堅実金銭感覚希望"],
+    "search_phrases": ["ギャンブルする人無理", "借金ある人NG", "パチンコ行く人苦手", "お金にだらしない人無理", "ギャンブルNG"],
+    "antonyms": [],
+    "compatible_tags": ["固定費削減・ポイ活", "つみたてNISA・株"]
+  },
+  {
+    "id": "bad_at_driving_navigation",
+    "name": "方向音痴・地図苦手",
+    "category": "weaknesses",
+    "reading": "ほうこうおんちちずにがて",
+    "synonyms": ["道に迷う", "ナビ使っても迷子", "方向音痴", "空間把握苦手", "地図が読めない"],
+    "search_phrases": ["Googleマップ回しちゃう", "駅から出ると逆方向行く", "道案内できない", "迷子常習犯", "方向音痴です"],
+    "antonyms": [],
+    "compatible_tags": ["要領良し・スマート", "世話焼き・おかん肌"]
+  },
+  {
+    "id": "bad_with_small_talk",
+    "name": "上辺の雑談が苦手",
+    "category": "weaknesses",
+    "reading": "うわべのざつだんにがて",
+    "synonyms": ["スモールトーク苦手", "社交辞令苦手", "表面的な会話苦痛", "深い話がしたい", "世間話下手"],
+    "search_phrases": ["天気の話とか続かない", "上辺だけの会話がつらい", "最初から本音で話したい", "形式ばった会話苦手", "社交辞令が苦手"],
+    "antonyms": [],
+    "compatible_tags": ["じっくりメッセージ", "対話重視・話し合い"]
+  },
+  {
+    "id": "clumsy_manual_work",
+    "name": "手先が不器用",
+    "category": "weaknesses",
+    "reading": "てさきがぶきよう",
+    "synonyms": ["ぶきっちょ", "工作苦手", "細かい作業無理", "物を落としやすい", "手先不器用"],
+    "search_phrases": ["手先が不器用", "細かい作業するとイライラする", "よく物を落とす", "不器用です", "手先が使えない"],
+    "antonyms": [],
+    "compatible_tags": ["世話焼き・おかん肌", "天然・愛されキャラ"]
+  }
+]
