@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>番組進行タイマー | SIMPLE BROADCAST TIMER</title>
+  <meta name="description" content="シンプルで視認性の高い番組進行タイマー。">
+  <!-- フォント: JetBrains Mono & Roboto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-black font-jetbrains">
+
+  <!-- メイン画面コンテナ -->
+  <div id="clock_frame">
+    <!-- ヘッダー行 (左上: JST, 上中央: 現在タイトル, 右上: 矢印) -->
+    <header class="header_row">
+      <!-- 左上: JST時刻 -->
+      <div id="jst_time" class="header_item jst_item">14:32:05 JST</div>
+
+      <!-- 上中央: 現在タイトル -->
+      <div id="current_title" class="header_item title_item">オープニングトーク</div>
+
+      <!-- 右上: 遷移マーク (クリックまたはEnterで次へ) -->
+      <div id="transition_arrow" class="header_item arrow_item" title="次のコーナーへ [Enter / クリック]" role="button" tabindex="0" aria-label="次のコーナーへ">→</div>
+    </header>
+
+    <!-- 中央: 残り時間文字盤 (画面最大) -->
+    <main class="timer_center">
+      <div id="timer_display">
+        <span id="timer_sign"></span><span id="timer_digits">03:00</span>
+      </div>
+      <div id="elapsed_info">経過 00:00 / 03:00</div>
+    </main>
+
+    <!-- 下部: 次のタイトル -->
+    <footer class="footer_row">
+      <div id="next_title_display">次のコーナー：本日のニュース & 天気予報</div>
+    </footer>
+  </div>
+
+  <!-- 下部操作バー (カーソルを下部に持ってきたときだけ表示) -->
+  <div class="bottom_dock_trigger" id="bottomDockTrigger"></div>
+  <nav id="control_bar" class="control_bar">
+    <button type="button" class="ctrl_btn" id="btnPrev" title="前へ [P]">⏮</button>
+    <button type="button" class="ctrl_btn btn_main" id="btnPlayPause" title="再生/一時停止 [Space]">
+      <span id="playIcon">▶</span> <span id="playLabel">開始</span>
+    </button>
+    <button type="button" class="ctrl_btn" id="btnNext" title="次へ [Enter/N]">⏭</button>
+    <div class="divider"></div>
+    <button type="button" class="ctrl_btn btn_adj" id="btnMinus1m" title="-1分">-1m</button>
+    <button type="button" class="ctrl_btn btn_adj" id="btnMinus10s" title="-10秒">-10s</button>
+    <button type="button" class="ctrl_btn btn_adj" id="btnPlus10s" title="+10秒">+10s</button>
+    <button type="button" class="ctrl_btn btn_adj" id="btnPlus1m" title="+1分">+1m</button>
+    <div class="divider"></div>
+    <button type="button" class="ctrl_btn" id="btnFullscreen" title="全画面 [F]">⛶</button>
+  </nav>
+
+  <!-- SIMPLE CLOCK と同じスタイルの右下設定ボタン -->
+  <button id="settings-btn" title="設定・進行表" aria-label="設定を開く">⚙</button>
+
+  <!-- SIMPLE CLOCK と同じスタイルの設定モーダル -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>設定・進行表</h2>
+        <span class="close" id="modalCloseBtn">×</span>
+      </div>
+
+      <div class="settings-container">
+
+        <!-- フォント選択 -->
+        <div class="setting">
+          <label for="font-family">フォント:</label>
+          <select id="font-family">
+            <option value="font-jetbrains">JetBrains Mono</option>
+            <option value="font-roboto">Roboto</option>
+            <option value="font-sans">System Sans-Serif</option>
+          </select>
+        </div>
+
+        <!-- フォントサイズ調整 -->
+        <div class="setting">
+          <label for="font-size">タイマー文字サイズ: <span id="font-size-value">28vmin</span></label>
+          <input type="range" id="font-size" min="15" max="55" step="1" value="28">
+        </div>
+
+        <!-- 進行表サマリー -->
+        <div class="setting summary-box">
+          <div class="sum-row">
+            <span>総コーナー数: <strong id="summaryTotalCount">5</strong></span>
+            <span>合計時間: <strong id="summaryTotalDuration">28:00</strong></span>
+          </div>
+        </div>
+
+        <!-- キューシート（コーナー一覧）テーブル -->
+        <div class="setting">
+          <label>コーナー一覧 (ドラッグで並び替え):</label>
+          <div class="sheet-table-wrapper">
+            <table class="simple-table" id="sheetTable">
+              <thead>
+                <tr>
+                  <th style="width:28px;">順</th>
+                  <th>タイトル</th>
+                  <th style="width:110px;">予定 (分:秒)</th>
+                  <th style="width:60px;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="sheetTableBody">
+                <!-- 動的生成 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- コーナー新規追加 -->
+        <div class="setting">
+          <label>コーナー追加:</label>
+          <form id="addSegmentForm" class="add-form">
+            <input type="text" id="newSegmentTitle" placeholder="コーナー名" required>
+            <input type="number" id="newSegmentMin" placeholder="分" min="0" max="999" value="5" required style="width:50px;">
+            <span>:</span>
+            <input type="number" id="newSegmentSec" placeholder="秒" min="0" max="59" value="0" required style="width:50px;">
+            <button type="submit" class="btn-primary-simple">+ 追加</button>
+          </form>
+        </div>
+
+        <!-- プリセット・管理アクション -->
+        <div class="setting">
+          <div class="button-group">
+            <button type="button" class="btn-sub" id="btnLoadSample">サンプル読込</button>
+            <button type="button" class="btn-sub" id="btnExportJson">JSON保存</button>
+            <label class="btn-sub file-btn">
+              JSON読込
+              <input type="file" id="importJsonInput" accept=".json" style="display:none;">
+            </label>
+            <button type="button" class="btn-sub btn-danger" id="btnResetTimer">最初からリセット</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="toastNotification" class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
