@@ -415,6 +415,46 @@
         .bug-report-card .submit-btn:hover {
             background-color: #0854b0;
         }
+
+        /* --- セキュリティ・安全性のお知らせバナー用CSS --- */
+        .safety-banner {
+            max-width: 760px;
+            margin: 22px auto 0;
+            background: #eaf7ed;
+            border: 1px solid #c7ebd1;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-size: 0.88rem;
+            color: #1b5e20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            line-height: 1.5;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        .safety-badge {
+            background: #2e7d32;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 999px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 600px) {
+            .safety-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 14px 16px;
+                font-size: 0.84rem;
+            }
+        }
     </style>
     <script>
         if (!localStorage.getItem('tosAgreed')) {
@@ -454,6 +494,10 @@
         <h1>作成物</h1>
         <h2 style="font-size: 1.2rem; color: var(--text-sub); font-weight: normal; margin-top: 10px;">
             主にGemini等AIで作成した私的に欲しかったツールを公開しています</h2>
+        <div class="safety-banner">
+            <span class="safety-badge">✓ 安全性のお知らせ</span>
+            <span>当サイトの全ツールはブラウザ上（JavaScript/HTML）で完結して動作しており、<strong>PHPは一切利用していません</strong>。昨今のPHP脆弱性（php2shell等）の危険性は一切ございませんので、安心してご利用ください。</span>
+        </div>
     </header>
 
     <div class="container">
