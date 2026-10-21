@@ -1,37 +1,239 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex">
-  <title>メンテナンス中</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      background: #f7f9fa;
-      color: #333;
-      text-align: center;
-    }
-    .container {
-      padding: 40px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      max-width: 500px;
-    }
-    h1 { font-size: 20px; margin-bottom: 12px; }
-    p { font-size: 14px; color: #666; line-height: 1.6; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>【重要】緊急システムメンテナンスのお知らせ</title>
+    <style>
+        :root {
+            --primary-color: #007AFF;
+            --danger-color: #d70015;
+            --danger-bg: #ffebe9;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1d1d1f;
+            --text-sub: #6e6e73;
+            --border-color: #f0f0f2;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 680px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 44px 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .badge-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--danger-bg);
+            color: var(--danger-color);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            padding: 4px 12px;
+            border-radius: 999px;
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--danger-color);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 rgba(215, 0, 21, 0.4);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(215, 0, 21, 0.6);
+            }
+            70% {
+                box-shadow: 0 0 0 8px rgba(215, 0, 21, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(215, 0, 21, 0);
+            }
+        }
+
+        h1 {
+            font-size: 1.55rem;
+            font-weight: 700;
+            margin: 0 0 16px;
+            line-height: 1.4;
+            color: var(--text-main);
+        }
+
+        .lead-text {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            margin: 0 0 28px;
+            line-height: 1.7;
+        }
+
+        .info-card {
+            background: #fafafc;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .info-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #555558;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            padding-left: 14px;
+        }
+
+        .info-value.highlight {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .info-note {
+            font-size: 0.82rem;
+            color: var(--text-sub);
+            margin-top: 3px;
+            display: block;
+        }
+
+        .closing-text {
+            font-size: 0.92rem;
+            color: var(--text-sub);
+            margin: 0 0 24px;
+            line-height: 1.7;
+        }
+
+        footer {
+            text-align: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            color: #8e8e93;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 14px;
+            }
+            .container {
+                padding: 30px 20px;
+                border-radius: 16px;
+            }
+            h1 {
+                font-size: 1.35rem;
+            }
+            .info-card {
+                padding: 16px 16px;
+            }
+            .info-value {
+                padding-left: 6px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>ただいまメンテナンス中です</h1>
-    <p>作業完了までしばらくお待ちください。<br>ご不便をおかけいたします。</p>
-  </div>
+    <div class="container">
+        <div class="badge-wrapper">
+            <span class="badge">
+                <span class="pulse-dot"></span>
+                EMERGENCY MAINTENANCE
+            </span>
+        </div>
+        <h1>【重要】緊急システムメンテナンスのお知らせ</h1>
+        <p class="lead-text">
+            平素より当サイトをご利用いただき、誠にありがとうございます。<br>
+            緊急のセキュリティアップデートおよびシステム保守作業を実施するため、下記の日時において全サービスを一時停止いたします。
+        </p>
+
+        <div class="info-card">
+            <div class="info-row">
+                <div class="info-label">■ メンテナンス期間</div>
+                <div class="info-value highlight">
+                    2026年10月21日(水) 22:00 ～ 未定（作業完了次第終了）
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">■ 停止対象サービス</div>
+                <div class="info-value">
+                    当サイトのすべてのサービス・機能
+                    <span class="info-note">※メンテナンス中はサイトへのアクセスができません。</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">■ メンテナンス理由</div>
+                <div class="info-value">
+                    システムの安定稼働およびセキュリティ強化のための緊急閉鎖
+                </div>
+            </div>
+        </div>
+
+        <p class="closing-text">
+            ご利用の皆様には大変なご不便とご迷惑をおかけいたしますが、安定したサービス提供のため、何卒ご理解とご協力を賜りますようお願い申し上げます。
+        </p>
+
+        <footer>
+            <p style="margin: 0;">&copy; 2026 mocha</p>
+        </footer>
+    </div>
 </body>
 </html>
