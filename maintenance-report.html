@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self';">
+    <title>【報告】緊急システムメンテナンス完了のお知らせ | 作成物 Portfolio</title>
+    <script>
+        if (window.top !== window.self) {
+            window.top.location = window.self.location;
+        }
+    </script>
+    <style>
+        :root {
+            --primary-color: #007AFF;
+            --success-color: #2e7d32;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1d1d1f;
+            --text-sub: #6e6e73;
+            --border-color: #e5e5ea;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        .notice-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .status-badge {
+            background-color: #e8f5e9;
+            color: var(--success-color);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            display: inline-block;
+        }
+
+        .date-label {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        h1 {
+            font-size: 1.7rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 18px;
+            margin-top: 0;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 12px;
+            color: var(--text-main);
+        }
+
+        h3 {
+            font-size: 1.05rem;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3::before {
+            content: "◆";
+            color: var(--primary-color);
+            font-size: 0.85rem;
+        }
+
+        p {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            margin: 0 0 16px 0;
+        }
+
+        .alert-box {
+            background-color: #f6fbf7;
+            border: 1px solid #c8e6c9;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            color: #1b5e20;
+            font-size: 0.95rem;
+        }
+
+        .alert-box strong {
+            color: #0a4010;
+        }
+
+        .feature-card {
+            background-color: #fbfbfd;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            margin-bottom: 0;
+        }
+
+        .btn-issue {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-issue:hover {
+            opacity: 0.85;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: #888;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 12px;
+            }
+            .container {
+                padding: 24px 18px;
+                border-radius: 14px;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+        <a href="index.html" class="back-link">← トップページに戻る</a>
+    </div>
+
+    <div class="container">
+        <div class="notice-meta">
+            <span class="status-badge">完了報告</span>
+            <span class="date-label">2026年10月22日</span>
+        </div>
+
+        <h1>【報告】緊急システムメンテナンス完了のお知らせ</h1>
+
+        <p>2026年10月21日(水) 22:00より実施しておりました緊急システムメンテナンスは、すべての対応作業を完了し、全サービスを正常に再開いたしました。</p>
+        <p>作業時間中のご利用停止につきまして、ご理解とご協力をいただき誠にありがとうございました。</p>
+        <p>今回のメンテナンスで行った調査結果および対応概要についてご報告いたします。</p>
+
+        <h2>1. 調査結果</h2>
+        <p>一部で注意喚起の出されていたバックエンド環境（PHP等）の脆弱性についてシステム全体の調査を行いました。</p>
+        
+        <div class="alert-box">
+            <strong>✓ 影響および被害は一切ございません</strong><br>
+            当サービスで公開している全ツールは、ブラウザ上（JavaScript/HTML）で完結して動作する静的クライアント構成となっており、PHP等のサーバーサイド言語は一切利用していません。本件に起因する脆弱性の影響や被害がないことを確認いたしました。
+        </div>
+
+        <h2>2. 実施したメンテナンス内容</h2>
+        <p>調査とあわせて全体のコード監査を実施した際、一部の画面表示処理等において記述の改善余地が見つかったため、予防的措置として以下のセキュリティ強化および内部最適化を実施いたしました。</p>
+
+        <div class="feature-card">
+            <h3>画面表示およびデータ処理の安全性強化</h3>
+            <p>画面上でのデータ描画処理を見直し、意図しないコードの実行を防ぐためのサニタイズ処理とレンダリング方式を統一・強化しました。</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>セキュリティポリシーのアップデート</h3>
+            <p>ブラウザ側での不正な通信や悪意ある埋め込み表示（クリックジャッキング等）を防ぐため、セキュリティヘッダーおよび保護スクリプトの適用を行いました。</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>開発・管理環境の保全設定の見直し</h3>
+            <p>機密情報や不要な管理ファイルが外部に露出・混入しないよう、リポジトリの除外設定を最新化しました。</p>
+        </div>
+
+        <p>現時点でシステムの安全性・整合性を確認済みであり、これまで通り安心してご利用いただけます。</p>
+
+        <h2>お問い合わせ・不具合報告について</h2>
+        <p>メンテナンス完了に伴い、万が一「表示が崩れる」「操作時にエラーが出る」などの挙動が見られましたら、お手数ですが GitHub Issues までご連絡いただけますと幸いです。</p>
+
+        <a href="index.html#bug-report" class="btn-issue">不具合報告フォームへ移動 &rarr;</a>
+
+        <p style="margin-top: 30px;">今後ともサービスの安定・安全な運用に努めてまいりますので、よろしくお願い申し上げます。</p>
+
+        <footer>
+            <p>&copy; 2026 mocha</p>
+            <a href="index.html">トップページ</a>
+            <a href="terms.html">利用規約</a>
+            <a href="privacy.html">プライバシーポリシー</a>
+        </footer>
+    </div>
+
+</body>
+</html>
