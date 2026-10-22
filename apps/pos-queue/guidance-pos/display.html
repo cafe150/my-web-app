@@ -50,6 +50,16 @@
         let history = [];
         let audioCtx;
 
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function initAudio() { 
             document.getElementById('start-overlay').style.display='none';
             audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
@@ -85,7 +95,7 @@
                 history = history.filter(n => n !== num);
                 if (history.length > 5) history = history.slice(0, 5);
                 
-                document.getElementById('history-list').innerHTML = history.map(n => `<div class="history-item">${n}</div>`).join('');
+                document.getElementById('history-list').innerHTML = history.map(n => `<div class="history-item">${escapeHtml(n)}</div>`).join('');
                 document.getElementById('current-number').innerText = num;
                 
                 document.getElementById('current-number').classList.remove('blink');
@@ -112,7 +122,7 @@
                 const num = String(e.data.number);
                 if (document.getElementById('current-number').innerText === num) document.getElementById('current-number').innerText = '--';
                 history = history.filter(n => n !== num);
-                document.getElementById('history-list').innerHTML = history.map(n => `<div class="history-item">${n}</div>`).join('');
+                document.getElementById('history-list').innerHTML = history.map(n => `<div class="history-item">${escapeHtml(n)}</div>`).join('');
             }
             updateWaitingList();
         };
@@ -132,12 +142,12 @@
             exps.forEach(exp => {
                 const targetOrders = orders.filter(o => (o.status === 'waiting' || o.status === 'calling') && o.experiences && o.experiences.includes(exp.name));
                 if (targetOrders.length > 0) {
-                    let secHtml = `<div class="exp-section"><div class="exp-title">${exp.name}</div>`;
+                    let secHtml = `<div class="exp-section"><div class="exp-title">${escapeHtml(exp.name)}</div>`;
                     
                     targetOrders.forEach((o, index) => {
                         let etaHtml = '';
                         if (o.time !== '指定なし') {
-                            etaHtml = `<span class="wait-eta wait-reserved">(予約 ${o.time})</span>`;
+                            etaHtml = `<span class="wait-eta wait-reserved">(予約 ${escapeHtml(o.time)})</span>`;
                         } else {
                             // 【計算式】
                             // 基本待ち時間 ＝ (任意の待ち時間) または (順番 × 平均プレイ時間)
@@ -156,7 +166,7 @@
                                 etaHtml = `<span class="wait-eta">(約${remainingMins}分)</span>`;
                             }
                         }
-                        secHtml += `<div class="wait-item"><span class="wait-num">${o.number}</span>${etaHtml}</div>`;
+                        secHtml += `<div class="wait-item"><span class="wait-num">${escapeHtml(o.number)}</span>${etaHtml}</div>`;
                     });
                     secHtml += `</div>`;
                     newHtml += secHtml;
@@ -169,8 +179,8 @@
             if (noExpOrders.length > 0) {
                 let secHtml = `<div class="exp-section"><div class="exp-title" style="color:#e74c3c;">総合受付・ご案内</div>`;
                 noExpOrders.forEach((o, index) => {
-                    let etaHtml = o.time !== '指定なし' ? `<span class="wait-eta wait-reserved">(予約 ${o.time})</span>` : `<span class="wait-eta">(案内窓口へ)</span>`;
-                    secHtml += `<div class="wait-item"><span class="wait-num">${o.number}</span>${etaHtml}</div>`;
+                    let etaHtml = o.time !== '指定なし' ? `<span class="wait-eta wait-reserved">(予約 ${escapeHtml(o.time)})</span>` : `<span class="wait-eta">(案内窓口へ)</span>`;
+                    secHtml += `<div class="wait-item"><span class="wait-num">${escapeHtml(o.number)}</span>${etaHtml}</div>`;
                 });
                 secHtml += `</div>`;
                 newHtml += secHtml;
