@@ -166,11 +166,21 @@
         this.value = this.value.replace(/[\u3041-\u3096]/g, m => String.fromCharCode(m.charCodeAt(0) + 0x60));
     });
 
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     function loadExps() {
         let exps = JSON.parse(localStorage.getItem('expMaster')) || [{name: "体験", duration: 5}];
         if(typeof exps[0] === 'string') exps = exps.map(e => ({name:e, duration:5})); 
         document.getElementById('exp-container').innerHTML = exps.map(e => `
-            <label class="exp-btn"><input type="checkbox" class="exp-check" value="${e.name}"> ${e.name}</label>
+            <label class="exp-btn"><input type="checkbox" class="exp-check" value="${escapeHtml(e.name)}"> ${escapeHtml(e.name)}</label>
         `).join('');
     }
 
@@ -383,10 +393,10 @@
         }
 
         document.getElementById('m-details').innerHTML = `
-            <strong>お名前:</strong> ${name} 様 (${pax} 名)<br>
-            <strong>予　約:</strong> ${timeDesc}<br>
-            <strong>手　動:</strong> ${waitText}<br>
-            <strong>体　験:</strong> ${selectedExps.join(' / ')}
+            <strong>お名前:</strong> ${escapeHtml(name)} 様 (${escapeHtml(pax)} 名)<br>
+            <strong>予　約:</strong> ${escapeHtml(timeDesc)}<br>
+            <strong>手　動:</strong> ${escapeHtml(waitText)}<br>
+            <strong>体　験:</strong> ${selectedExps.map(escapeHtml).join(' / ')}
         `;
         document.getElementById('confirm-modal').style.display='flex';
     }

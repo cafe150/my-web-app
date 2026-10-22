@@ -126,37 +126,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayData() {
         // Display headers
-        tableHead.innerHTML = '<tr>' + headers.map((h, i) => {
+        tableHead.innerHTML = '';
+        const headerTr = document.createElement('tr');
+        headers.forEach((h, i) => {
+            const th = document.createElement('th');
             const isTimeColumn = i === arrivalTimeIndex || i === departureTimeIndex;
-            return `<th${isTimeColumn ? ' style="background: rgba(0, 212, 255, 0.2);"' : ''}>${h}</th>`;
-        }).join('') + '</tr>';
+            if (isTimeColumn) {
+                th.style.background = 'rgba(0, 212, 255, 0.2)';
+            }
+            th.textContent = h !== undefined ? h : '';
+            headerTr.appendChild(th);
+        });
+        tableHead.appendChild(headerTr);
 
         // Display data rows
-        tableBody.innerHTML = csvData.map((row, rowIndex) => {
-            return '<tr>' + row.map((cell, colIndex) => {
-                let className = '';
+        tableBody.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        csvData.forEach((row, rowIndex) => {
+            const tr = document.createElement('tr');
+            row.forEach((cell, colIndex) => {
+                const td = document.createElement('td');
+                const val = cell !== undefined ? cell : '';
 
                 if (colIndex === arrivalTimeIndex) {
                     if (interpolationInfo.arrival.has(rowIndex)) {
-                        className = 'interpolated';
-                    } else if (cell.toLowerCase() === 'p') {
-                        className = 'pass-station';
-                    } else if (cell === '' || cell === undefined) {
-                        className = 'empty-cell';
+                        td.className = 'interpolated';
+                    } else if (typeof val === 'string' && val.toLowerCase() === 'p') {
+                        td.className = 'pass-station';
+                    } else if (val === '') {
+                        td.className = 'empty-cell';
                     }
                 } else if (colIndex === departureTimeIndex) {
                     if (interpolationInfo.departure.has(rowIndex)) {
-                        className = 'interpolated';
-                    } else if (cell.toLowerCase() === 'p') {
-                        className = 'pass-station';
-                    } else if (cell === '' || cell === undefined) {
-                        className = 'empty-cell';
+                        td.className = 'interpolated';
+                    } else if (typeof val === 'string' && val.toLowerCase() === 'p') {
+                        td.className = 'pass-station';
+                    } else if (val === '') {
+                        td.className = 'empty-cell';
                     }
                 }
 
-                return `<td class="${className}">${cell !== undefined ? cell : ''}</td>`;
-            }).join('') + '</tr>';
-        }).join('');
+                td.textContent = val;
+                tr.appendChild(td);
+            });
+            fragment.appendChild(tr);
+        });
+        tableBody.appendChild(fragment);
 
         previewSection.style.display = 'block';
         actionsSection.style.display = 'flex';
