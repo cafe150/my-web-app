@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self';">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self';">
     <title>作成物 | Portfolio</title>
     <script>
         if (window.top !== window.self) {
@@ -524,6 +525,7 @@
                 padding: 14px 16px;
                 font-size: 0.84rem;
             }
+
             .maintenance-content {
                 flex-direction: column;
                 align-items: flex-start;
@@ -569,19 +571,23 @@
         <h1>作成物</h1>
         <h2 style="font-size: 1.2rem; color: var(--text-sub); font-weight: normal; margin-top: 10px;">
             主にGemini等AIで作成した私的に欲しかったツールを公開しています</h2>
-        
+
         <!-- メンテナンス完了お知らせバナー（1日間限定表示） -->
         <div id="maintenanceBanner" class="maintenance-banner" style="display: none;">
             <div class="maintenance-content">
                 <span class="maintenance-badge">お知らせ</span>
-                <span>メンテナンスは正常に終了しました。ご協力ありがとうございました。<a href="maintenance-report.html" style="color: #0b5394; font-weight: 700; text-decoration: underline; margin-left: 6px;">詳細はこちら</a></span>
+                <span>メンテナンスは正常に終了しました。ご協力ありがとうございました。<a href="maintenance-report.html"
+                        style="color: #0b5394; font-weight: 700; text-decoration: underline; margin-left: 6px;">詳細はこちら</a></span>
             </div>
-            <button type="button" class="maintenance-close-btn" id="maintenanceCloseBtn" aria-label="閉じる">&times;</button>
+            <button type="button" class="maintenance-close-btn" id="maintenanceCloseBtn"
+                aria-label="閉じる">&times;</button>
         </div>
 
         <div class="safety-banner">
             <span class="safety-badge">✓ 安全性のお知らせ</span>
-            <span>当サイトの全ツールはブラウザ上（JavaScript/HTML）で完結して動作しており、<strong>PHPは一切利用していません</strong>。昨今のPHP脆弱性（php2shell等）の危険性は一切ございませんので、安心してご利用ください。<a href="maintenance-report.html" style="color: #2e7d32; font-weight: 700; text-decoration: underline; margin-left: 6px;">詳細はこちら</a></span>
+            <span>当サイトの全ツールはブラウザ上（JavaScript/HTML）で完結して動作しており、<strong>PHPは一切利用していません</strong>。昨今のPHP脆弱性（php2shell等）の危険性は一切ございませんので、安心してご利用ください。<a
+                    href="maintenance-report.html"
+                    style="color: #2e7d32; font-weight: 700; text-decoration: underline; margin-left: 6px;">詳細はこちら</a></span>
         </div>
     </header>
 
@@ -765,7 +771,8 @@
                         </option>
                         <option value="SpotifyTool (音楽ダッシュボード)" data-placeholder="例: ログイン後にプレイリスト一覧が取得できない">SpotifyTool
                             (音楽ダッシュボード)</option>
-                        <option value="RelationMap（関係性可視化ツール）" data-placeholder="例: タグ追加時にグラフが描画されない / サジェスト候補が表示されない">RelationMap（関係性可視化ツール）</option>
+                        <option value="RelationMap（関係性可視化ツール）" data-placeholder="例: タグ追加時にグラフが描画されない / サジェスト候補が表示されない">
+                            RelationMap（関係性可視化ツール）</option>
                         <option value="番組進行タイマー" data-placeholder="例: 次のコーナーへのスキップ時にタイマーが更新されない">番組進行タイマー</option>
                         <option value="サイト全体 / その他" data-placeholder="例: リンク先が開かない / 表示が崩れている">サイト全体 / その他</option>
                     </select>
@@ -872,7 +879,7 @@
                         if (detailedEnv) {
                             envInput.value = detailedEnv;
                         }
-                    }).catch(() => {});
+                    }).catch(() => { });
                 } else {
                     const userAgent = navigator.userAgent;
                     const platform = navigator.platform || "Unknown Platform";
@@ -979,6 +986,29 @@
                 }
             }
         });
+
+        // コンソール AA イースターエッグ（メインページのみ）
+        (function () {
+            const yukkuriAA = `
+　　 _,,....,,_　 ＿人人人人人人人人人人人人人人人＿
+ -''":::::::::::::｀''＞　　　ゆっくりしていってね！！！　　　＜
+ ヽ:::::::::::::::::::::￣^Ｙ^Ｙ^Ｙ^Ｙ^Ｙ^Ｙ^Ｙ^Ｙ^Ｙ^Ｙ^Ｙ^Ｙ^Ｙ^Ｙ^￣
+ 　|::::::;ノ´￣＼:::::::::::＼_,. -‐ｧ　　　　　＿_　　 _____　　 ＿_____
+ 　|::::ﾉ　　　ヽ､ヽr-r'"´　　（.__　　　　,´　_,, '-´￣￣｀-ゝ 、_ イ、
+ _,.!イ_　　_,.ﾍｰｧ'二ﾊ二ヽ､へ,_7　　　'r ´　　　　　　　　　　ヽ、ﾝ、
+ ::::::rｰ''7ｺ-‐'"´　 　 ;　 ',　｀ヽ/｀7　,'＝=─-　　　 　 -─=＝',　i
+ r-'ｧ'"´/　 /!　ﾊ 　ハ　 !　　iヾ_ﾉ　i　ｲ　iゝ、ｲ人レ／_ルヽｲ i　|
+ !イ´ ,' |　/__,.!/　V　､!__ﾊ　 ,'　,ゝ　ﾚﾘｲi (ﾋ_] 　　 　ﾋ_ﾝ ).| .|、i .||
+ \`! 　!/ﾚi'　(ﾋ_] 　　 　ﾋ_ﾝ ﾚ'i　ﾉ　　　!Y!""　 ,＿__, 　 "" 「 !ﾉ i　|
+ ,'　 ﾉ 　 !'"　 　 ,＿__,　 "' i .ﾚ'　　　　L.',.　 　ヽ _ﾝ　　　　L」 ﾉ| .|
+ 　（　　,ﾊ　　　　ヽ _ﾝ　 　人! 　　　　 | ||ヽ、　　　　　　 ,ｲ| ||ｲ| /
+ ,.ﾍ,）､　　）＞,､ _____,　,.イ　 ハ　　　　レ ル｀ ー--─ ´ルﾚ　ﾚ´
+`;
+            console.log(
+                `%c${yukkuriAA}`,
+                'font-family: "MS PGothic", "Mona", "IPAMonaPGothic", "Saitamaar", sans-serif; font-size: 16px; line-height: 18px;'
+            );
+        })();
     </script>
 </body>
 
