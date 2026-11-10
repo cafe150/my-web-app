@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPI直感攻略ナビ 〜通過算の巻〜</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    .rail-track {
+      background: repeating-linear-gradient(90deg, #94a3b8 0px, #94a3b8 4px, transparent 4px, transparent 20px),
+                  linear-gradient(180deg, #64748b 0px, #64748b 4px, transparent 4px, transparent 28px, #64748b 28px, #64748b 32px);
+      height: 32px;
+    }
+    /* テンプレート統一マーカー定義: 文字上下サイズいっぱいに引く */
+    .marker-yellow {
+      background: #fef08a;
+      padding: 0 4px;
+      border-radius: 2px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+    .marker-red {
+      color: #dc2626;
+      font-weight: 800;
+    }
+    /* 横スクロールバー非表示ユーティリティ */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* スムーズスクロール & 固定ヘッダー分の余白確保（見切れ防止） */
+    html {
+      scroll-behavior: smooth;
+    }
+    section[id] {
+      scroll-margin-top: 4.5rem;
+    }
+    @media (min-width: 640px) {
+      section[id] {
+        scroll-margin-top: 5.25rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+
+  <!-- ヘッダー: 親しみやすい爽やかなブルー調（スマホ対応） -->
+  <header class="bg-gradient-to-r from-blue-600 via-sky-600 to-blue-700 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+      <div class="flex items-center justify-between w-full sm:w-auto">
+        <a href="index.html" class="flex items-center gap-2.5 sm:gap-3 hover:opacity-90 transition shrink-0" title="ホーム画面へ戻る">
+          <!-- ロゴ: SPIの文字ロゴ -->
+          <div class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl bg-white/20 flex items-center justify-center font-black tracking-wider text-yellow-300 text-xs sm:text-base shadow-inner border border-white/20">
+            SPI
+          </div>
+          <div>
+            <h1 class="font-black text-sm sm:text-lg tracking-tight text-white leading-tight flex items-center gap-1.5">
+              SPI直感攻略ナビ
+              <span class="text-[9px] sm:text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-white font-normal hover:bg-white/30 hidden xs:inline-block"><i class="fa-solid fa-house text-[8px] sm:text-[9px]"></i> ホーム</span>
+            </h1>
+            <p class="text-[10px] sm:text-xs text-yellow-200 font-bold flex items-center gap-1">
+              <span class="bg-yellow-400 text-slate-900 text-[9px] sm:text-[10px] px-1 py-0.2 rounded font-black">第1弾</span>
+              通過算の巻
+            </p>
+          </div>
+        </a>
+      </div>
+
+      <!-- ナビゲーション（スマホ時は横スワイプ可能） -->
+      <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-0.5 sm:pb-0">
+        <a href="index.html" class="shrink-0 text-[11px] sm:text-xs bg-white/10 hover:bg-white/25 text-white font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg transition text-center flex items-center gap-1">
+          <i class="fa-solid fa-house text-[10px] sm:text-xs text-yellow-300"></i>
+          <span>単元一覧</span>
+        </a>
+        <a href="#hajiki-section" class="shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg transition text-center">
+          <span class="text-[9px] sm:text-[10px] text-yellow-300 block leading-tight font-extrabold">まずはここから</span>基礎
+        </a>
+        <a href="#core-concept" class="shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg transition text-center">
+          <span class="text-[9px] sm:text-[10px] text-yellow-300 block leading-tight font-extrabold">ここを押さえよ！</span>考え方
+        </a>
+        <a href="#unit-cheat-sheet" class="shrink-0 text-[11px] sm:text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg transition shadow-sm text-center">
+          <span class="text-[9px] sm:text-[10px] text-red-600 block leading-tight font-black">ズバリ！</span>単位計算のコツ
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-6 sm:space-y-10">
+
+    <!-- 1. 基礎: はじきのきそ -->
+    <section id="hajiki-section" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-blue-100">
+      <div class="flex items-center justify-between flex-wrap gap-2 mb-3 sm:mb-4 border-b border-slate-100 pb-2.5 sm:pb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-sky-500 text-white flex items-center justify-center font-bold text-xs">基</span>
+          <h2 class="text-base sm:text-xl font-bold text-slate-800">
+            すべての前提！<span class="marker-yellow">「き・は・じ」の公式</span>を瞬時に引き出す
+          </h2>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-center">
+        <!-- はじきの円図 -->
+        <div class="md:col-span-4 flex flex-col items-center justify-center bg-sky-50/50 p-4 sm:p-5 rounded-2xl border border-sky-100">
+          <div class="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-sky-500 bg-white shadow-sm flex flex-col overflow-hidden">
+            <!-- 上半分: 道のり（距離） -->
+            <div class="h-1/2 bg-sky-500 text-white flex flex-col items-center justify-center border-b-2 border-sky-600">
+              <span class="text-[10px] sm:text-[11px] text-sky-100 font-medium">きょり (道のり)</span>
+              <span class="text-lg sm:text-xl font-bold tracking-wider text-yellow-300">き (み)</span>
+            </div>
+            <!-- 下半分: 速さ と 時間 -->
+            <div class="h-1/2 grid grid-cols-2 bg-slate-50">
+              <div class="flex flex-col items-center justify-center border-r border-sky-200 text-slate-700">
+                <span class="text-[9px] sm:text-[10px] text-slate-400">はやさ</span>
+                <span class="text-base sm:text-lg font-bold text-sky-700">は</span>
+              </div>
+              <div class="flex flex-col items-center justify-center text-slate-700">
+                <span class="text-[9px] sm:text-[10px] text-slate-400">じかん</span>
+                <span class="text-base sm:text-lg font-bold text-sky-700">じ</span>
+              </div>
+            </div>
+            <!-- 中心掛け算記号 -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span class="bg-sky-600 text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full text-[9px] sm:text-[10px] font-bold flex items-center justify-center shadow">×</span>
+            </div>
+          </div>
+          <span class="text-[11px] sm:text-xs text-slate-500 mt-2">横並びは「かけ算」、上下は「わり算」</span>
+        </div>
+
+        <!-- 3つの導出式と通過算への直結 -->
+        <div class="md:col-span-8 space-y-2.5 sm:space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+            <div class="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-[11px] sm:text-xs text-slate-500">時間を求めたい時</div>
+              <div class="text-sm sm:text-base font-bold text-slate-800 mt-0.5">時間 ＝ <span class="text-red-600">距離 ÷ 速さ</span></div>
+              <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">通過算で最も問われる形</p>
+            </div>
+            <div class="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-[11px] sm:text-xs text-slate-500">距離を求めたい時</div>
+              <div class="text-sm sm:text-base font-bold text-slate-800 mt-0.5">距離 ＝ <span class="text-sky-700">速さ × 時間</span></div>
+              <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">鉄橋や電車の長さを逆算</p>
+            </div>
+            <div class="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-[11px] sm:text-xs text-slate-500">速さを求めたい時</div>
+              <div class="text-sm sm:text-base font-bold text-slate-800 mt-0.5">速さ ＝ <span class="text-purple-700">距離 ÷ 時間</span></div>
+              <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">秒速を出してから時速へ</p>
+            </div>
+          </div>
+
+          <div class="bg-sky-50 border border-sky-200 p-3 sm:p-3.5 rounded-xl text-slate-700 text-xs sm:text-sm leading-relaxed">
+            <span class="font-bold text-sky-800">💡 通過算のポイント：</span>
+            「距離」の場所に <span class="marker-yellow">対象の長さ ＋ 電車自身の長さ</span> をあてはめるだけです。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 考え方 -->
+    <section id="core-concept" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+      <div class="text-sky-700 font-bold text-xs mb-1">
+        通過算の考え方
+      </div>
+      <h2 class="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+        「通過した」とは、<span class="text-red-600">先頭が入って</span>から<span class="text-red-600">最後尾が出るまで</span>
+      </h2>
+      <p class="mt-1.5 sm:mt-2 text-slate-600 text-xs sm:text-sm leading-relaxed">
+        電車には長さがあるため、進むべき総距離は常に <span class="marker-yellow">対象の長さ ＋ 電車自身の長さ</span> になります。
+      </p>
+
+      <!-- 視覚図解 -->
+      <div class="mt-4 sm:mt-5 bg-slate-50 rounded-xl p-3.5 sm:p-5 border border-slate-200">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 items-center">
+          <div class="space-y-2.5 sm:space-y-3">
+            <div class="flex items-center gap-2.5">
+              <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-sky-600 text-white font-bold text-xs flex items-center justify-center shrink-0">1</span>
+              <div>
+                <p class="text-[10px] sm:text-xs text-slate-400">通過開始</p>
+                <p class="font-bold text-slate-700 text-xs sm:text-sm">電車の「先頭」が対象の入口に達した瞬間</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-red-500 text-white font-bold text-xs flex items-center justify-center shrink-0">2</span>
+              <div>
+                <p class="text-[10px] sm:text-xs text-slate-400">通過完了</p>
+                <p class="font-bold text-slate-700 text-xs sm:text-sm">電車の「最後尾」が出口を抜け切った瞬間</p>
+              </div>
+            </div>
+            <p class="text-[11px] sm:text-xs text-slate-600 pt-0.5 sm:pt-1">
+              電車の<span class="text-red-600 font-bold">先頭の位置だけに着目</span>すると、車体分の長さだけ余分に進んでいることが分かります。
+            </p>
+          </div>
+          
+          <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 flex flex-col items-center justify-center text-center">
+            <div class="text-[11px] sm:text-xs text-slate-400 mb-1.5 sm:mb-2">総移動距離の公式</div>
+            <div class="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5 text-xs sm:text-base font-bold text-slate-800">
+              <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-sky-50 text-sky-800 rounded border border-sky-200">進む距離</span>
+              <span>＝</span>
+              <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-purple-50 text-purple-900 rounded border border-purple-300 font-bold">対象の長さ</span>
+              <span>＋</span>
+              <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-red-50 text-red-700 rounded border border-red-200 font-bold">電車の長さ</span>
+            </div>
+            <div class="mt-2.5 sm:mt-3 text-[11px] sm:text-xs text-slate-500 font-mono">
+              時間 ＝ (<span class="text-purple-700 font-medium">対象</span> ＋ <span class="text-red-600 font-medium">電車</span>) ÷ 速さ
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. ズバリ！単位計算のコツ -->
+    <section id="unit-cheat-sheet" class="scroll-mt-20 sm:scroll-mt-24 bg-amber-50 border border-amber-200 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+      <div class="text-amber-800 font-bold text-xs mb-1">
+        ズバリ！ 単位計算のコツ
+      </div>
+      <h3 class="text-lg font-bold text-slate-900 mb-2">
+        秒速(m/s) と 時速(km/h) の「3.6」
+      </h3>
+      
+      <!-- 赤文字だけのすっきりした高視認性スタイル -->
+      <p class="text-xs sm:text-sm text-slate-700 leading-relaxed mb-4">
+        通過算は電車の長さ（m）と秒数を扱うため、<br>
+        <strong class="text-red-600 font-bold text-sm sm:text-base">すべて「秒速 (m/s)」に直して計算する</strong> のが鉄則です。
+      </p>
+
+      <!-- 3.6の図解 -->
+      <div class="bg-white p-4 rounded-xl border border-amber-200 shadow-sm flex flex-col sm:flex-row items-center justify-around gap-4 text-center">
+        <!-- 時速カード -->
+        <div class="p-3 bg-sky-50 rounded-xl border border-sky-100 w-full sm:w-36 text-center shadow-xs">
+          <div class="text-xs text-sky-700 font-bold">時速 (km/h)</div>
+          <div class="text-lg font-black text-slate-800 mt-0.5">72 km/h</div>
+        </div>
+        
+        <!-- 変換矢印エリア（上下で方向を明確化） -->
+        <div class="flex flex-col gap-2 w-full sm:w-auto px-2">
+          <!-- 時速 → 秒速 -->
+          <div class="flex items-center justify-center gap-1.5 bg-red-50 text-red-700 px-3 py-1.5 rounded-lg border border-red-200 text-xs font-bold shadow-xs">
+            <span>時速から秒速へ：</span>
+            <span class="bg-red-600 text-white px-1.5 py-0.5 rounded text-[11px] font-black">÷ 3.6</span>
+            <i class="fa-solid fa-arrow-right text-red-600"></i>
+          </div>
+          <!-- 秒速 → 時速 -->
+          <div class="flex items-center justify-center gap-1.5 bg-sky-50 text-sky-700 px-3 py-1.5 rounded-lg border border-sky-200 text-xs font-bold shadow-xs">
+            <i class="fa-solid fa-arrow-left text-sky-600"></i>
+            <span class="bg-sky-600 text-white px-1.5 py-0.5 rounded text-[11px] font-black">× 3.6</span>
+            <span>：秒速から時速へ</span>
+          </div>
+        </div>
+
+        <!-- 秒速カード -->
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100 w-full sm:w-36 text-center shadow-xs">
+          <div class="text-xs text-emerald-700 font-bold">秒速 (m/s)</div>
+          <div class="text-lg font-black text-slate-800 mt-0.5">20 m/s</div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+        <div class="bg-white p-2 rounded-lg border border-amber-200">
+          <div class="text-slate-400 text-[10px]">時速 36 km/h</div>
+          <div class="font-bold text-slate-700">＝ 秒速 10 m/s</div>
+        </div>
+        <div class="bg-white p-2 rounded-lg border border-amber-200">
+          <div class="text-slate-400 text-[10px]">時速 54 km/h</div>
+          <div class="font-bold text-slate-700">＝ 秒速 15 m/s</div>
+        </div>
+        <div class="bg-white p-2 rounded-lg border border-amber-200">
+          <div class="text-slate-400 text-[10px]">時速 72 km/h</div>
+          <div class="font-bold text-red-600">＝ 秒速 20 m/s</div>
+        </div>
+        <div class="bg-white p-2 rounded-lg border border-amber-200">
+          <div class="text-slate-400 text-[10px]">時速 90 km/h</div>
+          <div class="font-bold text-slate-700">＝ 秒速 25 m/s</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. シミュレーション -->
+    <section id="simulator" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <!-- モード切り替えタブ（スマホ対応・横スクロール） -->
+      <div class="bg-slate-100 border-b border-slate-200 p-1.5 sm:p-2 flex overflow-x-auto no-scrollbar gap-1.5 sm:gap-2">
+        <button id="tab-bridge" onclick="switchMode('bridge')" class="tab-btn shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-white text-sky-700 shadow-sm border border-sky-200">
+          <i class="fa-solid fa-archway text-purple-600"></i> ① 鉄橋・トンネル
+        </button>
+        <button id="tab-pole" onclick="switchMode('pole')" class="tab-btn shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition flex items-center gap-1.5 text-slate-600 hover:bg-white/60">
+          <i class="fa-solid fa-tree text-emerald-600"></i> ② 電柱・歩行者 (0m)
+        </button>
+        <button id="tab-passing" onclick="switchMode('passing')" class="tab-btn shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition flex items-center gap-1.5 text-slate-600 hover:bg-white/60">
+          <i class="fa-solid fa-arrows-left-right text-indigo-600"></i> ③-A すれ違い
+        </button>
+        <button id="tab-overtake" onclick="switchMode('overtake')" class="tab-btn shrink-0 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition flex items-center gap-1.5 text-slate-600 hover:bg-white/60">
+          <i class="fa-solid fa-angles-right text-rose-600"></i> ③-B 追い越し
+        </button>
+      </div>
+
+      <div class="p-3.5 sm:p-6 space-y-4 sm:space-y-6">
+        
+        <!-- モード別解説バナー -->
+        <div id="mode-explanation" class="p-3 sm:p-3.5 rounded-xl bg-sky-50 border border-sky-100 text-slate-700 text-xs sm:text-sm leading-relaxed">
+          <!-- JSで動的更新 -->
+        </div>
+
+        <!-- アニメーションステージ -->
+        <div class="relative bg-slate-900 rounded-2xl p-3 sm:p-4 overflow-hidden border border-slate-800 shadow-inner min-h-[210px] sm:min-h-[220px] flex flex-col justify-end">
+          <!-- 背景目盛り / スケール表記 -->
+          <div class="absolute top-2.5 sm:top-3 left-3 sm:left-4 text-[10px] sm:text-xs font-mono text-slate-400 flex items-center gap-2 sm:gap-3">
+            <span><i class="fa-solid fa-ruler-horizontal text-yellow-400 mr-0.5 sm:mr-1"></i> 1px ≒ 1m</span>
+            <span id="status-badge" class="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-medium bg-slate-700 text-slate-300">待機中</span>
+          </div>
+
+          <!-- タイマー表示 -->
+          <div class="absolute top-2.5 sm:top-3 right-3 sm:right-4 font-mono text-right">
+            <div class="text-[9px] sm:text-[10px] text-slate-400">経過時間</div>
+            <div class="text-lg sm:text-2xl font-bold text-yellow-400" id="timer-display">0.00 <span class="text-[10px] sm:text-xs">秒</span></div>
+          </div>
+
+          <!-- トラックエリア (ステージ) -->
+          <div id="stage-container" class="relative w-full h-[150px] mb-2">
+            <!-- 線路 1 (メイン) -->
+            <div class="absolute bottom-6 left-0 right-0 rail-track opacity-90"></div>
+            <!-- 線路 2 (すれ違い/追い越し用) -->
+            <div id="rail-track-2" class="absolute bottom-20 left-0 right-0 rail-track opacity-70 hidden"></div>
+
+            <!-- 対象物（鉄橋 / 電柱 / トンネル）: はっきりした「濃い紫」で境界を明確化 -->
+            <div id="target-object" class="absolute bottom-6 transition-all duration-75 flex flex-col items-center justify-end pointer-events-none" style="left: 320px; width: 220px; height: 50px;">
+              <!-- 鉄橋上部ラベル（電車と重ならないよう上部に配置） -->
+              <div id="target-label-wrapper" class="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
+                <span id="target-label" class="text-[11px] font-bold text-purple-200 tracking-wide bg-purple-950/90 px-2 py-0.5 rounded border border-purple-400 shadow">鉄橋 (220m)</span>
+              </div>
+              <div id="target-visual" class="w-full h-full border-t-4 border-purple-500 bg-purple-900/40 rounded-t-lg relative flex items-center justify-center border-x-2 border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.25)]">
+                <!-- 始点・終点マーカー線 -->
+                <div class="target-marker-line absolute -top-5 left-0 h-[74px] w-0.5 border-l-2 border-dashed border-purple-400"></div>
+                <div class="target-marker-line absolute -top-5 right-0 h-[74px] w-0.5 border-r-2 border-dashed border-purple-400"></div>
+              </div>
+            </div>
+
+            <!-- 電車 A (青基調) -->
+            <div id="train-a" class="absolute bottom-7 flex flex-col items-center transition-none" style="left: 100px; width: 120px; height: 32px;">
+              <div class="w-full h-full bg-gradient-to-r from-sky-600 to-blue-500 rounded-lg shadow border border-sky-300 relative flex items-center justify-between px-2 text-white">
+                <span class="text-[9px] font-medium opacity-90"><i class="fa-solid fa-arrow-left text-[8px]"></i> 後尾</span>
+                <span class="text-xs font-bold tracking-wider" id="train-a-text">電車A</span>
+                <span class="text-[9px] font-bold text-yellow-200">先頭 <i class="fa-solid fa-bolt text-yellow-300"></i></span>
+                
+                <!-- 先頭インジケーターピン (強調黄色) -->
+                <div class="absolute -top-5 right-0 flex flex-col items-center pointer-events-none">
+                  <span class="text-[9px] text-yellow-300 font-black tracking-tight leading-none mb-0.5 drop-shadow">先頭</span>
+                  <div class="w-2.5 h-2.5 bg-yellow-400 rounded-full shadow-md ring-2 ring-yellow-300"></div>
+                </div>
+                <!-- 最後尾インジケーターピン -->
+                <div class="absolute -top-5 left-0 flex flex-col items-center pointer-events-none">
+                  <span class="text-[9px] text-blue-200 font-bold leading-none mb-0.5">後尾</span>
+                  <div class="w-2 h-2 bg-blue-400 rounded-full shadow"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 電車 B (赤/オレンジ) -->
+            <div id="train-b" class="absolute bottom-21 flex flex-col items-center transition-none hidden" style="left: 550px; width: 140px; height: 32px;">
+              <div class="w-full h-full bg-gradient-to-r from-red-600 to-amber-500 rounded-lg shadow border border-amber-300 relative flex items-center justify-between px-2 text-white">
+                <span class="text-[9px] font-medium" id="train-b-tail">後尾</span>
+                <span class="text-xs font-bold tracking-wider">電車B</span>
+                <span class="text-[9px] font-bold" id="train-b-head">先頭</span>
+
+                <!-- 電車B 先頭インジケーターピン -->
+                <div id="train-b-pin-head-box" class="absolute -top-5 flex flex-col items-center pointer-events-none" style="left: 0;">
+                  <span class="text-[9px] text-amber-200 font-bold leading-none mb-0.5">先頭</span>
+                  <div class="w-2.5 h-2.5 bg-amber-400 rounded-full shadow-md ring-2 ring-amber-300"></div>
+                </div>
+                <!-- 電車B 後尾インジケーターピン -->
+                <div id="train-b-pin-tail-box" class="absolute -top-5 flex flex-col items-center pointer-events-none" style="right: 0;">
+                  <span class="text-[9px] text-rose-200 font-bold leading-none mb-0.5">後尾</span>
+                  <div class="w-2 h-2 bg-rose-400 rounded-full shadow"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 距離ガイド矢印バー（スマホ対応3分割） -->
+          <div class="w-full bg-slate-800/90 rounded-lg p-2 sm:p-2.5 grid grid-cols-3 gap-1 text-[10px] sm:text-xs font-mono text-slate-300 border border-slate-700 text-center">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
+              <span class="text-slate-400">先頭移動:</span>
+              <span class="text-white font-bold"><strong id="head-dist-display" class="text-white text-xs sm:text-sm">0</strong>m</span>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 border-x border-slate-700 px-1">
+              <span class="text-slate-400">総距離:</span>
+              <span class="text-yellow-300 font-bold"><strong id="req-dist-display" class="text-yellow-300 text-xs sm:text-sm font-bold">340</strong>m</span>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
+              <span class="text-slate-400">進捗:</span>
+              <span class="text-emerald-400 font-bold"><strong id="progress-pct" class="text-emerald-400 text-xs sm:text-sm font-bold">0%</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- コントロールパネル -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200">
+          
+          <!-- パラメータ調整スライダー (左2カラム) -->
+          <div class="lg:col-span-2 space-y-3.5">
+            <h3 class="font-bold text-slate-700 text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-sliders text-sky-600"></i> パラメータ調整
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <!-- 電車Aの長さ -->
+              <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center mb-1">
+                  <label class="text-xs text-slate-600">電車A の長さ</label>
+                  <span class="text-sm font-bold text-sky-700"><span id="val-trainA-len">120</span> m</span>
+                </div>
+                <input id="slider-trainA-len" type="range" min="40" max="240" step="10" value="120" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600">
+                <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                  <span>40m</span><span>240m</span>
+                </div>
+              </div>
+
+              <!-- 電車Aの速さ -->
+              <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center mb-1">
+                  <label class="text-xs text-slate-600">電車A の速さ</label>
+                  <span class="text-sm font-bold text-sky-700">
+                    秒速 <span id="val-trainA-speed">20</span> m/s 
+                    <span class="text-[11px] text-slate-400 font-normal">(<span id="val-trainA-kmh">72</span>km/h)</span>
+                  </span>
+                </div>
+                <input id="slider-trainA-speed" type="range" min="10" max="40" step="2" value="20" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600">
+                <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                  <span>10m/s (36km/h)</span><span>40m/s (144km/h)</span>
+                </div>
+              </div>
+
+              <!-- 対象物 (紫カラーテーマ) -->
+              <div id="box-target-len" class="bg-white p-3 rounded-xl border border-purple-200 shadow-sm">
+                <div class="flex justify-between items-center mb-1">
+                  <label id="lbl-target-len" class="text-xs font-bold text-purple-900">鉄橋の長さ</label>
+                  <span class="text-sm font-bold text-purple-700"><span id="val-target-len">220</span> m</span>
+                </div>
+                <input id="slider-target-len" type="range" min="60" max="360" step="20" value="220" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600">
+                <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                  <span>60m</span><span>360m</span>
+                </div>
+              </div>
+
+              <!-- 電車Bの速さ (すれ違い/追い越し時のみ) -->
+              <div id="box-trainB-speed" class="bg-white p-3 rounded-xl border border-red-200 shadow-sm hidden">
+                <div class="flex justify-between items-center mb-1">
+                  <label class="text-xs font-bold text-red-900">電車B の速さ</label>
+                  <span class="text-sm font-bold text-red-600">
+                    秒速 <span id="val-trainB-speed">15</span> m/s
+                    <span class="text-[11px] text-slate-400 font-normal">(<span id="val-trainB-kmh">54</span>km/h)</span>
+                  </span>
+                </div>
+                <input id="slider-trainB-speed" type="range" min="5" max="30" step="1" value="15" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600">
+                <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                  <span>5m/s</span><span>30m/s</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 計算結果＆再生ボタン (右1カラム) -->
+          <div class="flex flex-col justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <div>
+              <div class="text-xs font-bold text-slate-600 mb-1 flex items-center justify-between">
+                <span>計算プロセス</span>
+                <span class="text-[10px] text-sky-600 font-bold bg-sky-50 px-1.5 py-0.5 rounded border border-sky-100">距離 ÷ 速さ ＝ 時間</span>
+              </div>
+              <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-xs font-mono space-y-1.5">
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-500">進む距離:</span>
+                  <span class="font-bold text-slate-800" id="calc-dist-formula">220 + 120 = 340m</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-500">速さ:</span>
+                  <span class="font-bold text-slate-800" id="calc-speed-formula">20 m/s</span>
+                </div>
+                <div class="border-t border-slate-200 pt-1.5 space-y-1">
+                  <div class="flex justify-between items-center text-[11px] text-slate-600">
+                    <span class="text-slate-500">割り算の式:</span>
+                    <span class="font-bold text-purple-700 font-mono" id="calc-step-formula">340 ÷ 20</span>
+                  </div>
+                  <div class="flex justify-between items-baseline pt-0.5">
+                    <span class="font-bold text-slate-700 text-xs sm:text-sm">通過時間:</span>
+                    <span class="font-bold text-red-600 text-base sm:text-lg" id="calc-result-time">17.00 秒</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 追い越し時の注意アラート（速度不足時） -->
+              <div id="overtake-alert" class="hidden mt-2 p-2 rounded-lg bg-rose-50 border border-rose-200 text-[11px] text-rose-700 leading-tight flex items-start gap-1.5">
+                <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5 shrink-0"></i>
+                <span>追い越すには<strong>電車Aの速さ ＞ 電車B</strong>である必要があります</span>
+              </div>
+            </div>
+
+            <!-- アクションボタン群 -->
+            <div class="flex gap-2">
+              <button id="btn-play" onclick="togglePlay()" class="flex-1 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 text-sm">
+                <i class="fa-solid fa-play"></i> 再生
+              </button>
+              <button onclick="resetSim()" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-xl transition flex items-center justify-center text-sm">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. パターン整理 -->
+    <section id="pattern-summary" class="scroll-mt-20 sm:scroll-mt-24 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+      <div class="text-sky-700 font-bold text-xs mb-1">
+        パターン整理
+      </div>
+      <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-3">通過算の3大パターン</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+          <div>
+            <span class="font-bold text-slate-800 text-sm">① 鉄橋・トンネル</span>
+            <p class="text-slate-500 text-[11px]">動かない物（長さあり）</p>
+          </div>
+          <div class="text-left sm:text-right font-mono text-purple-700 font-bold bg-white sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none border sm:border-0 border-slate-200/70">
+            (<span class="text-purple-800">鉄橋長</span> ＋ 電車長) ÷ 電車速
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+          <div>
+            <span class="font-bold text-slate-800 text-sm">② 電柱・人</span>
+            <p class="text-slate-500 text-[11px]">動かない物（長さ0mとみなす）</p>
+          </div>
+          <div class="text-left sm:text-right font-mono text-emerald-700 font-bold bg-white sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none border sm:border-0 border-slate-200/70">
+            (電車長) ÷ 電車速
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+          <div>
+            <span class="font-bold text-slate-800 text-sm">③-A すれ違い</span>
+            <p class="text-slate-500 text-[11px]">反対向き</p>
+          </div>
+          <div class="text-left sm:text-right font-mono text-indigo-700 font-bold bg-white sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none border sm:border-0 border-slate-200/70">
+            (電車A ＋ 電車B) ÷ <span class="text-indigo-900 underline decoration-indigo-300">(速さA ＋ 速さB)</span>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+          <div>
+            <span class="font-bold text-slate-800 text-sm">③-B 追い越し</span>
+            <p class="text-slate-500 text-[11px]">同じ向き</p>
+          </div>
+          <div class="text-left sm:text-right font-mono text-red-600 font-bold bg-white sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none border sm:border-0 border-slate-200/70">
+            (電車A ＋ 電車B) ÷ <span class="text-red-700 underline decoration-red-300">(速さA － 速さB)</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl text-center shadow-sm">
+        <p class="text-sm sm:text-base font-bold text-slate-800">
+          💡 2本の電車の場合はどちらも<span class="marker-yellow text-base sm:text-lg inline-block my-0.5">「進む距離＝2つの電車の長さの和」</span>です！
+        </p>
+      </div>
+    </section>
+
+    <!-- 6. 実践練習 -->
+    <section id="quiz" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-5">
+        <div>
+          <span class="text-xs font-bold text-sky-700">実践練習</span>
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">通過算 チャレンジ問題</h2>
+        </div>
+        <div class="text-right">
+          <span class="text-xs text-slate-400">問題</span>
+          <p class="text-base font-bold text-slate-700"><span id="quiz-current-idx">1</span> / 3</p>
+        </div>
+      </div>
+
+      <div id="quiz-container" class="space-y-5">
+        <!-- 問題文エリア -->
+        <div class="p-4 rounded-xl bg-sky-50/50 border border-sky-100">
+          <span id="quiz-category" class="text-[11px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded">パターン1</span>
+          <p id="quiz-question" class="text-sm sm:text-base font-bold text-slate-800 mt-2 leading-relaxed">
+            <!-- JSで動的挿入 -->
+          </p>
+        </div>
+
+        <!-- 選択肢ボタン -->
+        <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- JSで動的挿入 -->
+        </div>
+
+        <!-- 解説表示 -->
+        <div id="quiz-feedback" class="hidden p-4 sm:p-5 rounded-xl border">
+          <div id="quiz-result-title" class="text-sm sm:text-base font-bold mb-2 flex items-center gap-2"></div>
+          <div id="quiz-explanation" class="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-1.5"></div>
+          <div class="mt-4 flex justify-end">
+            <button onclick="nextQuiz()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg transition text-xs sm:text-sm">
+              次の問題へ <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs mt-12 border-t border-slate-800">
+    <p>© 2026 SPI直感攻略ナビ</p>
+  </footer>
+
+  <script>
+    // --- 状態管理 ---
+    const state = {
+      mode: 'bridge',
+      trainALen: 120,
+      trainASpeed: 20, // m/s
+      targetLen: 220,
+      trainBSpeed: 15, // m/s
+      isPlaying: false,
+      currentTime: 0,
+      animFrame: null,
+      lastTimestamp: null
+    };
+
+    // モード定義
+    const modeConfigs = {
+      bridge: {
+        name: '鉄橋・トンネルの通過',
+        desc: '<strong>【公式】時間 ＝ (<span class="text-purple-700 font-bold">鉄橋長</span> ＋ <span class="text-red-600 font-bold">電車長</span>) ÷ 電車速</strong><br>電車が完全に渡り切るためには、電車の先頭は「鉄橋の長さ ＋ 自分の車体長」だけ進む必要があります。',
+        targetLabel: '鉄橋',
+        hasTargetLen: true,
+        showTrainB: false,
+        defaultTargetLen: 220
+      },
+      pole: {
+        name: '電柱・歩行者の通過',
+        desc: '<strong>【公式】時間 ＝ (<span class="text-red-600 font-bold">電車長</span>) ÷ 電車速</strong><br>電柱や立っている人は幅0m（点）とみなします。進む距離は「電車の長さそのもの」です。',
+        targetLabel: '電柱 (0m)',
+        hasTargetLen: false,
+        showTrainB: false,
+        defaultTargetLen: 4
+      },
+      passing: {
+        name: '2本の電車のすれ違い (反対方向)',
+        desc: '<strong>【公式】時間 ＝ (電車A長 ＋ 電車B長) ÷ <span class="text-sky-700 font-bold">(速さA ＋ 速さB)</span></strong><br>向かい合って進むため「速さの和」ですれ違います。進む総距離は「2両の長さの合計」です。',
+        targetLabel: 'すれ違い地点',
+        hasTargetLen: true,
+        lblTarget: '電車B の長さ',
+        showTrainB: true,
+        trainBDir: -1,
+        defaultTargetLen: 140
+      },
+      overtake: {
+        name: '2本の電車の追い越し (同方向)',
+        desc: '<strong>【公式】時間 ＝ (電車A長 ＋ 電車B長) ÷ <span class="text-red-600 font-bold">(速さA － 速さB)</span></strong><br>同じ向きに進むため「速さの差」で追い抜きます。進む総距離はすれ違いと同様に「2両の長さの合計」です。',
+        targetLabel: '追い越し区間',
+        hasTargetLen: true,
+        lblTarget: '電車B の長さ',
+        showTrainB: true,
+        trainBDir: 1,
+        defaultTargetLen: 140
+      }
+    };
+
+    // DOM要素取得
+    const elements = {
+      modeExplanation: document.getElementById('mode-explanation'),
+      trainA: document.getElementById('train-a'),
+      trainB: document.getElementById('train-b'),
+      railTrack2: document.getElementById('rail-track-2'),
+      targetObj: document.getElementById('target-object'),
+      targetVisual: document.getElementById('target-visual'),
+      targetLabel: document.getElementById('target-label'),
+      sliderTrainALen: document.getElementById('slider-trainA-len'),
+      sliderTrainASpeed: document.getElementById('slider-trainA-speed'),
+      sliderTargetLen: document.getElementById('slider-target-len'),
+      sliderTrainBSpeed: document.getElementById('slider-trainB-speed'),
+      boxTargetLen: document.getElementById('box-target-len'),
+      boxTrainBSpeed: document.getElementById('box-trainB-speed'),
+      lblTargetLen: document.getElementById('lbl-target-len'),
+      valTrainALen: document.getElementById('val-trainA-len'),
+      valTrainASpeed: document.getElementById('val-trainA-speed'),
+      valTrainAKmh: document.getElementById('val-trainA-kmh'),
+      valTargetLen: document.getElementById('val-target-len'),
+      valTrainBSpeed: document.getElementById('val-trainB-speed'),
+      valTrainBKmh: document.getElementById('val-trainB-kmh'),
+      timerDisplay: document.getElementById('timer-display'),
+      headDistDisplay: document.getElementById('head-dist-display'),
+      reqDistDisplay: document.getElementById('req-dist-display'),
+      progressPct: document.getElementById('progress-pct'),
+      statusBadge: document.getElementById('status-badge'),
+      calcDistFormula: document.getElementById('calc-dist-formula'),
+      calcSpeedFormula: document.getElementById('calc-speed-formula'),
+      calcStepFormula: document.getElementById('calc-step-formula'),
+      calcResultTime: document.getElementById('calc-result-time'),
+      overtakeAlert: document.getElementById('overtake-alert'),
+      btnPlay: document.getElementById('btn-play')
+    };
+
+    function init() {
+      setupEventListeners();
+      switchMode('bridge');
+      loadQuiz(0);
+    }
+
+    function setupEventListeners() {
+      elements.sliderTrainALen.addEventListener('input', (e) => {
+        state.trainALen = parseInt(e.target.value);
+        elements.valTrainALen.textContent = state.trainALen;
+        updateCalculations();
+        resetSim();
+      });
+
+      elements.sliderTrainASpeed.addEventListener('input', (e) => {
+        state.trainASpeed = parseInt(e.target.value);
+        elements.valTrainASpeed.textContent = state.trainASpeed;
+        elements.valTrainAKmh.textContent = Math.round(state.trainASpeed * 3.6);
+        updateCalculations();
+        resetSim();
+      });
+
+      elements.sliderTargetLen.addEventListener('input', (e) => {
+        state.targetLen = parseInt(e.target.value);
+        elements.valTargetLen.textContent = state.targetLen;
+        updateCalculations();
+        resetSim();
+      });
+
+      elements.sliderTrainBSpeed.addEventListener('input', (e) => {
+        state.trainBSpeed = parseInt(e.target.value);
+        elements.valTrainBSpeed.textContent = state.trainBSpeed;
+        elements.valTrainBKmh.textContent = Math.round(state.trainBSpeed * 3.6);
+        updateCalculations();
+        resetSim();
+      });
+    }
+
+    function switchMode(newMode) {
+      state.mode = newMode;
+      const config = modeConfigs[newMode];
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-white', 'text-sky-700', 'shadow-sm', 'border', 'border-sky-200');
+        btn.classList.add('text-slate-600');
+      });
+      const activeBtn = document.getElementById(`tab-${newMode}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-white', 'text-sky-700', 'shadow-sm', 'border', 'border-sky-200');
+        activeBtn.classList.remove('text-slate-600');
+      }
+
+      elements.modeExplanation.innerHTML = `
+        <div class="flex items-center gap-1.5 font-bold text-slate-800 mb-0.5">
+          <i class="fa-solid fa-circle-info text-sky-600"></i> ${config.name}
+        </div>
+        <div>${config.desc}</div>
+      `;
+
+      if (newMode === 'pole') {
+        elements.boxTargetLen.classList.add('opacity-40', 'pointer-events-none');
+        elements.lblTargetLen.textContent = '電柱・歩行者（長さ：0m）';
+        elements.valTargetLen.textContent = '0';
+        elements.targetVisual.className = 'w-1.5 h-full bg-purple-400 relative border-l-2 border-purple-200 shadow-sm';
+        const labelWrap = document.getElementById('target-label-wrapper');
+        if (labelWrap) labelWrap.classList.add('hidden');
+        document.querySelectorAll('.target-marker-line').forEach(el => el.classList.add('hidden'));
+      } else {
+        elements.boxTargetLen.classList.remove('opacity-40', 'pointer-events-none');
+        elements.lblTargetLen.textContent = config.lblTarget || '鉄橋の長さ';
+        elements.valTargetLen.textContent = state.targetLen;
+        elements.targetVisual.className = 'w-full h-full border-t-4 border-purple-500 bg-purple-900/40 rounded-t-lg relative flex items-center justify-center border-x-2 border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.25)]';
+        const labelWrap = document.getElementById('target-label-wrapper');
+        if (labelWrap) labelWrap.classList.remove('hidden');
+        document.querySelectorAll('.target-marker-line').forEach(el => el.classList.remove('hidden'));
+      }
+
+      if (config.showTrainB) {
+        elements.boxTrainBSpeed.classList.remove('hidden');
+        elements.railTrack2.classList.remove('hidden');
+        elements.trainB.classList.remove('hidden');
+        elements.targetObj.classList.add('opacity-0');
+      } else {
+        elements.boxTrainBSpeed.classList.add('hidden');
+        elements.railTrack2.classList.add('hidden');
+        elements.trainB.classList.add('hidden');
+        elements.targetObj.classList.remove('opacity-0');
+      }
+
+      updateCalculations();
+      resetSim();
+    }
+
+    function getCalculatedValues() {
+      let totalDist = 0;
+      let relSpeed = 0;
+      let formulaDist = '';
+      let formulaSpeed = '';
+      let isOvertakeInvalid = false;
+
+      const lenA = state.trainALen;
+      const targetL = (state.mode === 'pole') ? 0 : state.targetLen;
+
+      if (state.mode === 'bridge') {
+        totalDist = targetL + lenA;
+        relSpeed = state.trainASpeed;
+        formulaDist = `${targetL}m (鉄橋) + ${lenA}m (電車) = ${totalDist}m`;
+        formulaSpeed = `${relSpeed} m/s`;
+      } else if (state.mode === 'pole') {
+        totalDist = lenA;
+        relSpeed = state.trainASpeed;
+        formulaDist = `${lenA}m (電車自身のみ)`;
+        formulaSpeed = `${relSpeed} m/s`;
+      } else if (state.mode === 'passing') {
+        totalDist = lenA + targetL;
+        relSpeed = state.trainASpeed + state.trainBSpeed;
+        formulaDist = `${lenA}m + ${targetL}m = ${totalDist}m`;
+        formulaSpeed = `${state.trainASpeed} + ${state.trainBSpeed} = ${relSpeed} m/s (速さの和)`;
+      } else if (state.mode === 'overtake') {
+        totalDist = lenA + targetL;
+        const speedDiff = state.trainASpeed - state.trainBSpeed;
+        if (speedDiff <= 0) {
+          isOvertakeInvalid = true;
+          relSpeed = 0;
+          formulaDist = `${lenA}m + ${targetL}m = ${totalDist}m`;
+          formulaSpeed = `${state.trainASpeed} - ${state.trainBSpeed} ＝ 差なし (追いつけません)`;
+        } else {
+          relSpeed = speedDiff;
+          formulaDist = `${lenA}m + ${targetL}m = ${totalDist}m`;
+          formulaSpeed = `${state.trainASpeed} - ${state.trainBSpeed} = ${relSpeed} m/s (速さの差)`;
+        }
+      }
+
+      let totalTime = 0;
+      let formulaStep = '';
+      if (isOvertakeInvalid) {
+        totalTime = 0;
+        formulaStep = '追いつけません';
+      } else {
+        totalTime = totalDist / relSpeed;
+        formulaStep = `${totalDist}m ÷ ${relSpeed}m/s`;
+      }
+
+      return { totalDist, relSpeed, totalTime, formulaDist, formulaSpeed, formulaStep, isOvertakeInvalid };
+    }
+
+    function updateCalculations() {
+      const calc = getCalculatedValues();
+      elements.calcDistFormula.textContent = calc.formulaDist;
+      elements.calcSpeedFormula.textContent = calc.formulaSpeed;
+      if (elements.calcStepFormula) {
+        elements.calcStepFormula.textContent = calc.formulaStep;
+      }
+
+      if (calc.isOvertakeInvalid) {
+        elements.calcResultTime.textContent = '計算不可';
+        elements.calcResultTime.classList.remove('text-red-600');
+        elements.calcResultTime.classList.add('text-slate-400');
+        if (elements.overtakeAlert) elements.overtakeAlert.classList.remove('hidden');
+        if (elements.btnPlay) elements.btnPlay.disabled = true;
+      } else {
+        elements.calcResultTime.textContent = calc.totalTime.toFixed(2) + ' 秒';
+        elements.calcResultTime.classList.remove('text-slate-400');
+        elements.calcResultTime.classList.add('text-red-600');
+        if (elements.overtakeAlert) elements.overtakeAlert.classList.add('hidden');
+        if (elements.btnPlay) elements.btnPlay.disabled = false;
+      }
+      elements.reqDistDisplay.textContent = Math.round(calc.totalDist);
+    }
+
+    function resetSim() {
+      stopSim();
+      state.currentTime = 0;
+      updateVisuals(0);
+      elements.timerDisplay.innerHTML = `0.00 <span class="text-xs">秒</span>`;
+      elements.headDistDisplay.textContent = '0';
+      elements.progressPct.textContent = '0%';
+      elements.statusBadge.textContent = '待機中';
+      elements.statusBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-slate-700 text-slate-300';
+    }
+
+    function togglePlay() {
+      if (state.isPlaying) {
+        stopSim();
+      } else {
+        startSim();
+      }
+    }
+
+    function startSim() {
+      const calc = getCalculatedValues();
+      if (calc.isOvertakeInvalid) return;
+      if (state.currentTime >= calc.totalTime) {
+        state.currentTime = 0;
+      }
+      state.isPlaying = true;
+      state.lastTimestamp = null;
+      elements.btnPlay.innerHTML = '<i class="fa-solid fa-pause"></i> 一時停止';
+      elements.btnPlay.classList.replace('bg-sky-600', 'bg-amber-600');
+      elements.btnPlay.classList.replace('hover:bg-sky-700', 'hover:bg-amber-700');
+      elements.statusBadge.textContent = '通過中...';
+      elements.statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-sky-600 text-white animate-pulse';
+
+      state.animFrame = requestAnimationFrame(animStep);
+    }
+
+    function stopSim() {
+      state.isPlaying = false;
+      if (state.animFrame) {
+        cancelAnimationFrame(state.animFrame);
+      }
+      elements.btnPlay.innerHTML = '<i class="fa-solid fa-play"></i> 再生';
+      elements.btnPlay.classList.replace('bg-amber-600', 'bg-sky-600');
+      elements.btnPlay.classList.replace('hover:bg-amber-700', 'hover:bg-sky-700');
+    }
+
+    function animStep(timestamp) {
+      if (!state.lastTimestamp) state.lastTimestamp = timestamp;
+      const dt = (timestamp - state.lastTimestamp) / 1000;
+      state.lastTimestamp = timestamp;
+
+      const calc = getCalculatedValues();
+      state.currentTime += dt;
+
+      if (state.currentTime >= calc.totalTime) {
+        state.currentTime = calc.totalTime;
+        updateVisuals(state.currentTime);
+        stopSim();
+        elements.statusBadge.textContent = '通過完了！';
+        elements.statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-600 text-white';
+        return;
+      }
+
+      updateVisuals(state.currentTime);
+      state.animFrame = requestAnimationFrame(animStep);
+    }
+
+    function updateVisuals(time) {
+      const calc = getCalculatedValues();
+      const progress = Math.min(1, time / calc.totalTime);
+
+      const containerWidth = document.getElementById('stage-container').clientWidth;
+      const baseScale = Math.max(0.26, Math.min(0.85, (containerWidth - 30) / 800));
+
+      const lenA = state.trainALen * baseScale;
+      elements.trainA.style.width = `${lenA}px`;
+
+      elements.timerDisplay.innerHTML = `${time.toFixed(2)} <span class="text-xs">秒</span>`;
+      const movedDist = calc.relSpeed * time;
+      elements.headDistDisplay.textContent = Math.round(movedDist);
+      elements.progressPct.textContent = `${Math.round(progress * 100)}%`;
+
+      if (state.mode === 'bridge') {
+        const targetW = state.targetLen * baseScale;
+        let targetLeft = containerWidth * 0.35;
+        if (targetLeft + targetW + 10 > containerWidth) {
+          targetLeft = Math.max(lenA + 10, containerWidth - targetW - 15);
+        }
+        elements.targetObj.style.left = `${targetLeft}px`;
+        elements.targetObj.style.width = `${targetW}px`;
+        elements.targetLabel.textContent = `鉄橋 (${state.targetLen}m)`;
+
+        const startX = targetLeft - lenA;
+        const endX = targetLeft + targetW;
+        const currentX = startX + (endX - startX) * progress;
+        elements.trainA.style.left = `${currentX}px`;
+
+      } else if (state.mode === 'pole') {
+        const poleX = containerWidth * 0.45;
+        elements.targetObj.style.left = `${poleX}px`;
+        elements.targetObj.style.width = `4px`;
+        elements.targetLabel.textContent = '';
+
+        const startX = poleX - lenA;
+        const endX = poleX;
+        const currentX = startX + (endX - startX) * progress;
+        elements.trainA.style.left = `${currentX}px`;
+
+      } else if (state.mode === 'passing') {
+        const lenB = state.targetLen * baseScale;
+        elements.trainB.style.width = `${lenB}px`;
+        
+        const meetPoint = containerWidth * 0.5;
+        const startA = meetPoint - lenA;
+        const endA = startA + (lenA + lenB) * (state.trainASpeed / calc.relSpeed);
+        elements.trainA.style.left = `${startA + (endA - startA) * progress}px`;
+
+        const startB = meetPoint;
+        const endB = startB - (lenA + lenB) * (state.trainBSpeed / calc.relSpeed);
+        elements.trainB.style.left = `${startB + (endB - startB) * progress}px`;
+
+        const bHead = document.getElementById('train-b-head');
+        const bTail = document.getElementById('train-b-tail');
+        const pinHead = document.getElementById('train-b-pin-head-box');
+        const pinTail = document.getElementById('train-b-pin-tail-box');
+        if (bTail) bTail.innerHTML = '<span class="text-amber-200 font-bold">先頭 <i class="fa-solid fa-bolt text-yellow-300"></i></span>';
+        if (bHead) bHead.innerHTML = '<span class="opacity-90">後尾 <i class="fa-solid fa-arrow-right text-[8px]"></i></span>';
+        if (pinHead) { pinHead.style.left = '0'; pinHead.style.right = 'auto'; }
+        if (pinTail) { pinTail.style.right = '0'; pinTail.style.left = 'auto'; }
+
+      } else if (state.mode === 'overtake') {
+        const lenB = state.targetLen * baseScale;
+        elements.trainB.style.width = `${lenB}px`;
+
+        const startRef = containerWidth * 0.15;
+        const moveDistB = (state.trainBSpeed * time) * baseScale;
+        const moveDistA = (state.trainASpeed * time) * baseScale;
+
+        const bPos = startRef + lenA + moveDistB;
+        const aPos = startRef + moveDistA;
+
+        elements.trainA.style.left = `${aPos}px`;
+        elements.trainB.style.left = `${bPos}px`;
+
+        const bHead = document.getElementById('train-b-head');
+        const bTail = document.getElementById('train-b-tail');
+        const pinHead = document.getElementById('train-b-pin-head-box');
+        const pinTail = document.getElementById('train-b-pin-tail-box');
+        if (bTail) bTail.innerHTML = '<span class="opacity-90"><i class="fa-solid fa-arrow-left text-[8px]"></i> 後尾</span>';
+        if (bHead) bHead.innerHTML = '<span class="text-amber-200 font-bold">先頭 <i class="fa-solid fa-bolt text-yellow-300"></i></span>';
+        if (pinHead) { pinHead.style.right = '0'; pinHead.style.left = 'auto'; }
+        if (pinTail) { pinTail.style.left = '0'; pinTail.style.right = 'auto'; }
+      }
+    }
+
+    // --- 練習問題（クイズ）システム ---
+    const quizData = [
+      {
+        category: 'パターン1: 鉄橋の通過',
+        question: '長さ 160m の電車が、時速 72km で走っています。この電車が長さ 440m の鉄橋を渡り始めてから渡り終えるまでに何秒かかりますか？',
+        options: [
+          '20秒',
+          '30秒',
+          '36秒',
+          '40秒'
+        ],
+        correct: 1, // 30秒
+        explanation: `
+          <strong class="text-slate-800">【解法ステップ】</strong><br>
+          1. <strong>時速を秒速に換算</strong>: 72 ÷ 3.6 ＝ <span class="marker-red">秒速 20m</span><br>
+          2. <strong>進むべき総距離を計算</strong>: 鉄橋長 440m ＋ 電車長 160m ＝ <span class="marker-red">600m</span><br>
+          3. <strong>「きはじ」で時間を計算</strong>: 距離 ÷ 速さ ＝ 600m ÷ 20m/s ＝ <strong class="text-red-600 text-base">30秒</strong>
+        `
+      },
+      {
+        category: 'パターン2: 電柱の通過（長さ0m）',
+        question: '時速 90km で走っている長さ 200m の特急列車が、線路脇に立っている電柱の前を通過するのに何秒かかりますか？',
+        options: [
+          '5秒',
+          '8秒',
+          '10秒',
+          '12秒'
+        ],
+        correct: 1, // 8秒
+        explanation: `
+          <strong class="text-slate-800">【解法ステップ】</strong><br>
+          1. <strong>電柱の長さは 0m</strong> です。<br>
+          2. <strong>時速を秒速に換算</strong>: 90 ÷ 3.6 ＝ <span class="marker-red">秒速 25m</span><br>
+          3. <strong>進む距離</strong>: 電車の長さそのもの ＝ <span class="marker-red">200m</span><br>
+          4. <strong>「きはじ」で時間を計算</strong>: 200m ÷ 25m/s ＝ <strong class="text-red-600 text-base">8秒</strong>
+        `
+      },
+      {
+        category: 'パターン3: 電車のすれ違い（反対向き）',
+        question: '長さ 150m・秒速 18m で走る上り電車と、長さ 120m・秒速 12m で走る下り電車が向かい合ってすれ違います。先頭が出会ってから最後尾が離れるまでに何秒かかりますか？',
+        options: [
+          '7秒',
+          '9秒',
+          '11秒',
+          '15秒'
+        ],
+        correct: 1, // 9秒
+        explanation: `
+          <strong class="text-slate-800">【解法ステップ】</strong><br>
+          1. <strong>反対向きのすれ違い＝速さの和</strong>: 18 ＋ 12 ＝ <span class="marker-red">秒速 30m</span><br>
+          2. <strong>進む総距離＝2両の長さの和</strong>: 150m ＋ 120m ＝ <span class="marker-red">270m</span><br>
+          3. <strong>「きはじ」で時間を計算</strong>: 270m ÷ 30m/s ＝ <strong class="text-red-600 text-base">9秒</strong>
+        `
+      }
+    ];
+
+    let currentQuizIndex = 0;
+
+    function loadQuiz(index) {
+      currentQuizIndex = index;
+      const q = quizData[index];
+      document.getElementById('quiz-current-idx').textContent = index + 1;
+      document.getElementById('quiz-category').textContent = q.category;
+      document.getElementById('quiz-question').textContent = q.question;
+      
+      const optContainer = document.getElementById('quiz-options');
+      optContainer.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-opt-btn p-3 bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 rounded-xl font-medium text-slate-700 transition flex items-center justify-between text-left text-xs sm:text-sm';
+        btn.innerHTML = `<span>${String.fromCharCode(65 + idx)}. ${opt}</span> <i class="fa-regular fa-circle text-slate-300 text-xs"></i>`;
+        btn.onclick = () => checkAnswer(idx);
+        optContainer.appendChild(btn);
+      });
+
+      document.getElementById('quiz-feedback').classList.add('hidden');
+    }
+
+    function checkAnswer(chosenIdx) {
+      const q = quizData[currentQuizIndex];
+      const isCorrect = (chosenIdx === q.correct);
+      const feedback = document.getElementById('quiz-feedback');
+      const resultTitle = document.getElementById('quiz-result-title');
+      const explanation = document.getElementById('quiz-explanation');
+
+      const buttons = document.querySelectorAll('.quiz-opt-btn');
+      buttons.forEach((b, idx) => {
+        b.disabled = true;
+        b.classList.remove('hover:bg-blue-50', 'hover:border-blue-300');
+        if (idx === q.correct) {
+          b.className = 'p-3.5 bg-emerald-50 border-2 border-emerald-500 rounded-xl font-bold text-emerald-900 flex items-center justify-between';
+          b.innerHTML = `<span>${b.innerText}</span> <i class="fa-solid fa-circle-check text-emerald-600"></i>`;
+        } else if (idx === chosenIdx) {
+          b.className = 'p-3.5 bg-red-50 border-2 border-red-400 rounded-xl font-bold text-red-900 flex items-center justify-between';
+          b.innerHTML = `<span>${b.innerText}</span> <i class="fa-solid fa-circle-xmark text-red-500"></i>`;
+        }
+      });
+
+      if (isCorrect) {
+        feedback.className = 'p-5 rounded-xl border border-emerald-200 bg-emerald-50/50 block';
+        resultTitle.className = 'text-base font-black mb-2 flex items-center gap-2 text-emerald-800';
+        resultTitle.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i> 正解！素晴らしい！';
+      } else {
+        feedback.className = 'p-5 rounded-xl border border-red-200 bg-red-50/50 block';
+        resultTitle.className = 'text-base font-black mb-2 flex items-center gap-2 text-red-800';
+        resultTitle.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-600 text-lg"></i> 惜しい！解説を確認してみよう';
+      }
+
+      explanation.innerHTML = q.explanation;
+    }
+
+    function nextQuiz() {
+      const nextIdx = (currentQuizIndex + 1) % quizData.length;
+      loadQuiz(nextIdx);
+    }
+
+    window.addEventListener('resize', () => {
+      updateVisuals(state.currentTime);
+    });
+
+    window.onload = () => {
+      init();
+    };
+  </script>
+</body>
+</html>

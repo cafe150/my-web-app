@@ -1,0 +1,2066 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>年齢算の巻 〜直感図解で覚えるSPI〜</title>
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Mermaid.js (フローチャート描画用) -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+  </script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    /* 蛍光ペン風マーカー */
+    .marker-yellow {
+      background: #fef08a;
+      padding: 0 4px;
+      border-radius: 2px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+    .marker-red {
+      color: #dc2626;
+      font-weight: 800;
+    }
+    /* モバイル横スクロールバー非表示用 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* スムーズスクロール & 固定ヘッダー分の余白確保（見切れ防止） */
+    html {
+      scroll-behavior: smooth;
+    }
+    section[id] {
+      scroll-margin-top: 4.5rem;
+    }
+    @media (min-width: 640px) {
+      section[id] {
+        scroll-margin-top: 5.25rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- =========================================================
+       ヘッダー（スマホ対応・横スワイプナビ）
+       ========================================================= -->
+  <header class="bg-gradient-to-r from-blue-600 via-sky-600 to-blue-700 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-4">
+      
+      <!-- タイトルとポータルへのリンク -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <a href="index.html" class="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition flex items-center gap-1.5 shrink-0 border border-white/20" title="ポータルへ戻る">
+            <i class="fa-solid fa-house"></i>
+            <span class="hidden sm:inline">ポータルへ</span>
+          </a>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="bg-yellow-400 text-slate-900 font-black text-[10px] px-2 py-0.5 rounded">非言語</span>
+              <span class="text-yellow-200 text-xs">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                <span class="text-[10px] text-white/80 ml-0.5">頻出度: 超重要</span>
+              </span>
+            </div>
+            <h1 class="font-black text-base sm:text-lg tracking-tight text-white leading-tight">
+              年齢算の巻
+            </h1>
+          </div>
+        </div>
+
+        <!-- モバイル用ショートカット（クイズへ直行） -->
+        <a href="#quiz" class="sm:hidden text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 py-1.5 rounded-lg transition shadow shrink-0 flex items-center gap-1">
+          <i class="fa-solid fa-pen-to-square"></i> 実戦15問
+        </a>
+      </div>
+
+      <!-- ページ内ナビゲーション（モバイル横スワイプ対応） -->
+      <nav class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0 w-full sm:w-auto text-xs font-bold">
+        <a href="index.html" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/10 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center flex items-center gap-1">
+          <i class="fa-solid fa-house text-[10px] text-yellow-300"></i>
+          <span>単元一覧</span>
+        </a>
+        <a href="#formula" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center">
+          <span class="text-[9px] sm:text-[10px] text-yellow-300 block leading-tight font-extrabold">基本</span>3大原則
+        </a>
+        <a href="#matrix" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center">
+          <span class="text-[9px] sm:text-[10px] text-emerald-300 block leading-tight font-extrabold">直前チェック</span>解法マトリクス
+        </a>
+        <a href="#mistakes" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center">
+          <span class="text-[9px] sm:text-[10px] text-rose-300 block leading-tight font-extrabold">落とし穴</span>間違い6選
+        </a>
+        <a href="#unit-cheat-sheet" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition shadow-sm text-center">
+          <span class="text-[9px] sm:text-[10px] text-red-600 block leading-tight font-black">ズバリ！</span>暗算＆立式
+        </a>
+        <a href="#simulator" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center">
+          <span class="text-[9px] sm:text-[10px] text-sky-200 block leading-tight">動く観察</span>シミュ
+        </a>
+        <a href="#patterns" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center">
+          <span class="text-[9px] sm:text-[10px] text-slate-200 block leading-tight">診断付</span>全5型
+        </a>
+        <a href="#quiz" class="whitespace-nowrap shrink-0 px-2.5 py-1.5 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black transition hidden sm:flex items-center gap-1 text-xs shadow-sm">
+          <i class="fa-solid fa-pen-to-square text-red-600"></i> 実戦15問
+        </a>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- =========================================================
+       メインコンテンツ
+       ========================================================= -->
+  <main class="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-6 sm:space-y-8 flex-1 w-full">
+
+    <!-- 1. 基礎: 年齢算の3大原則 -->
+    <section id="formula" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-blue-100">
+      <div class="flex items-center gap-2 mb-3 border-b border-slate-100 pb-2.5">
+        <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-sky-500 text-white flex items-center justify-center font-bold text-xs shrink-0">基</span>
+        <h2 class="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+          すべての土台！<span class="marker-yellow">年齢算の「3大原則」</span>
+        </h2>
+      </div>
+
+      <!-- 最重要原則ボックス（3大原則） -->
+      <div class="bg-gradient-to-br from-sky-50 to-blue-50 border-2 border-sky-300 rounded-2xl p-4 sm:p-6 shadow-xs">
+        <div class="space-y-3">
+          <div class="inline-block text-xs font-black text-sky-800 bg-sky-200/80 px-2.5 py-1 rounded-full">
+            ★ SPI年齢算の絶対ルール（3大原則）
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+            
+            <!-- 原則1 -->
+            <div class="p-4 bg-white rounded-xl border border-sky-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <span class="font-bold text-red-600 block mb-1.5 flex items-center gap-1.5 text-sm sm:text-base">
+                  <i class="fa-solid fa-lock text-sm"></i> 原則①：年齢差は一生不変！
+                </span>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  何年経っても、何年さかのぼっても、2人の<strong class="text-slate-800">「差」は常に一定</strong>です。方程式なしで一撃暗算する最大の武器になります。
+                </p>
+              </div>
+              <div class="mt-3 p-2.5 bg-red-50 rounded-xl border border-red-200 text-center shadow-2xs">
+                <span class="text-[10px] text-red-700 font-bold block mb-1">【一撃暗算公式】</span>
+                <div class="inline-block whitespace-nowrap bg-white px-3 py-1 rounded-lg border border-red-200 text-red-600 font-black text-sm sm:text-base shadow-2xs">
+                  差 ÷ (倍数 − 1)
+                </div>
+                <div class="text-xs font-bold text-slate-700 mt-1">
+                  ＝ その時の子の年齢
+                </div>
+              </div>
+            </div>
+
+            <!-- 原則2 -->
+            <div class="p-4 bg-white rounded-xl border border-sky-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <span class="font-bold text-sky-700 block mb-1.5 flex items-center gap-1.5 text-sm sm:text-base">
+                  <i class="fa-solid fa-users text-sm"></i> 原則②：全員に「毎年＋1歳」！
+                </span>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  1年経つと、登場人物<strong class="text-slate-800">1人につき1歳</strong>増えます。合計年齢は<strong class="text-emerald-700">「人数 × 経過年数」</strong>だけ増減します！
+                </p>
+              </div>
+              <div class="mt-3 p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-center shadow-2xs">
+                <span class="text-[10px] text-emerald-700 font-bold block mb-1">【合計年齢の増減】</span>
+                <div class="inline-block whitespace-nowrap bg-white px-3 py-1 rounded-lg border border-emerald-200 text-emerald-800 font-black text-sm sm:text-base shadow-2xs">
+                  人数 × 経過年数
+                </div>
+                <div class="text-xs font-bold text-slate-700 mt-1">
+                  例：3人 × 4年 ＝ 合計＋12歳！
+                </div>
+              </div>
+            </div>
+
+            <!-- 原則3（新規追加） -->
+            <div class="p-4 bg-white rounded-xl border border-sky-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <span class="font-bold text-purple-700 block mb-1.5 flex items-center gap-1.5 text-sm sm:text-base">
+                  <i class="fa-solid fa-calculator text-sm"></i> 原則③：平均年齢も＋n歳！
+                </span>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  全員が同じ年数だけ年を取るため、グループの<strong class="text-slate-800">平均年齢もそのまま＋n歳</strong>されます。わざわざ合計を計算し直す必要はありません！
+                </p>
+              </div>
+              <div class="mt-3 p-2.5 bg-purple-50 rounded-xl border border-purple-200 text-center shadow-2xs">
+                <span class="text-[10px] text-purple-700 font-bold block mb-1">【平均年齢の増減】</span>
+                <div class="inline-block whitespace-nowrap bg-white px-3 py-1 rounded-lg border border-purple-200 text-purple-800 font-black text-sm sm:text-base shadow-2xs">
+                  現在の平均 ＋ 経過年数
+                </div>
+                <div class="text-xs font-bold text-slate-700 mt-1">
+                  例：平均32歳の4年後 ＝ 36歳！
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. パターン別・解法選択マトリクス（試験直前チェック用） -->
+    <section id="matrix" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-emerald-200">
+      <div class="flex items-center justify-between pb-2.5 border-b border-slate-100 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+            <i class="fa-solid fa-bolt"></i>
+          </span>
+          <h2 class="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+            一撃で解法が見える！<span class="marker-yellow">「パターン別・解法選択マトリクス」</span>
+          </h2>
+        </div>
+        <span class="text-[10px] bg-red-100 text-red-700 font-black px-2 py-0.5 rounded border border-red-200 hidden sm:inline">
+          <i class="fa-solid fa-clock-rotate-left mr-1"></i>試験直前チェック用
+        </span>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed">
+        問題文を見たら「何を求めるか」「どの公式を使うか」を瞬時に脳内で一致させるための最重要チェックシートです。
+        迷ったらこのマトリクスを思い出せば、複雑な方程式をこねくり回さず最速で解法を選択できます！
+      </p>
+
+      <!-- パターン別・解法選択マトリクス 表 -->
+      <div class="overflow-x-auto no-scrollbar border border-emerald-200 rounded-xl shadow-xs mb-4">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-950 font-bold border-b border-emerald-200">
+            <tr>
+              <th class="p-3 sm:px-4 whitespace-nowrap w-32 sm:w-44">求めるもの / 状況</th>
+              <th class="p-3 sm:px-4">計算式・考え方</th>
+              <th class="p-3 sm:px-4 whitespace-nowrap">備考・ポイント</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-700">
+            <!-- 1. 年齢差 -->
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="p-3 sm:px-4">
+                <span class="inline-block bg-sky-100 text-sky-800 text-[10px] font-black px-1.5 py-0.5 rounded mb-1">基本中の基本</span>
+                <div class="font-bold text-slate-900">年齢差</div>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="font-bold text-sky-800 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200 text-xs sm:text-sm inline-block">
+                  大きい方の年齢 − 小さい方の年齢
+                </span>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="text-sky-900 font-extrabold block">何年経っても絶対に一生不変！</span>
+                <span class="text-[11px] text-slate-500">すべての暗算速解の土台になる絶対法則</span>
+              </td>
+            </tr>
+
+            <!-- 2. 「○倍になる」時の子の年齢 -->
+            <tr class="hover:bg-slate-50/80 transition-colors bg-amber-50/20">
+              <td class="p-3 sm:px-4">
+                <span class="inline-block bg-amber-100 text-amber-800 text-[10px] font-black px-1.5 py-0.5 rounded mb-1">一撃暗算</span>
+                <div class="font-bold text-slate-900">「○倍になる」時の子の年齢</div>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="font-black text-purple-900 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-300 text-xs sm:text-sm inline-block shadow-2xs">
+                  年齢差 ÷ (倍数 − 1)
+                </span>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="text-red-600 font-black block">★ 3倍なら「差÷2」、4倍なら「差÷3」で一撃暗算！</span>
+                <span class="text-[11px] text-slate-500">（例：差28歳で5倍なら 28÷4＝7歳）</span>
+              </td>
+            </tr>
+
+            <!-- 3. その時の親の年齢 -->
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="p-3 sm:px-4">
+                <span class="inline-block bg-amber-100 text-amber-800 text-[10px] font-black px-1.5 py-0.5 rounded mb-1">一撃暗算</span>
+                <div class="font-bold text-slate-900">その時の親の年齢</div>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="font-bold text-purple-800 bg-purple-50/70 px-2.5 py-1 rounded-lg border border-purple-200 text-xs sm:text-sm inline-block">
+                  求めた子の年齢 × 倍数
+                </span>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="text-slate-800 font-bold block">求めた子の年齢をそのまま3倍・4倍するだけ</span>
+                <span class="text-[11px] text-slate-500">（例：子が7歳で5倍なら 7×5＝35歳）</span>
+              </td>
+            </tr>
+
+            <!-- 4. 複数人の合計年齢の変化 -->
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="p-3 sm:px-4">
+                <span class="inline-block bg-emerald-100 text-emerald-800 text-[10px] font-black px-1.5 py-0.5 rounded mb-1">複数人</span>
+                <div class="font-bold text-slate-900">複数人の合計年齢の変化</div>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="font-bold text-emerald-900 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-300 text-xs sm:text-sm inline-block">
+                  人数 × 経過年数
+                </span>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="text-emerald-800 font-bold block">3人なら1年で＋3歳、4年後なら＋12歳</span>
+                <span class="text-[11px] text-rose-600 font-bold">※1人分しか足さないミスが多発！人数掛け算を徹底</span>
+              </td>
+            </tr>
+
+            <!-- 5. 複数人の平均年齢の変化 -->
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="p-3 sm:px-4">
+                <span class="inline-block bg-emerald-100 text-emerald-800 text-[10px] font-black px-1.5 py-0.5 rounded mb-1">複数人</span>
+                <div class="font-bold text-slate-900">複数人の平均年齢の変化</div>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="font-bold text-emerald-900 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 text-xs sm:text-sm inline-block">
+                  現在の平均 ＋ 経過年数
+                </span>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="text-purple-700 font-bold block">全員が年を取るため、平均もそのまま経過年数分増える</span>
+                <span class="text-[11px] text-slate-500">合計を計算し直す必要なし（平均30歳の4年後＝34歳）</span>
+              </td>
+            </tr>
+
+            <!-- 6. 親 vs 子ども複数人の和 -->
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="p-3 sm:px-4">
+                <span class="inline-block bg-indigo-100 text-indigo-800 text-[10px] font-black px-1.5 py-0.5 rounded mb-1">追いつき</span>
+                <div class="font-bold text-slate-900">親 vs 子ども複数人の和</div>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="font-bold text-indigo-900 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-300 text-xs sm:text-sm inline-block">
+                  現在の差 ÷ 毎年の縮まるペース
+                </span>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="text-indigo-900 font-bold block">子2人(+2歳) vs 母(+1歳)なら毎年1歳ずつ縮まる</span>
+                <span class="text-[11px] text-slate-500">旅人算の「差 ÷ 速度差」と全く同じ考え方！</span>
+              </td>
+            </tr>
+
+            <!-- 7. 年齢の「比」が与えられた時 -->
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="p-3 sm:px-4">
+                <span class="inline-block bg-violet-100 text-violet-800 text-[10px] font-black px-1.5 py-0.5 rounded mb-1">比の利用</span>
+                <div class="font-bold text-slate-900">年齢の「比」が与えられた時</div>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="font-bold text-violet-900 bg-violet-50 px-2.5 py-1 rounded-lg border border-violet-200 text-xs sm:text-sm inline-block">
+                  比の差を、実際の年齢差とそろえる
+                </span>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="text-violet-900 font-bold block">比が 5 : 2 で差30歳なら、差③＝30歳 ➔ ①＝10歳</span>
+                <span class="text-[11px] text-slate-500">親＝①×5＝50歳、子＝①×2＝20歳と即座に暗算！</span>
+              </td>
+            </tr>
+
+            <!-- 8. 未生（過去に未誕生）判定 -->
+            <tr class="hover:bg-rose-50/50 transition-colors bg-rose-50/20">
+              <td class="p-3 sm:px-4">
+                <span class="inline-block bg-rose-100 text-rose-800 text-[10px] font-black px-1.5 py-0.5 rounded mb-1">最頻出トラップ</span>
+                <div class="font-bold text-rose-950">未生（過去に未誕生）判定</div>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="font-bold text-rose-900 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-300 text-xs sm:text-sm inline-block shadow-2xs">
+                  (人数 × 年数) とのズレに注目
+                </span>
+              </td>
+              <td class="p-3 sm:px-4">
+                <span class="text-rose-700 font-black block">ズレた年数＝末っ子が生まれたタイミング！</span>
+                <span class="text-[11px] text-rose-900 font-medium">※何が違うのか？↓下の特設直感解説をチェック！</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ★ 直感で脳に叩き込む！「未生問題は何が違うのか？なぜズレるのか？」特設解説 -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 border-2 border-rose-300 shadow-xs">
+        <div class="flex items-center gap-2 mb-2 pb-2 border-b border-rose-200/80">
+          <i class="fa-solid fa-lightbulb text-amber-500 text-base"></i>
+          <span class="font-black text-rose-950 text-xs sm:text-sm">
+            【直感で脳に叩き込む！】未生問題は何が違うのか？なぜズレるのか？
+          </span>
+        </div>
+
+        <p class="text-xs text-slate-700 mb-3 leading-relaxed">
+          「5年前の合計年齢を計算したら、人数×年数と合わない…」という問題。
+          普通の増減と<strong>何が違うのか</strong>、この仕組みさえ知っていれば一撃で見抜けます！
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-sm">
+          <!-- ① 通常パターン -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+            <div class="flex items-center gap-2 text-sky-900 font-bold text-sm sm:text-base border-b border-slate-100 pb-1.5">
+              <i class="fa-solid fa-circle-check text-sky-600 text-base"></i>
+              <span>① 通常（全員すでに生きている場合）</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+              過去にさかのぼると、全員が平等に年数を引かれます。
+            </p>
+            <div class="bg-sky-50/80 p-2.5 rounded-lg border border-sky-100 text-xs sm:text-sm text-sky-950 font-medium">
+              例：4人家族の5年前 ➔ <span class="font-bold text-sky-800 inline-block">4人 × 5年 ＝ 合計20歳若返る（−20歳）</span>
+            </div>
+          </div>
+
+          <!-- ② 未生パターン（何が違うのか） -->
+          <div class="bg-white p-4 rounded-xl border-2 border-rose-400 shadow-xs space-y-2">
+            <div class="flex items-center gap-2 text-rose-900 font-bold text-sm sm:text-base border-b border-rose-100 pb-1.5">
+              <i class="fa-solid fa-triangle-exclamation text-rose-600 text-base"></i>
+              <span>② 未生（過去にまだ生まれていない人がいる場合）</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-800 leading-relaxed">
+              人は<strong class="text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded font-black">0歳未満（マイナス年齢）にはなりません！</strong>
+              もし末っ子が現在2歳なら、5年前にさかのぼっても−2歳（0歳）までしか若返りません。
+            </p>
+            <div class="bg-rose-50 p-3 rounded-lg border border-rose-200 text-xs sm:text-sm text-rose-950 space-y-1.5">
+              <div class="font-medium">💡 本来20歳減るはずなのに、実際は17歳しか減らない。</div>
+              <div class="text-rose-700 font-black text-xs sm:text-sm bg-white p-2 rounded-md border border-rose-200 shadow-2xs">
+                ➔ 差の「3歳分」のズレ ＝ まだ生まれていなかった年数！
+              </div>
+              <div class="text-slate-600 text-[11px] sm:text-xs">
+                ➔ 5年前 − 3年 ＝ 2年前に誕生（末っ子は現在2歳）と逆算できます！
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 落とし穴: よくある間違いパターン6選 -->
+    <section id="mistakes" class="scroll-mt-20 sm:scroll-mt-24 bg-rose-50/60 border border-rose-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+      <div class="flex items-center justify-between pb-2 border-b border-rose-200/80 mb-4">
+        <div>
+          <span class="text-xs font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded border border-rose-200 flex items-center gap-1.5 w-fit">
+            <i class="fa-solid fa-triangle-exclamation text-rose-600"></i> 試験で落ちる人がハマる落とし穴
+          </span>
+          <h2 class="text-base sm:text-xl font-bold text-slate-900 mt-1">よくある間違いパターン6選</h2>
+        </div>
+        <span class="text-[11px] text-rose-600 font-bold hidden sm:inline">ケアレスミスをゼロにする特効薬</span>
+      </div>
+
+      <!-- 6大間違いパターンカード -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs mb-4">
+        
+        <!-- ミス1 -->
+        <div class="p-3.5 sm:p-4 bg-white rounded-xl border border-rose-200 shadow-xs space-y-2">
+          <span class="font-bold text-rose-900 block flex items-start gap-2 text-sm sm:text-base leading-snug">
+            <span class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">1</span>
+            <span>「何年前」なのに足してしまう（未来・過去の逆転）</span>
+          </span>
+          <p class="text-slate-700 text-xs sm:text-sm leading-relaxed">
+            「5年前」なら <strong class="text-emerald-700">現在の年齢 − 5</strong> です。無意識に足し算してしまい、親の年齢が100歳を超えて気づくケースが多発！
+          </p>
+          <div class="text-xs sm:text-sm text-rose-900 font-extrabold bg-rose-100/90 p-2 sm:p-2.5 rounded-lg border border-rose-300 flex items-start gap-2 shadow-2xs leading-snug">
+            <i class="fa-solid fa-bullseye text-rose-600 text-sm shrink-0 mt-0.5"></i>
+            <span>対策：問題文の「前（引く）」と「後（足す）」を最初に丸で囲む！</span>
+          </div>
+        </div>
+
+        <!-- ミス2 -->
+        <div class="p-3.5 sm:p-4 bg-white rounded-xl border border-rose-200 shadow-xs space-y-2">
+          <span class="font-bold text-rose-900 block flex items-start gap-2 text-sm sm:text-base leading-snug">
+            <span class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">2</span>
+            <span>片方の人物だけ年齢を変えてしまう</span>
+          </span>
+          <p class="text-slate-700 text-xs sm:text-sm leading-relaxed">
+            「10年後」なら登場人物全員が10歳増えます。父だけ ＋10 して、子は現在のまま方程式を立てるミスが後を絶ちません。
+          </p>
+          <div class="text-xs sm:text-sm text-rose-900 font-extrabold bg-rose-100/90 p-2 sm:p-2.5 rounded-lg border border-rose-300 flex items-start gap-2 shadow-2xs leading-snug">
+            <i class="fa-solid fa-bullseye text-rose-600 text-sm shrink-0 mt-0.5"></i>
+            <span>対策：全員に同じ年数を足す・引く（原則②を徹底）！</span>
+          </div>
+        </div>
+
+        <!-- ミス3 -->
+        <div class="p-3.5 sm:p-4 bg-white rounded-xl border border-rose-200 shadow-xs space-y-2">
+          <span class="font-bold text-rose-900 block flex items-start gap-2 text-sm sm:text-base leading-snug">
+            <span class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">3</span>
+            <span>「○倍」の時点を取り違える</span>
+          </span>
+          <p class="text-slate-700 text-xs sm:text-sm leading-relaxed">
+            「5年前、父は子の3倍だった」なら、比べるのは<strong class="text-slate-800">5年前の年齢同士</strong>です。片方を現在にして 38 ＝ 3(14 − 5) のように混同しないこと。
+          </p>
+          <div class="text-xs sm:text-sm text-rose-900 font-extrabold bg-rose-100/90 p-2 sm:p-2.5 rounded-lg border border-rose-300 flex items-start gap-2 shadow-2xs leading-snug">
+            <i class="fa-solid fa-bullseye text-rose-600 text-sm shrink-0 mt-0.5"></i>
+            <span>対策：必ず「同じ時点の年齢」同士をイコールで結ぶ！</span>
+          </div>
+        </div>
+
+        <!-- ミス4 -->
+        <div class="p-3.5 sm:p-4 bg-white rounded-xl border border-rose-200 shadow-xs space-y-2">
+          <span class="font-bold text-rose-900 block flex items-start gap-2 text-sm sm:text-base leading-snug">
+            <span class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">4</span>
+            <span>合計年齢に経過年数だけを足してしまう</span>
+          </span>
+          <p class="text-slate-700 text-xs sm:text-sm leading-relaxed">
+            4人家族の6年後の合計年齢は、＋6 ではなく <strong class="text-emerald-700">4人 × 6年 ＝ ＋24歳</strong> 増えます。人数の掛け算忘れは最も多い失点です。
+          </p>
+          <div class="text-xs sm:text-sm text-rose-900 font-extrabold bg-rose-100/90 p-2 sm:p-2.5 rounded-lg border border-rose-300 flex items-start gap-2 shadow-2xs leading-snug">
+            <i class="fa-solid fa-bullseye text-rose-600 text-sm shrink-0 mt-0.5"></i>
+            <span>対策：合計年齢の増減は「人数 × 年数」を呪文のように唱える！</span>
+          </div>
+        </div>
+
+        <!-- ミス5 -->
+        <div class="p-3.5 sm:p-4 bg-white rounded-xl border border-rose-200 shadow-xs space-y-2">
+          <span class="font-bold text-rose-900 block flex items-start gap-2 text-sm sm:text-base leading-snug">
+            <span class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">5</span>
+            <span>「何年後」と「そのとき何歳」を取り違える</span>
+          </span>
+          <p class="text-slate-700 text-xs sm:text-sm leading-relaxed">
+            方程式を解いて出た数字が「経過年数」なのか「その時の子の年齢」なのかを確認せず、選択肢の数字を飛びつきマークしてしまうミスです。
+          </p>
+          <div class="text-xs sm:text-sm text-rose-900 font-extrabold bg-rose-100/90 p-2 sm:p-2.5 rounded-lg border border-rose-300 flex items-start gap-2 shadow-2xs leading-snug">
+            <i class="fa-solid fa-bullseye text-rose-600 text-sm shrink-0 mt-0.5"></i>
+            <span>対策：答えを選ぶ直前に、問題文の末尾「何を問われているか」を再読！</span>
+          </div>
+        </div>
+
+        <!-- ミス6 -->
+        <div class="p-3.5 sm:p-4 bg-white rounded-xl border border-rose-200 shadow-xs space-y-2">
+          <span class="font-bold text-rose-900 block flex items-start gap-2 text-sm sm:text-base leading-snug">
+            <span class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">6</span>
+            <span>未生（生まれていない）トラップの見落とし</span>
+          </span>
+          <p class="text-slate-700 text-xs sm:text-sm leading-relaxed">
+            過去の合計年齢が「人数×年数」より少ない場合、一番下の子どもが生まれていません。「計算が合わない」とパニックにならずズレを疑いましょう。
+          </p>
+          <div class="text-xs sm:text-sm text-rose-900 font-extrabold bg-rose-100/90 p-2 sm:p-2.5 rounded-lg border border-rose-300 flex items-start gap-2 shadow-2xs leading-snug">
+            <i class="fa-solid fa-bullseye text-rose-600 text-sm shrink-0 mt-0.5"></i>
+            <span>対策：ズレた年数＝末っ子が生まれたタイミングと見抜く！</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. ズバリ！ 暗算4ステップのコツ & 方程式の使い分け -->
+    <section id="unit-cheat-sheet" class="scroll-mt-20 sm:scroll-mt-24 bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-6 shadow-sm relative overflow-hidden">
+      <div class="text-amber-800 font-bold text-xs mb-1 flex items-center gap-1.5">
+        <span class="bg-amber-500 text-white px-2 py-0.5 rounded text-[10px] font-black">基本の解き方</span>
+        <span>ズバリ！ 2人の年齢比較（暗算と方程式）</span>
+      </div>
+      <h3 class="text-base sm:text-xl font-bold text-slate-900 tracking-tight mb-2">
+        基本の解き方：<span class="text-red-600 font-black">「暗算4ステップ」</span>と<span class="text-blue-700 font-black">「確実な方程式」</span>
+      </h3>
+      
+      <p class="text-xs sm:text-sm text-slate-700 leading-relaxed mb-4">
+        2人の年齢算は「差 ÷ (倍数 − 1)」の4ステップで20秒暗算できます。
+        ただし、過去にさかのぼる問題や複雑な条件では<strong class="text-blue-800 font-bold">方程式を立てるのが最も確実でミスを防げます</strong>。この2つの型を押さえるのが最短ルートです！
+      </p>
+
+      <!-- 【パターン1】〇倍になるのは「何年後か」 -->
+      <div class="bg-white p-3.5 sm:p-5 rounded-xl border border-amber-200 shadow-sm space-y-3 mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-amber-100 gap-1.5">
+          <div class="flex items-center gap-2">
+            <span class="bg-amber-500 text-white px-2 py-0.5 rounded text-[10px] font-bold">パターン1</span>
+            <span class="font-bold text-slate-800 text-xs sm:text-sm">〇倍になるのは「何年後か」</span>
+          </div>
+          <span class="text-[11px] text-amber-800 font-bold">母32歳・娘4歳：「母が娘の5倍になるのは何年後か？」</span>
+        </div>
+
+        <!-- 4ステップ図解（母32歳・娘4歳、5倍は何年後？） -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 relative">
+            <span class="text-[10px] font-bold text-sky-700 block">STEP 1</span>
+            <span class="font-bold text-slate-800 block my-1">今の年齢差を出す</span>
+            <div class="font-mono font-bold text-sky-800 text-sm bg-white p-1.5 rounded border border-slate-200 text-center">
+              32 − 4 ＝ <span class="text-red-600 font-black">28歳差</span>
+            </div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 relative">
+            <span class="text-[10px] font-bold text-sky-700 block">STEP 2</span>
+            <span class="font-bold text-slate-800 block my-1">「〇倍」から 1 を引く</span>
+            <div class="font-mono font-bold text-purple-700 text-sm bg-white p-1.5 rounded border border-slate-200 text-center">
+              5 − 1 ＝ <span class="text-purple-800 font-black">4</span>
+            </div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 relative">
+            <span class="text-[10px] font-bold text-sky-700 block">STEP 3</span>
+            <span class="font-bold text-slate-800 block my-1">年齢差を引いた数で割る</span>
+            <div class="font-mono font-bold text-emerald-700 text-sm bg-white p-1.5 rounded border border-slate-200 text-center">
+              28 ÷ 4 ＝ <span class="text-emerald-800 font-black">7歳</span>
+            </div>
+            <p class="text-[9px] text-slate-400 mt-1">※その時の娘（年下）の年齢</p>
+          </div>
+          <div class="p-3 rounded-xl bg-amber-50 border-2 border-amber-300 relative shadow-xs">
+            <span class="text-[10px] font-bold text-amber-800 block">STEP 4 (ゴール)</span>
+            <span class="font-bold text-slate-800 block my-1">現在の年齢から引き算</span>
+            <div class="font-mono font-black text-red-600 text-base bg-white p-1.5 rounded border border-amber-200 text-center">
+              7 − 4 ＝ 3年後！
+            </div>
+          </div>
+        </div>
+
+        <!-- 方程式で解く場合（2項目分割で見やすく整理） -->
+        <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 text-xs space-y-2">
+          <div class="font-bold text-blue-900 flex items-center gap-1.5">
+            <i class="fa-solid fa-square-root-variable text-blue-600"></i>
+            <span>方程式で解く場合（迷ったらこれ！）</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="bg-white p-2.5 rounded-lg border border-blue-100 shadow-2xs">
+              <span class="font-bold text-blue-800 block mb-1 text-[11px] flex items-center gap-1">
+                <span class="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+                <span>立式の型（方程式）</span>
+              </span>
+              <div class="font-mono font-bold text-slate-800 text-xs">
+                32 ＋ x ＝ 5(4 ＋ x)
+              </div>
+              <p class="text-[10px] text-slate-500 mt-0.5">※x年後に母が娘の5倍</p>
+            </div>
+            <div class="bg-white p-2.5 rounded-lg border border-blue-100 shadow-2xs">
+              <span class="font-bold text-slate-700 block mb-1 text-[11px] flex items-center gap-1">
+                <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                <span>計算過程・答え</span>
+              </span>
+              <div class="font-mono text-slate-800 text-xs">
+                32 ＋ x ＝ 20 ＋ 5x ➔ 4x ＝ 12
+              </div>
+              <div class="font-bold text-red-600 text-xs mt-0.5">
+                ➔ x ＝ 3（3年後）
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 【パターン2】〇倍だったのは「何年前か」（注意点と方程式の確実性） -->
+      <div class="bg-white p-3.5 sm:p-5 rounded-xl border border-amber-200 shadow-sm space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-amber-100 gap-1.5">
+          <div class="flex items-center gap-2">
+            <span class="bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold">パターン2</span>
+            <span class="font-bold text-slate-800 text-xs sm:text-sm">〇倍だったのは「何年前か」</span>
+          </div>
+          <span class="text-[11px] text-slate-600 font-bold">母38歳・娘14歳：「母が娘の3倍だったのは何年前か？」</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <!-- 暗算で解く場合 -->
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+            <span class="font-bold text-slate-800 flex items-center gap-1 text-[11px]">
+              <i class="fa-solid fa-bolt text-amber-500"></i> 暗算の場合のステップ
+            </span>
+            <div class="bg-white p-2.5 rounded-lg border border-slate-200 font-mono text-xs space-y-1 shadow-2xs">
+              <div>1. 差：38 − 14 ＝ <strong class="text-slate-800">24歳差</strong></div>
+              <div>2. 3倍なので 3 − 1 ＝ <strong class="text-purple-700">2</strong></div>
+              <div>3. その時の娘：24 ÷ 2 ＝ <strong class="text-emerald-700">12歳</strong></div>
+              <div class="pt-0.5 border-t border-slate-100">4. 現在14歳 ➔ 14 − 12 ＝ <strong class="text-red-600 font-bold">2年前！</strong></div>
+            </div>
+          </div>
+
+          <!-- 方程式で解く場合 -->
+          <div class="p-3 rounded-lg bg-emerald-50/70 border border-emerald-200 space-y-1.5">
+            <span class="font-bold text-emerald-900 flex items-center gap-1 text-[11px]">
+              <i class="fa-solid fa-circle-check text-emerald-600"></i> 方程式なら符号ミスを防げる！
+            </span>
+            <div class="bg-white p-2.5 rounded-lg border border-emerald-200 font-mono text-xs space-y-1 shadow-2xs">
+              <div class="font-bold text-slate-800">
+                x年前：<strong class="text-emerald-950">38 − x ＝ 3(14 − x)</strong>
+              </div>
+              <div class="text-slate-700">
+                ➔ 38 − x ＝ 42 − 3x ➔ 2x ＝ 4
+              </div>
+              <div class="font-bold text-red-600 pt-0.5 border-t border-emerald-100">
+                ➔ x ＝ 2（2年前！）
+              </div>
+              <p class="text-slate-500 text-[10px] pt-0.5">※「何年前」はマイナスにするだけで機械的に解けます！</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. シミュレーション: 年齢タイムマシーン（多人数モード対応） -->
+    <section id="simulator" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2 mb-4">
+        <div>
+          <span class="text-xs font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 flex items-center gap-1.5 w-fit">
+            <i class="fa-solid fa-clock-rotate-left text-sky-600"></i> インタラクティブ観察
+          </span>
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900 mt-1">年齢タイムマシーン（シミュレーター）</h2>
+        </div>
+        
+        <!-- モード切り替えタブ -->
+        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+          <button id="sim-tab-2p" onclick="switchSimMode('2p')" class="px-3 py-1.5 rounded-lg bg-white shadow-xs text-sky-700 font-black transition">
+            基本2人モード
+          </button>
+          <button id="sim-tab-multi" onclick="switchSimMode('multi')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            多人数モード (母 vs 子2人)
+          </button>
+        </div>
+      </div>
+
+      <!-- シミュレーション描画ステージ（年齢バーグラフ） -->
+      <div id="sim-stage" class="relative w-full bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 p-4 sm:p-5 shadow-inner mb-4 flex flex-col justify-between min-h-[220px]">
+        
+        <!-- 背景装飾グリッド -->
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30"></div>
+
+        <!-- ステージ上部: タイムライン情報 -->
+        <div class="relative z-10 flex justify-between items-center text-xs text-slate-300 border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-hourglass-half text-yellow-400"></i>
+            <span id="sim-year-label" class="font-bold text-sm text-yellow-300">現在 (0年後)</span>
+          </div>
+          <div class="font-mono text-xs">
+            <span id="sim-diff-title">差</span>：<span id="sim-diff-display" class="font-bold text-amber-400">30</span> 歳差 
+            <span id="sim-diff-note" class="text-slate-400 text-[10px]">(常に不変)</span>
+          </div>
+        </div>
+
+        <!-- ステージ中央: 年齢バーグラフの表示 -->
+        <div class="relative z-10 space-y-4 my-auto py-2">
+          
+          <!-- 親（母）のバー -->
+          <div>
+            <div class="flex justify-between text-xs font-bold text-sky-200 mb-1">
+              <span id="label-parent-bar">親の年齢: <span id="bar-parent-age" class="text-white text-sm font-mono">40</span> 歳</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-lg h-7 p-1 overflow-hidden">
+              <div id="bar-parent-fill" class="h-full bg-gradient-to-r from-blue-500 to-sky-400 rounded transition-all duration-150 flex items-center justify-end pr-2 text-[11px] font-black text-white" style="width: 50%;">
+                40歳
+              </div>
+            </div>
+          </div>
+
+          <!-- 子（または子2人合計）のバー -->
+          <div>
+            <div class="flex justify-between text-xs font-bold text-emerald-200 mb-1">
+              <span id="label-child-bar">子の年齢: <span id="bar-child-age" class="text-white text-sm font-mono">10</span> 歳</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-lg h-7 p-1 overflow-hidden">
+              <div id="bar-child-fill" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded transition-all duration-150 flex items-center justify-end pr-2 text-[11px] font-black text-white" style="width: 12.5%;">
+                10歳
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ステージ下部: リアルタイム倍率 / 関係表示 -->
+        <div class="relative z-10 w-full pt-2 border-t border-slate-800 flex justify-between items-center text-xs">
+          <span id="sim-status-title" class="text-slate-400">親は子の何倍？</span>
+          <span class="font-mono text-sm sm:text-base font-black text-white">
+            <span id="sim-ratio-display" class="text-yellow-300 text-lg">4.00</span> <span id="sim-ratio-unit">倍</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- 操作スライダー & 計算結果パネル -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- 操作スライダーパネル -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3.5">
+          <div class="text-xs font-bold text-slate-700 border-b border-slate-200 pb-2 flex items-center justify-between">
+            <span><i class="fa-solid fa-sliders text-sky-600"></i> 年齢・タイム設定</span>
+            <button onclick="resetToDefault()" class="text-[11px] text-sky-700 hover:underline">初期値に戻す</button>
+          </div>
+
+          <!-- タイムラインスライダー（-10年〜+30年） -->
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-700 flex items-center gap-1">
+                <i class="fa-solid fa-forward-step text-yellow-500"></i> 時間の経過:
+              </span>
+              <span id="slider-year-val" class="font-mono font-black text-sky-700">0 年後</span>
+            </div>
+            <input type="range" id="slider-year" min="-10" max="30" value="0" step="1" class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600">
+            <div class="flex justify-between text-[10px] text-slate-400 mt-0.5">
+              <span>10年前</span>
+              <span>現在</span>
+              <span>30年後</span>
+            </div>
+          </div>
+
+          <!-- 2人モード用のスライダー -->
+          <div id="controls-2p" class="space-y-3">
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-slate-700">親の現在の年齢:</span>
+                <span class="font-mono text-blue-700 font-bold"><span id="val-parent-now">40</span> 歳</span>
+              </div>
+              <input type="range" id="slider-parent-now" min="20" max="60" value="40" step="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-slate-700">子の現在の年齢:</span>
+                <span class="font-mono text-emerald-700 font-bold"><span id="val-child-now">10</span> 歳</span>
+              </div>
+              <input type="range" id="slider-child-now" min="0" max="25" value="10" step="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+            </div>
+          </div>
+
+          <!-- 多人数モード用のスライダー -->
+          <div id="controls-multi" class="hidden space-y-3">
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-slate-700">母の現在の年齢:</span>
+                <span class="font-mono text-blue-700 font-bold"><span id="val-multi-mom">39</span> 歳</span>
+              </div>
+              <input type="range" id="slider-multi-mom" min="30" max="55" value="39" step="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-slate-700">長男:</span>
+                  <span class="font-mono text-emerald-700 font-bold"><span id="val-multi-c1">9</span> 歳</span>
+                </div>
+                <input type="range" id="slider-multi-c1" min="1" max="20" value="9" step="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+              </div>
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-slate-700">次男:</span>
+                  <span class="font-mono text-teal-700 font-bold"><span id="val-multi-c2">6</span> 歳</span>
+                </div>
+                <input type="range" id="slider-multi-c2" min="0" max="15" value="6" step="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600">
+              </div>
+            </div>
+            <p class="text-[10px] text-slate-500">※母は1年で+1歳、子2人は合計で1年で+2歳進みます</p>
+          </div>
+        </div>
+
+        <!-- 計算結果パネル & コントロールボタン -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-3">
+          <div class="space-y-2.5">
+            <div class="text-xs font-bold text-slate-700 border-b border-slate-200 pb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-calculator text-emerald-600"></i> 計算予測値 ＆ アラート
+            </div>
+            
+            <div id="sim-calc-box-2p" class="p-3 rounded-lg bg-white border border-slate-200/80 space-y-2 text-xs">
+              <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                <span class="text-slate-600">3倍になる年 (暗算):</span>
+                <span id="calc-3x-target" class="font-mono font-bold text-purple-700">5 年後 (子15歳)</span>
+              </div>
+              <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                <span class="text-slate-600">2倍になる年 (暗算):</span>
+                <span id="calc-2x-target" class="font-mono font-bold text-purple-700">20 年後 (子30歳)</span>
+              </div>
+              <div class="text-[11px] text-slate-500 font-mono pt-0.5">
+                式：差 <span id="formula-diff">30</span> ÷ (倍数−1) ＝ そのときの子の年齢
+              </div>
+            </div>
+
+            <div id="sim-calc-box-multi" class="hidden p-3 rounded-lg bg-white border border-slate-200/80 space-y-2 text-xs">
+              <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                <span class="text-slate-600">等しくなる年:</span>
+                <span id="calc-multi-target" class="font-mono font-bold text-emerald-700">24 年後</span>
+              </div>
+              <div class="text-[11px] text-slate-500 font-mono pt-0.5">
+                ペース：子2人(+2歳) − 母(+1歳) ＝ 毎年1歳ずつ差が縮まる！
+              </div>
+            </div>
+
+            <!-- 自動検知アラート -->
+            <div id="sim-event-box" class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-info text-amber-600"></i>
+              <span id="sim-event-text">スライダーを動かして年数を進めてみよう！</span>
+            </div>
+          </div>
+
+          <!-- 再生・停止・リセットボタン -->
+          <div class="flex gap-2 pt-2 border-t border-slate-200/80">
+            <button onclick="togglePlay()" id="btn-play" class="flex-1 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs sm:text-sm shadow-sm transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-play"></i> <span>時間を進める</span>
+            </button>
+            <button onclick="resetSimulation()" class="px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-rotate-left"></i> リセット
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 6. パターン整理: 解法診断フローチャート & 全5型完全攻略 -->
+    <section id="patterns" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+      <div class="text-sky-700 font-bold text-xs mb-1 flex items-center gap-1.5">
+        <i class="fa-solid fa-diagram-project text-sky-600"></i> 解法フローチャート ＆ 全5型まとめ
+      </div>
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">年齢算の解法診断フロー ＆ 全5型完全攻略</h2>
+      <p class="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed">
+        SPI非言語の年齢算は、問題文のキーワードを見るだけで「どの武器を使うべきか」が即座に分かります。
+        まずは以下の診断フローチャートで、目の前の問題に対する最短解法を見極めましょう！
+      </p>
+
+      <!-- 解法診断フローチャート（Mermaid図） -->
+      <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 mb-6 shadow-inner">
+        <div class="text-xs font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+          <i class="fa-solid fa-sitemap text-indigo-600"></i> 問題文から即判断！解法診断チャート
+        </div>
+        <div class="mermaid overflow-x-auto text-center flex justify-center">
+flowchart TD
+    Q1{"登場人物は何人？"}
+    Q1 -->|"2人だけ"| Q2{"「過去・未来」両方の比がある？"}
+    Q1 -->|"3人以上（家族・兄弟）"| Q3{"過去の合計年齢に違和感がある？<br>（人数×年数と合わない）"}
+    
+    Q2 -->|"いいえ（単純な倍率比較）"| A1["★ 暗算4ステップ！<br>差 ÷ (倍数-1) ＝ 子の年齢"]
+    Q2 -->|"はい（○年前はA倍、△年後はB倍）"| A2["★ 情報整理マトリクス（表）！<br>比の統一 or 一元一次方程式"]
+    
+    Q3 -->|"はい（合計の減りが足りない）"| A3["★ 未生トラップ判定！<br>ズレた年数 ＝ 末っ子の年齢"]
+    Q3 -->|"いいえ（全員生存・条件連立）"| A4["★ 増加ペース比較 or 基準をxと置く<br>子2人なら毎年＋2歳 / 3人なら＋3歳"]
+        </div>
+      </div>
+
+      <!-- 全5型の詳細カードリスト -->
+      <div class="space-y-4">
+        
+        <!-- パターン 1: 基本2人型 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2.5 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">1</span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">基本2人型（○倍になるのは何年後／前か）</h3>
+            </div>
+            <span class="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 w-fit">最頻出・基本形</span>
+          </div>
+          <p class="text-xs text-slate-600 mt-2 mb-2.5">
+            <strong class="text-slate-800">特徴：</strong>年齢差が常に一定であることを利用する最も基礎的な形式です。
+          </p>
+          <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs space-y-2">
+            <div class="text-slate-700 font-medium pb-1 border-b border-slate-100">
+              <strong class="text-slate-800">問題例：</strong>現在、母は32歳、娘は4歳である。母の年齢が娘の年齢の5倍になるのは何年後か。
+            </div>
+            <!-- 2個の項目（①立式 / ②計算と答え） -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="bg-blue-50/70 p-2.5 rounded-lg border border-blue-100">
+                <span class="font-bold text-blue-900 block mb-0.5 text-[11px] flex items-center gap-1">
+                  <span class="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+                  <span>立式の型（方程式）</span>
+                </span>
+                <div class="font-mono font-bold text-slate-800 text-xs">
+                  32 ＋ x ＝ 5(4 ＋ x)
+                </div>
+                <p class="text-[10px] text-slate-500 mt-0.5">※x年後に母が娘の5倍</p>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <span class="font-bold text-slate-700 block mb-0.5 text-[11px] flex items-center gap-1">
+                  <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                  <span>計算過程・答え</span>
+                </span>
+                <div class="font-mono text-slate-800 text-xs">
+                  32 ＋ x ＝ 20 ＋ 5x ➔ 4x ＝ 12
+                </div>
+                <div class="font-bold text-red-600 text-xs mt-0.5">
+                  ➔ x ＝ 3（3年後）
+                </div>
+              </div>
+            </div>
+            <div class="text-purple-700 font-bold text-[11px] bg-purple-50 p-2 rounded border border-purple-100">
+              ⚡ 速解テクニック（比の差で暗算）：差28歳 ÷ (5 − 1) ＝ 7歳（娘の年齢） ➔ 7 − 4 ＝ <strong class="text-red-600 font-black">3年後</strong>！
+            </div>
+          </div>
+        </div>
+
+        <!-- パターン 2: 多人数型 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2.5 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0">2</span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">多人数型（親 vs 子ども複数人の和）</h3>
+            </div>
+            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 w-fit">頻出・ペース比較</span>
+          </div>
+          <p class="text-xs text-slate-600 mt-2 mb-2.5">
+            <strong class="text-slate-800">特徴：</strong>親1〜2人と、子ども複数人の「合計」を比較する形式。1年ごとの増加スピードが人数によって異なる点がポイントです。
+          </p>
+          <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs space-y-2">
+            <div class="text-slate-700 font-medium pb-1 border-b border-slate-100">
+              <strong class="text-slate-800">問題例：</strong>現在、母は39歳、長男は9歳、次男は6歳である。母の年齢が子ども2人の年齢の合計と等しくなるのは何年後か。
+            </div>
+            <!-- 2個の項目（①立式 / ②計算と答え） -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="bg-emerald-50/70 p-2.5 rounded-lg border border-emerald-100">
+                <span class="font-bold text-emerald-900 block mb-0.5 text-[11px] flex items-center gap-1">
+                  <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+                  <span>立式の型（方程式）</span>
+                </span>
+                <div class="font-mono font-bold text-slate-800 text-xs">
+                  39 ＋ x ＝ (9 ＋ x) ＋ (6 ＋ x)
+                </div>
+                <p class="text-[10px] text-slate-500 mt-0.5">※母＝子ども2人の合計</p>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <span class="font-bold text-slate-700 block mb-0.5 text-[11px] flex items-center gap-1">
+                  <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                  <span>計算過程・答え</span>
+                </span>
+                <div class="font-mono text-slate-800 text-xs">
+                  39 ＋ x ＝ 15 ＋ 2x
+                </div>
+                <div class="font-bold text-red-600 text-xs mt-0.5">
+                  ➔ x ＝ 24（24年後）
+                </div>
+              </div>
+            </div>
+            <div class="text-emerald-800 font-bold text-[11px] bg-emerald-50 p-2 rounded border border-emerald-100">
+              ⚡ 速解テクニック：子2人の合計は1年で ＋2歳、母は ＋1歳進むため、差は毎年 1歳ずつ縮まる。現在の差：39 − (9 ＋ 6) ＝ 24歳 ➔ 24 ÷ 1 ＝ <strong class="text-red-600 font-black">24年後</strong>！
+            </div>
+          </div>
+        </div>
+
+        <!-- パターン 3: 過去と未来の比の組み合わせ型 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2.5 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-600 text-white font-bold text-xs flex items-center justify-center shrink-0">3</span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">過去と未来の比の組み合わせ型</h3>
+            </div>
+            <span class="text-[11px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 w-fit">マトリクス表で整理</span>
+          </div>
+          <p class="text-xs text-slate-600 mt-2 mb-2.5">
+            <strong class="text-slate-800">特徴：</strong>「○年前はA倍、△年後はB倍」という2つの時点の情報から現在の年齢を特定する形式です。
+          </p>
+          <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs space-y-2">
+            <div class="text-slate-700 font-medium pb-1 border-b border-slate-100">
+              <strong class="text-slate-800">問題例：</strong>4年前、父の年齢は子の年齢の4倍であった。今から6年後には父の年齢は子の年齢の2倍になる。現在の父の年齢を求めよ。
+            </div>
+            <!-- 2個の項目（①立式 / ②計算と答え） -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="bg-sky-50/70 p-2.5 rounded-lg border border-sky-100">
+                <span class="font-bold text-sky-900 block mb-0.5 text-[11px] flex items-center gap-1">
+                  <span class="w-4 h-4 rounded-full bg-sky-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+                  <span>立式の型（4年前の子を x と置く）</span>
+                </span>
+                <div class="font-mono font-bold text-slate-800 text-xs">
+                  4x ＋ 10 ＝ 2(x ＋ 10)
+                </div>
+                <p class="text-[10px] text-slate-500 mt-0.5">※4年前から6年後は「10年後」</p>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <span class="font-bold text-slate-700 block mb-0.5 text-[11px] flex items-center gap-1">
+                  <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                  <span>計算過程・答え</span>
+                </span>
+                <div class="font-mono text-slate-800 text-xs">
+                  4x ＋ 10 ＝ 2x ＋ 20 ➔ 2x ＝ 10 ➔ x ＝ 5
+                </div>
+                <div class="font-bold text-red-600 text-xs mt-0.5">
+                  ➔ 4年前の父20歳 ➔ 現在 20 ＋ 4 ＝ 24歳！
+                </div>
+              </div>
+            </div>
+            <div class="text-sky-800 font-bold text-[11px] bg-sky-50 p-2 rounded border border-sky-100">
+              ⚡ 別解（比の差の統一）：4年前（4:1、差3）と 6年後（2:1 ➔ 6:3、差3）。比の増加②が10年間に相当 ➔ 比の①＝5歳 ➔ 4年前父20歳 ➔ 現在 <strong class="text-red-600 font-black">24歳</strong>！
+            </div>
+          </div>
+        </div>
+
+        <!-- パターン 4: 条件連立・平均型 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2.5 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-amber-600 text-white font-bold text-xs flex items-center justify-center shrink-0">4</span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">条件連立・平均型（差・倍数・等差条件の複合）</h3>
+            </div>
+            <span class="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 w-fit">1文字へ統一</span>
+          </div>
+          <p class="text-xs text-slate-600 mt-2 mb-2.5">
+            <strong class="text-slate-800">特徴：</strong>「母は父より○歳若い」「長男は次男より○歳年上」など、複数の相対的な関係式から特定の一人を求める形式です。
+          </p>
+          <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs space-y-2">
+            <div class="text-slate-700 font-medium pb-1 border-b border-slate-100">
+              <strong class="text-slate-800">問題例：</strong>父、母、子の3人家族。父は母より3歳年上、母の年齢は子の年齢の3倍。3人の現在の年齢の合計が73歳のとき、現在の母の年齢を求めよ。
+            </div>
+            <!-- 2個の項目（①立式 / ②計算と答え） -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="bg-amber-50/70 p-2.5 rounded-lg border border-amber-100">
+                <span class="font-bold text-amber-900 block mb-0.5 text-[11px] flex items-center gap-1">
+                  <span class="w-4 h-4 rounded-full bg-amber-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+                  <span>立式の型（子を x と置く）</span>
+                </span>
+                <div class="font-mono font-bold text-slate-800 text-xs">
+                  x ＋ 3x ＋ (3x ＋ 3) ＝ 73
+                </div>
+                <p class="text-[10px] text-slate-500 mt-0.5">※子＝x、母＝3x、父＝3x＋3</p>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <span class="font-bold text-slate-700 block mb-0.5 text-[11px] flex items-center gap-1">
+                  <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                  <span>計算過程・答え</span>
+                </span>
+                <div class="font-mono text-slate-800 text-xs">
+                  7x ＋ 3 ＝ 73 ➔ 7x ＝ 70 ➔ x ＝ 10（子）
+                </div>
+                <div class="font-bold text-red-600 text-xs mt-0.5">
+                  ➔ 母は 3 × 10 ＝ 30歳！
+                </div>
+              </div>
+            </div>
+            <div class="text-amber-800 font-bold text-[11px] bg-amber-50 p-2 rounded border border-amber-100">
+              ⚡ 解法の急所：最も関係の多い人物（または最も若い子）を 1つの文字 x で置くと、全員が一本の式でまとまります！
+            </div>
+          </div>
+        </div>
+
+        <!-- パターン 5: 未生（生まれていない）トラップ型 -->
+        <div class="p-4 rounded-xl bg-rose-50/50 border border-rose-200 shadow-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2.5 border-b border-rose-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-rose-600 text-white font-bold text-xs flex items-center justify-center shrink-0">5</span>
+              <h3 class="font-bold text-rose-950 text-sm sm:text-base">未生（生まれていない）トラップ型</h3>
+            </div>
+            <span class="text-[11px] font-bold text-rose-700 bg-rose-100/70 px-2 py-0.5 rounded border border-rose-200 w-fit">SPI最難関・頻出</span>
+          </div>
+          <p class="text-xs text-rose-900/90 mt-2 mb-2.5">
+            <strong class="text-rose-950">特徴：</strong>「○年前の全員の合計」が単純な人数掛け算の減算値と一致せず、一番下の子どもが過去の時点ではまだ生まれていなかったことを見抜く形式です。
+          </p>
+          <div class="bg-white p-3 rounded-lg border border-rose-200 text-xs space-y-2">
+            <div class="text-slate-700 font-medium pb-1 border-b border-rose-100">
+              <strong class="text-slate-800">問題例：</strong>現在、家族4人（父、母、姉、妹）の年齢の合計は78歳である。今から4年前、家族全員の年齢の合計は63歳であった。現在の妹の年齢を求めよ。
+            </div>
+            <!-- 2個の項目（①判定式 / ②ズレと答え） -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="bg-rose-50/70 p-2.5 rounded-lg border border-rose-100">
+                <span class="font-bold text-rose-900 block mb-0.5 text-[11px] flex items-center gap-1">
+                  <span class="w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+                  <span>ズレの判定式</span>
+                </span>
+                <div class="font-mono font-bold text-slate-800 text-xs">
+                  (4人 × 4年 ＝ 16歳減) − (実際 15歳減)
+                </div>
+                <p class="text-[10px] text-slate-500 mt-0.5">※実際の減少量：78 − 63 ＝ 15歳</p>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <span class="font-bold text-slate-700 block mb-0.5 text-[11px] flex items-center gap-1">
+                  <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                  <span>誕生年と答え</span>
+                </span>
+                <div class="font-mono text-slate-800 text-xs">
+                  16 − 15 ＝ 1歳のズレ（4年前の1年後に誕生）
+                </div>
+                <div class="font-bold text-red-600 text-xs mt-0.5">
+                  ➔ 妹は今から3年前に誕生 ＝ 現在 3歳！
+                </div>
+              </div>
+            </div>
+            <div class="text-rose-800 font-bold text-[11px] bg-rose-50 p-2 rounded border border-rose-200">
+              ⚡ 解法手順：ズレた年数＝「過去の時点で何年後に生まれたか」が直接分かります！
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- パターン別・解法選択マトリクス表 -->
+      <div class="mt-6 border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+        <div class="bg-slate-100 px-4 py-2.5 border-b border-slate-200 font-bold text-slate-800 text-xs sm:text-sm flex items-center gap-2">
+          <i class="fa-solid fa-table-list text-sky-600"></i>
+          <span>パターン別・解法選択マトリクス（試験直前チェック用）</span>
+        </div>
+        <div class="overflow-x-auto no-scrollbar">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+              <tr>
+                <th class="p-3 whitespace-nowrap">パターン</th>
+                <th class="p-3 whitespace-nowrap">主な解法</th>
+                <th class="p-3">ケアレスミス防止の急所</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 text-slate-700">
+              <tr class="hover:bg-slate-50/80">
+                <td class="p-3 font-bold text-slate-900 whitespace-nowrap">① 基本2人型</td>
+                <td class="p-3 font-mono font-bold text-purple-700 whitespace-nowrap">比の差 / 一元一次方程式</td>
+                <td class="p-3 text-[11px] text-slate-600">「何年後」のカッコ忘れに注意。過去の問題（何年前か）は方程式が最も確実！</td>
+              </tr>
+              <tr class="hover:bg-slate-50/80">
+                <td class="p-3 font-bold text-slate-900 whitespace-nowrap">② 多人数型</td>
+                <td class="p-3 font-mono font-bold text-emerald-700 whitespace-nowrap">年齢増加スピード比較 / 方程式</td>
+                <td class="p-3 text-[11px] text-slate-600">「1人につき1歳」増える点（子3人なら毎年＋3歳）。和の比較は方程式で一撃！</td>
+              </tr>
+              <tr class="hover:bg-slate-50/80">
+                <td class="p-3 font-bold text-slate-900 whitespace-nowrap">③ 過去・未来比型</td>
+                <td class="p-3 font-mono font-bold text-sky-700 whitespace-nowrap">マトリクス表 / 比の統一</td>
+                <td class="p-3 text-[11px] text-slate-600">経過年数は過去＋未来を合算（4年前＋6年後＝計10年間）</td>
+              </tr>
+              <tr class="hover:bg-slate-50/80">
+                <td class="p-3 font-bold text-slate-900 whitespace-nowrap">④ 条件連立・平均型</td>
+                <td class="p-3 font-mono font-bold text-amber-700 whitespace-nowrap">文字1つへの統一 / 平均の鉄則</td>
+                <td class="p-3 text-[11px] text-slate-600">平均年齢も経過年数分だけ増える性質を利用して無駄な計算を省く</td>
+              </tr>
+              <tr class="hover:bg-slate-50/80">
+                <td class="p-3 font-bold text-slate-900 whitespace-nowrap">⑤ 未生トラップ型</td>
+                <td class="p-3 font-mono font-bold text-rose-700 whitespace-nowrap">単純減算とのズレ比較</td>
+                <td class="p-3 text-[11px] text-slate-600">末っ子の年齢特定後に親の和差算へ進む</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. 実戦練習: チャレンジ厳選15問（難易度別フィルター付き） -->
+    <section id="quiz" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+      
+      <!-- クイズヘッダー -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 mb-4 gap-2">
+        <div>
+          <span class="text-xs font-bold text-yellow-800 bg-yellow-100 px-2 py-0.5 rounded border border-yellow-200 flex items-center gap-1.5 w-fit">
+            <i class="fa-solid fa-fire text-red-500"></i> SPI本番完全攻略
+          </span>
+          <h2 class="text-base sm:text-xl font-bold text-slate-900 mt-0.5">年齢算 実戦チャレンジ厳選15問</h2>
+        </div>
+        
+        <!-- 難易度切り替えタブ -->
+        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold self-start sm:self-auto overflow-x-auto no-scrollbar">
+          <button id="filter-all" onclick="filterQuiz('all')" class="px-2.5 py-1 rounded-lg bg-white shadow-xs text-sky-700 font-black transition">
+            すべて (15)
+          </button>
+          <button id="filter-easy" onclick="filterQuiz('easy')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            初級 ★☆☆ (5)
+          </button>
+          <button id="filter-mid" onclick="filterQuiz('mid')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            中級 ★★☆ (5)
+          </button>
+          <button id="filter-hard" onclick="filterQuiz('hard')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            上級 ★★★ (5)
+          </button>
+        </div>
+      </div>
+
+      <!-- 問題選択ミニナビゲーション（問題番号ボタン） -->
+      <div class="mb-4 pb-2 border-b border-slate-100">
+        <div class="text-[11px] text-slate-500 font-bold mb-1.5 flex items-center justify-between">
+          <span>問題一覧（クリックでジャンプ）：</span>
+          <span id="quiz-progress-text" class="text-sky-700 font-mono">1 / 15問</span>
+        </div>
+        <div id="quiz-num-bar" class="flex flex-wrap gap-1.5">
+          <!-- JSで動的にボタン生成 -->
+        </div>
+      </div>
+
+      <!-- クイズ表示エリア -->
+      <div id="quiz-container" class="space-y-4">
+        
+        <!-- 問題文エリア -->
+        <div class="p-4 rounded-xl bg-sky-50/50 border border-sky-100 space-y-2">
+          <div class="flex items-center justify-between">
+            <span id="quiz-category" class="text-[11px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded">初級 ★☆☆</span>
+            <span id="quiz-diff-stars" class="text-xs text-amber-500"><i class="fa-solid fa-star"></i></span>
+          </div>
+          <p id="quiz-question" class="text-xs sm:text-base font-bold text-slate-800 leading-relaxed">
+            <!-- JSで動的に問題文が挿入されます -->
+          </p>
+        </div>
+
+        <!-- 選択肢ボタン（JSで動的生成） -->
+        <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- JSで動的にボタンが挿入されます -->
+        </div>
+
+        <!-- 解答・解説エリア（回答後に表示） -->
+        <div id="quiz-feedback" class="hidden p-4 sm:p-5 rounded-xl border transition-all space-y-3">
+          <div id="quiz-result-title" class="text-sm sm:text-base font-bold flex items-center gap-2"></div>
+          
+          <!-- 充実の解説エリア -->
+          <div id="quiz-explanation" class="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-2.5 border-t border-slate-200/60 pt-3">
+            <!-- JSで挿入 -->
+          </div>
+
+          <div class="mt-4 flex items-center justify-between pt-2 border-t border-slate-200/60">
+            <button onclick="prevQuiz()" id="btn-prev-quiz" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-xs sm:text-sm flex items-center gap-1 shadow-xs">
+              <i class="fa-solid fa-arrow-left text-xs"></i> <span>前の問題</span>
+            </button>
+            <button onclick="nextQuiz()" id="btn-next-quiz" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg transition text-xs sm:text-sm flex items-center gap-1.5 shadow-sm">
+              <span>次の問題へ</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================
+       フッター（全単元共通）
+       ========================================================= -->
+  <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs mt-12 border-t border-slate-800">
+    <div class="max-w-5xl mx-auto px-4 space-y-2">
+      <div class="flex items-center justify-center gap-2 text-white font-bold">
+        <a href="index.html" class="hover:text-yellow-300 transition">SPI直感攻略ナビ ポータル</a>
+      </div>
+      <p class="text-slate-500 text-[11px]">© 2026 SPI直感攻略ナビ</p>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       JavaScript ロジック
+       ========================================================= -->
+  <script>
+    /* ---------------------------------------------------------
+     * クイズデータ（初級5問・中級5問・上級5問 ＝ 厳選15問）
+     * --------------------------------------------------------- */
+    const QUIZ_DATA = [
+      // === 初級 ★☆☆ (Q1〜Q5) ===
+      {
+        id: 1,
+        difficulty: "easy",
+        diffLabel: "初級 ★☆☆",
+        category: "パターン1: 基本2人型（何年後）",
+        question: "現在、父は42歳、子は10歳である。父の年齢が子の年齢のちょうど3倍になるのは何年後か？",
+        options: ["4年後", "5年後", "6年後", "8年後"],
+        answerIndex: 2, // 6年後
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【暗算速解テクニック】</strong><br>
+            1. <strong>年齢差を出す</strong>: 42 − 10 ＝ 32歳差（何年経っても一生不変）<br>
+            2. <strong>比の差で割る</strong>: 3倍なので「3 − 1 ＝ 2」で割る ➔ 32 ÷ 2 ＝ <strong class="text-purple-700">16歳</strong>（その時の子の年齢）<br>
+            3. <strong>現在の年齢から引く</strong>: 16 − 10 ＝ <strong class="text-red-600 font-black text-sm">6年後！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            <strong>📐【確実な方程式】</strong><br>
+            x年後とすると：42 ＋ x ＝ 3(10 ＋ x) ➔ 42 ＋ x ＝ 30 ＋ 3x ➔ 2x ＝ 12 ➔ x ＝ 6年後
+          </div>
+          <div class="text-[11px] text-amber-800 bg-amber-50 p-2 rounded border border-amber-200">
+            💡 <strong>ワンポイント：</strong>「3倍なら差÷2」「4倍なら差÷3」で年下の子の年齢が一撃で求まります！
+          </div>
+        `
+      },
+      {
+        id: 2,
+        difficulty: "easy",
+        diffLabel: "初級 ★☆☆",
+        category: "パターン1: 基本2人型（何年前）",
+        question: "現在、母は38歳、娘は14歳である。母の年齢が娘の年齢のちょうど3倍だったのは何年前か？",
+        options: ["2年前", "3年前", "4年前", "5年前"],
+        answerIndex: 0, // 2年前
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【暗算速解テクニック】</strong><br>
+            1. <strong>年齢差</strong>: 38 − 14 ＝ 24歳差<br>
+            2. <strong>その時の娘の年齢</strong>: 24 ÷ (3 − 1) ＝ <strong class="text-purple-700">12歳</strong><br>
+            3. <strong>何年前か</strong>: 現在の娘14歳 − 12歳 ＝ <strong class="text-red-600 font-black text-sm">2年前！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            <strong>📐【確実な方程式】</strong><br>
+            x年前とすると：38 − x ＝ 3(14 − x) ➔ 38 − x ＝ 42 − 3x ➔ 2x ＝ 4 ➔ x ＝ 2年前
+          </div>
+          <div class="text-[11px] text-rose-800 bg-rose-50 p-2 rounded border border-rose-200">
+            ⚠️ <strong>ミス防止：</strong>「何年前」なので方程式では必ずマイナス（－x）にしましょう！
+          </div>
+        `
+      },
+      {
+        id: 3,
+        difficulty: "easy",
+        diffLabel: "初級 ★☆☆",
+        category: "パターン1: 年齢差と比",
+        question: "現在、兄と弟の年齢の比は 5 : 3 であり、2人の年齢差は6歳である。現在の兄の年齢は何歳か？",
+        options: ["12歳", "15歳", "18歳", "20歳"],
+        answerIndex: 1, // 15歳
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【比の差で即解き】</strong><br>
+            ・比の差：5 − 3 ＝ <strong class="text-purple-700">②</strong><br>
+            ・実際の差：6歳 ➔ 比の②が6歳に相当！<br>
+            ・比の①あたり：6 ÷ 2 ＝ 3歳<br>
+            ・兄の年齢（比の⑤）：5 × 3 ＝ <strong class="text-red-600 font-black text-sm">15歳！</strong>（弟は 3 × 3 ＝ 9歳）
+          </div>
+        `
+      },
+      {
+        id: 4,
+        difficulty: "easy",
+        diffLabel: "初級 ★☆☆",
+        category: "パターン1: 年齢の和と比",
+        question: "現在、父と息子の年齢の合計は56歳であり、2人の年齢の比は 5 : 2 である。現在の息子の年齢は何歳か？",
+        options: ["12歳", "14歳", "16歳", "18歳"],
+        answerIndex: 2, // 16歳
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【比の和で比例配分】</strong><br>
+            ・比の合計：5 ＋ 2 ＝ <strong class="text-purple-700">⑦</strong><br>
+            ・実際の合計：56歳 ➔ 比の⑦が56歳に相当！<br>
+            ・比の①あたり：56 ÷ 7 ＝ 8歳<br>
+            ・息子の年齢（比の②）：2 × 8 ＝ <strong class="text-red-600 font-black text-sm">16歳！</strong>（父は 5 × 8 ＝ 40歳）
+          </div>
+        `
+      },
+      {
+        id: 5,
+        difficulty: "easy",
+        diffLabel: "初級 ★☆☆",
+        category: "パターン1: 祖父母と孫",
+        question: "現在、祖父は70歳、孫は10歳である。祖父の年齢が孫の年齢の4倍になるのは何年後か？",
+        options: ["8年後", "10年後", "12年後", "15年後"],
+        answerIndex: 1, // 10年後
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【暗算速解テクニック】</strong><br>
+            1. 年齢差：70 − 10 ＝ 60歳差<br>
+            2. 4倍なので 4 − 1 ＝ 3で割る：60 ÷ 3 ＝ <strong class="text-purple-700">20歳</strong>（孫の年齢）<br>
+            3. 何年後か：20 − 10 ＝ <strong class="text-red-600 font-black text-sm">10年後！</strong><br>
+            <span class="text-slate-500 text-xs">※検算：10年後は祖父80歳、孫20歳（ちょうど4倍！）</span>
+          </div>
+        `
+      },
+
+      // === 中級 ★★☆ (Q6〜Q10) ===
+      {
+        id: 6,
+        difficulty: "mid",
+        diffLabel: "中級 ★★☆",
+        category: "パターン2: 多人数型（親 vs 子2人等式）",
+        question: "現在、母は39歳、長男は9歳、次男は6歳である。母の年齢が子ども2人の年齢の合計と等しくなるのは何年後か？",
+        options: ["18年後", "20年後", "22年後", "24年後"],
+        answerIndex: 3, // 24年後
+        explanation: `
+          <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200 text-emerald-950 font-medium">
+            <strong>⚡【ペース差で即解き】</strong><br>
+            ・<strong>現在の合計差</strong>: 母39歳 − 子2人(9＋6＝15歳) ＝ 24歳差<br>
+            ・<strong>1年で縮まるペース</strong>: 子2人は毎年＋2歳、母は毎年＋1歳 ➔ 差は毎年 <strong class="text-emerald-700">1歳ずつ縮まる</strong>！<br>
+            ・<strong>等しくなる年数</strong>: 24歳 ÷ 毎年1歳 ＝ <strong class="text-red-600 font-black text-sm">24年後！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            <strong>📐【方程式】</strong> 39 ＋ x ＝ (9 ＋ x) ＋ (6 ＋ x) ➔ 39 ＋ x ＝ 15 ＋ 2x ➔ x ＝ 24
+          </div>
+        `
+      },
+      {
+        id: 7,
+        difficulty: "mid",
+        diffLabel: "中級 ★★☆",
+        category: "パターン2: 多人数型（親 vs 子2人倍率）",
+        question: "現在、父は44歳、長女は9歳、次女は7歳である。父の年齢が娘2人の年齢の合計のちょうど2倍になるのは何年後か？",
+        options: ["3年後", "4年後", "5年後", "6年後"],
+        answerIndex: 1, // 4年後
+        explanation: `
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            <strong>📐【方程式で確実に解く】</strong><br>
+            x年後とすると：<br>
+            父の年齢 ＝ 44 ＋ x<br>
+            娘2人の合計 ＝ (9 ＋ x) ＋ (7 ＋ x) ＝ 16 ＋ 2x<br>
+            条件より：44 ＋ x ＝ 2(16 ＋ 2x)<br>
+            44 ＋ x ＝ 32 ＋ 4x<br>
+            3x ＝ 12 ➔ <strong class="text-red-600 font-black text-sm">x ＝ 4（4年後！）</strong>
+          </div>
+          <div class="text-[11px] text-slate-600 bg-amber-50 p-2 rounded border border-amber-200">
+            💡 <strong>検算：</strong>4年後は父48歳。長女13歳、次女11歳（合計24歳）。48は24のちょうど2倍で一致！
+          </div>
+        `
+      },
+      {
+        id: 8,
+        difficulty: "mid",
+        diffLabel: "中級 ★★☆",
+        category: "パターン3: 過去と未来の比",
+        question: "4年前、父の年齢は子の年齢の4倍であった。今から6年後には父の年齢は子の年齢の2倍になる。現在の父の年齢は何歳か？",
+        options: ["20歳", "24歳", "28歳", "32歳"],
+        answerIndex: 1, // 24歳
+        explanation: `
+          <div class="bg-sky-50 p-2.5 rounded-lg border border-sky-200 text-sky-950 font-medium">
+            <strong>📋【マトリクス表で整理して立式】</strong><br>
+            ・4年前の子の年齢を <strong>x</strong> と置くと、4年前の父は <strong>4x</strong>。<br>
+            ・今から6年後は、4年前から数えると「4 ＋ 6 ＝ <strong class="text-sky-700">10年後</strong>」！<br>
+            ・6年後の2人の年齢：子＝x ＋ 10、父＝4x ＋ 10<br>
+            ・6年後は父が子の2倍なので：<br>
+            　4x ＋ 10 ＝ 2(x ＋ 10)<br>
+            　4x ＋ 10 ＝ 2x ＋ 20 ➔ 2x ＝ 10 ➔ <strong class="text-purple-700 font-bold">x ＝ 5歳</strong>（4年前の子）<br>
+            ・求めたいのは「現在の父」：4年前の父は 4 × 5 ＝ 20歳 ➔ 現在は 20 ＋ 4 ＝ <strong class="text-red-600 font-black text-sm">24歳！</strong>
+          </div>
+        `
+      },
+      {
+        id: 9,
+        difficulty: "mid",
+        diffLabel: "中級 ★★☆",
+        category: "パターン4: 条件連立型",
+        question: "父、母、子の3人家族がいる。父は母より3歳年上で、母の年齢は子の年齢の3倍である。3人の現在の年齢の合計が73歳のとき、現在の母の年齢は何歳か？",
+        options: ["27歳", "30歳", "33歳", "36歳"],
+        answerIndex: 1, // 30歳
+        explanation: `
+          <div class="bg-amber-50 p-2.5 rounded-lg border border-amber-200 text-amber-950 font-medium">
+            <strong>📐【基準の1人を x と置いて統一】</strong><br>
+            ・基準となる子の年齢を <strong>x</strong> と置く：<br>
+            　子 ＝ x、母 ＝ 3x、父 ＝ 3x ＋ 3<br>
+            ・3人の合計が73歳：<br>
+            　x ＋ 3x ＋ (3x ＋ 3) ＝ 73<br>
+            　7x ＋ 3 ＝ 73 ➔ 7x ＝ 70 ➔ x ＝ 10歳（子の年齢）<br>
+            ・現在の母の年齢：3 × 10 ＝ <strong class="text-red-600 font-black text-sm">30歳！</strong>
+          </div>
+        `
+      },
+      {
+        id: 10,
+        difficulty: "mid",
+        diffLabel: "中級 ★★☆",
+        category: "パターン4: 平均年齢の推移",
+        question: "現在、父・母・息子の3人の平均年齢は32歳である。今から4年後、父親の年齢が母と息子の年齢の合計と等しくなるとすると、4年後の父親の年齢は何歳か？",
+        options: ["48歳", "50歳", "52歳", "54歳"],
+        answerIndex: 3, // 54歳
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【原則③：平均年齢の鉄則を使う】</strong><br>
+            1. 全員が4歳年を取るため、4年後の3人の平均年齢もそのまま <strong class="text-purple-700">32 ＋ 4 ＝ 36歳</strong>！<br>
+            2. 4年後の3人の合計年齢は：36 × 3 ＝ <strong class="text-slate-800">108歳</strong><br>
+            3. 4年後は「父 ＝ 母 ＋ 息子」なので：<br>
+            　父 ＋ (母 ＋ 息子) ＝ 父 ＋ 父 ＝ 2 × 父 ＝ 108歳<br>
+            　➔ 4年後の父 ＝ 108 ÷ 2 ＝ <strong class="text-red-600 font-black text-sm">54歳！</strong><br>
+            <span class="text-slate-500 text-xs">※わざわざ現在に戻して計算する必要が一切ありません！</span>
+          </div>
+        `
+      },
+
+      // === 上級 ★★★ (Q11〜Q15) ===
+      {
+        id: 11,
+        difficulty: "hard",
+        diffLabel: "上級 ★★★",
+        category: "パターン5: 未生トラップ基本",
+        question: "現在、家族4人（父、母、姉、妹）の年齢の合計は78歳である。今から4年前、家族全員の年齢の合計は63歳であった。現在の妹の年齢は何歳か？",
+        options: ["2歳", "3歳", "4歳", "5歳"],
+        answerIndex: 1, // 3歳
+        explanation: `
+          <div class="bg-rose-50 p-2.5 rounded-lg border border-rose-200 text-rose-950 font-medium">
+            <strong>⚡【単純減算とのズレから誕生年を暴く！】</strong><br>
+            1. <strong>全員生きていた場合の減少量</strong>: 4人 × 4年 ＝ <strong class="text-slate-800">16歳減るはず</strong><br>
+            2. <strong>実際の減少量</strong>: 78 − 63 ＝ <strong class="text-slate-800">15歳しか減っていない</strong><br>
+            3. <strong>ズレの判定</strong>: 16 − 15 ＝ <strong class="text-rose-600 font-bold">1歳分のズレ</strong><br>
+            ➔ 末っ子の妹が「4年前にはまだ生まれておらず、4年前の1年後（今から3年前）に生まれた」ことを意味します！<br>
+            4. したがって現在の妹の年齢は <strong class="text-red-600 font-black text-sm">3歳！</strong>
+          </div>
+        `
+      },
+      {
+        id: 12,
+        difficulty: "hard",
+        diffLabel: "上級 ★★★",
+        category: "パターン4: 兄弟3人の等差条件",
+        question: "3人兄弟（長男、次男、三男）がおり、年齢はそれぞれ3歳ずつ離れている。現在、父の年齢（48歳）は3人兄弟の年齢の合計と等しい。現在の次男の年齢は何歳か？",
+        options: ["13歳", "15歳", "16歳", "18歳"],
+        answerIndex: 2, // 16歳
+        explanation: `
+          <div class="bg-amber-50 p-2.5 rounded-lg border border-amber-200 text-amber-950 font-medium">
+            <strong>⚡【真ん中の次男を x と置く超速解】</strong><br>
+            ・次男を <strong>x</strong> と置くと：長男 ＝ x ＋ 3、三男 ＝ x − 3<br>
+            ・3人の合計：(x ＋ 3) ＋ x ＋ (x − 3) ＝ <strong class="text-purple-700">3x</strong>（±3が綺麗に相殺！）<br>
+            ・これが父の年齢48歳と等しいので：<br>
+            　3x ＝ 48 ➔ <strong class="text-red-600 font-black text-sm">x ＝ 16歳（次男！）</strong><br>
+            <span class="text-slate-500 text-xs">※長男19歳、次男16歳、三男13歳で合計48歳！</span>
+          </div>
+        `
+      },
+      {
+        id: 13,
+        difficulty: "hard",
+        diffLabel: "上級 ★★★",
+        category: "パターン2: 親2人 vs 子2人の和",
+        question: "現在、父は40歳、母は36歳、長男は7歳、長女は5歳である。両親の年齢の合計が、子ども2人の年齢の合計のちょうど3倍になるのは何年後か？",
+        options: ["8年後", "10年後", "12年後", "15年後"],
+        answerIndex: 1, // 10年後
+        explanation: `
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            <strong>📐【グループごとの合計を方程式にする】</strong><br>
+            現在の両親の合計 ＝ 40 ＋ 36 ＝ 76歳（1年で＋2歳）<br>
+            現在の子2人の合計 ＝ 7 ＋ 5 ＝ 12歳（1年で＋2歳）<br>
+            x年後：<br>
+            76 ＋ 2x ＝ 3(12 ＋ 2x)<br>
+            76 ＋ 2x ＝ 36 ＋ 6x<br>
+            4x ＝ 40 ➔ <strong class="text-red-600 font-black text-sm">x ＝ 10年後！</strong>
+          </div>
+          <div class="text-[11px] text-slate-600 bg-emerald-50 p-2 rounded border border-emerald-200">
+            💡 <strong>検算：</strong>10年後は両親96歳（50＋46）、子2人は32歳（17＋15）。96は32のちょうど3倍！
+          </div>
+        `
+      },
+      {
+        id: 14,
+        difficulty: "hard",
+        diffLabel: "上級 ★★★",
+        category: "パターン3: 過去未来比の逆算",
+        question: "3年前、母の年齢は娘の年齢の3倍であった。今から9年後には母の年齢は娘の年齢のちょうど2倍になる。現在の母の年齢は何歳か？",
+        options: ["36歳", "39歳", "42歳", "45歳"],
+        answerIndex: 1, // 39歳
+        explanation: `
+          <div class="bg-sky-50 p-2.5 rounded-lg border border-sky-200 text-sky-950 font-medium">
+            <strong>📋【マトリクス表で整理】</strong><br>
+            ・3年前の娘を <strong>x</strong>、母を <strong>3x</strong> と置く。<br>
+            ・今から9年後は、3年前から数えると 3 ＋ 9 ＝ <strong class="text-sky-700">12年後</strong>！<br>
+            ・9年後の年齢：娘＝x ＋ 12、母＝3x ＋ 12<br>
+            ・母が娘の2倍なので：<br>
+            　3x ＋ 12 ＝ 2(x ＋ 12)<br>
+            　3x ＋ 12 ＝ 2x ＋ 24 ➔ <strong class="text-purple-700">x ＝ 12歳</strong>（3年前の娘）<br>
+            ・3年前の母は 3 × 12 ＝ 36歳 ➔ 現在の母は 36 ＋ 3 ＝ <strong class="text-red-600 font-black text-sm">39歳！</strong>
+          </div>
+        `
+      },
+      {
+        id: 15,
+        difficulty: "hard",
+        diffLabel: "上級 ★★★",
+        category: "パターン5: 未生＋条件連立の最難関",
+        question: "現在、父、母、長男、次男の4人家族の年齢の合計は82歳である。父は母より2歳年上で、長男は次男より4歳年上である。今から5年前、家族全員の年齢の合計は64歳であった。現在の母の年齢は何歳か？",
+        options: ["33歳", "34歳", "35歳", "36歳"],
+        answerIndex: 2, // 35歳
+        explanation: `
+          <div class="bg-rose-50 p-2.5 rounded-lg border border-rose-200 text-rose-950 font-medium">
+            <strong>⚡【2段階ステップで攻略する最難関複合問題】</strong><br>
+            <strong>STEP 1（未生判定で次男の年齢を特定）：</strong><br>
+            ・全員が生きていれば 4人 × 5年 ＝ 20歳減るはずが、実際は 82 − 64 ＝ 18歳しか減っていない！<br>
+            ・ズレ：20 − 18 ＝ 2歳 ➔ 次男は5年前より2年後（3年前）に誕生 ➔ <strong class="text-emerald-700">次男は現在3歳</strong>！<br><br>
+            <strong>STEP 2（両親の和差算で母を特定）：</strong><br>
+            ・長男は次男より4歳上 ➔ 長男は 3 ＋ 4 ＝ <strong class="text-emerald-700">7歳</strong><br>
+            ・子2人の合計 ＝ 3 ＋ 7 ＝ 10歳 ➔ 両親2人の合計は 82 − 10 ＝ 72歳<br>
+            ・父は母より2歳上 ➔ (母 ＋ 2) ＋ 母 ＝ 72 ➔ 2 × 母 ＝ 70 ➔ 母 ＝ <strong class="text-red-600 font-black text-sm">35歳！</strong>（父37歳）
+          </div>
+        `
+      }
+    ];
+
+    /* ---------------------------------------------------------
+     * シミュレーターの状態管理（2人モード & 多人数モード対応）
+     * --------------------------------------------------------- */
+    const simState = {
+      mode: '2p', // '2p' or 'multi'
+      parentNow: 40,
+      childNow: 10,
+      multiMom: 39,
+      multiC1: 9,
+      multiC2: 6,
+      yearOffset: 0,
+      isPlaying: false,
+      animTimer: null
+    };
+
+    function switchSimMode(mode) {
+      simState.mode = mode;
+      stopSimulation();
+
+      const tab2p = document.getElementById('sim-tab-2p');
+      const tabMulti = document.getElementById('sim-tab-multi');
+      const c2p = document.getElementById('controls-2p');
+      const cMulti = document.getElementById('controls-multi');
+      const calc2p = document.getElementById('sim-calc-box-2p');
+      const calcMulti = document.getElementById('sim-calc-box-multi');
+
+      if (mode === '2p') {
+        tab2p.className = 'px-3 py-1.5 rounded-lg bg-white shadow-xs text-sky-700 font-black transition';
+        tabMulti.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+        c2p.classList.remove('hidden');
+        cMulti.classList.add('hidden');
+        calc2p.classList.remove('hidden');
+        calcMulti.classList.add('hidden');
+        document.getElementById('label-parent-bar').innerHTML = '親の年齢: <span id="bar-parent-age" class="text-white text-sm font-mono">40</span> 歳';
+        document.getElementById('label-child-bar').innerHTML = '子の年齢: <span id="bar-child-age" class="text-white text-sm font-mono">10</span> 歳';
+        document.getElementById('sim-status-title').textContent = '親は子の何倍？';
+        document.getElementById('sim-diff-title').textContent = '年齢差';
+        document.getElementById('sim-diff-note').textContent = '(常に不変)';
+      } else {
+        tabMulti.className = 'px-3 py-1.5 rounded-lg bg-white shadow-xs text-sky-700 font-black transition';
+        tab2p.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+        cMulti.classList.remove('hidden');
+        c2p.classList.add('hidden');
+        calcMulti.classList.remove('hidden');
+        calc2p.classList.add('hidden');
+        document.getElementById('label-parent-bar').innerHTML = '母の年齢: <span id="bar-parent-age" class="text-white text-sm font-mono">39</span> 歳';
+        document.getElementById('label-child-bar').innerHTML = '子2人の合計: <span id="bar-child-age" class="text-white text-sm font-mono">15</span> 歳 (長男+次男)';
+        document.getElementById('sim-status-title').textContent = '母 vs 子2人合計の比率';
+        document.getElementById('sim-diff-title').textContent = '現在の差';
+        document.getElementById('sim-diff-note').textContent = '(毎年1歳ずつ縮まる)';
+      }
+
+      updateSimulator();
+    }
+
+    function initSimulator() {
+      const sYear = document.getElementById('slider-year');
+      sYear.addEventListener('input', (e) => {
+        simState.yearOffset = parseInt(e.target.value);
+        updateSimulator();
+      });
+
+      // 2人モードのスライダー
+      document.getElementById('slider-parent-now').addEventListener('input', (e) => {
+        simState.parentNow = parseInt(e.target.value);
+        if (simState.parentNow <= simState.childNow) {
+          simState.parentNow = simState.childNow + 5;
+          e.target.value = simState.parentNow;
+        }
+        document.getElementById('val-parent-now').textContent = simState.parentNow;
+        updateSimulator();
+      });
+
+      document.getElementById('slider-child-now').addEventListener('input', (e) => {
+        simState.childNow = parseInt(e.target.value);
+        if (simState.childNow >= simState.parentNow) {
+          simState.childNow = simState.parentNow - 5;
+          e.target.value = simState.childNow;
+        }
+        document.getElementById('val-child-now').textContent = simState.childNow;
+        updateSimulator();
+      });
+
+      // 多人数モードのスライダー
+      document.getElementById('slider-multi-mom').addEventListener('input', (e) => {
+        simState.multiMom = parseInt(e.target.value);
+        document.getElementById('val-multi-mom').textContent = simState.multiMom;
+        updateSimulator();
+      });
+      document.getElementById('slider-multi-c1').addEventListener('input', (e) => {
+        simState.multiC1 = parseInt(e.target.value);
+        document.getElementById('val-multi-c1').textContent = simState.multiC1;
+        updateSimulator();
+      });
+      document.getElementById('slider-multi-c2').addEventListener('input', (e) => {
+        simState.multiC2 = parseInt(e.target.value);
+        document.getElementById('val-multi-c2').textContent = simState.multiC2;
+        updateSimulator();
+      });
+
+      updateSimulator();
+    }
+
+    function resetToDefault() {
+      simState.yearOffset = 0;
+      document.getElementById('slider-year').value = 0;
+      if (simState.mode === '2p') {
+        simState.parentNow = 40;
+        simState.childNow = 10;
+        document.getElementById('slider-parent-now').value = 40;
+        document.getElementById('slider-child-now').value = 10;
+        document.getElementById('val-parent-now').textContent = 40;
+        document.getElementById('val-child-now').textContent = 10;
+      } else {
+        simState.multiMom = 39;
+        simState.multiC1 = 9;
+        simState.multiC2 = 6;
+        document.getElementById('slider-multi-mom').value = 39;
+        document.getElementById('slider-multi-c1').value = 9;
+        document.getElementById('slider-multi-c2').value = 6;
+        document.getElementById('val-multi-mom').textContent = 39;
+        document.getElementById('val-multi-c1').textContent = 9;
+        document.getElementById('val-multi-c2').textContent = 6;
+      }
+      stopSimulation();
+      updateSimulator();
+    }
+
+    function updateSimulator() {
+      const yr = simState.yearOffset;
+      const yrLabel = yr === 0 ? '現在 (0年後)' : (yr > 0 ? `${yr} 年後` : `${Math.abs(yr)} 年前`);
+      document.getElementById('sim-year-label').textContent = yrLabel;
+      document.getElementById('slider-year-val').textContent = yrLabel;
+
+      const pFill = document.getElementById('bar-parent-fill');
+      const cFill = document.getElementById('bar-child-fill');
+      const ratioEl = document.getElementById('sim-ratio-display');
+      const eventBox = document.getElementById('sim-event-box');
+      const eventText = document.getElementById('sim-event-text');
+
+      if (simState.mode === '2p') {
+        const pNow = simState.parentNow;
+        const cNow = simState.childNow;
+        const diff = pNow - cNow;
+        const pAge = pNow + yr;
+        const cAge = cNow + yr;
+
+        document.getElementById('sim-diff-display').textContent = diff;
+        document.getElementById('formula-diff').textContent = diff;
+        document.getElementById('bar-parent-age').textContent = pAge;
+        document.getElementById('bar-child-age').textContent = cAge;
+
+        const maxAge = 80;
+        const pPct = Math.min(100, Math.max(5, (pAge / maxAge) * 100));
+        const cPct = Math.min(100, Math.max(5, (cAge / maxAge) * 100));
+        pFill.style.width = `${pPct}%`;
+        pFill.textContent = `${pAge}歳`;
+        cFill.style.width = `${cPct}%`;
+        cFill.textContent = `${cAge}歳`;
+
+        const ratio = cAge > 0 ? (pAge / cAge) : 0;
+        ratioEl.textContent = ratio > 0 ? ratio.toFixed(2) : '--';
+        document.getElementById('sim-ratio-unit').textContent = '倍';
+
+        // 予測値
+        const target3x = diff / 2;
+        const yr3x = target3x - cNow;
+        document.getElementById('calc-3x-target').textContent = Number.isInteger(target3x) 
+          ? `${yr3x >= 0 ? yr3x + ' 年後' : Math.abs(yr3x) + ' 年前'} (子${target3x}歳)` 
+          : '整数年なし';
+
+        const target2x = diff;
+        const yr2x = target2x - cNow;
+        document.getElementById('calc-2x-target').textContent = `${yr2x >= 0 ? yr2x + ' 年後' : Math.abs(yr2x) + ' 年前'} (子${target2x}歳)`;
+
+        // 一致判定
+        if (cAge > 0 && Math.abs(ratio - 3) < 0.001) {
+          eventBox.className = 'p-2.5 rounded-lg bg-purple-100 border border-purple-300 text-xs text-purple-950 font-bold flex items-center gap-1.5 animate-bounce';
+          eventText.textContent = `★ 親${pAge}歳 ÷ 子${cAge}歳 ＝ ちょうど3倍になりました！`;
+        } else if (cAge > 0 && Math.abs(ratio - 2) < 0.001) {
+          eventBox.className = 'p-2.5 rounded-lg bg-emerald-100 border border-emerald-300 text-xs text-emerald-950 font-bold flex items-center gap-1.5 animate-bounce';
+          eventText.textContent = `★ 親${pAge}歳 ÷ 子${cAge}歳 ＝ ちょうど2倍になりました！`;
+        } else {
+          eventBox.className = 'p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 font-bold flex items-center gap-1.5';
+          eventText.textContent = `2人の年齢差は ${diff} 歳でずっと一定です！`;
+        }
+
+      } else {
+        // 多人数モード
+        const mMom = simState.multiMom;
+        const mC1 = simState.multiC1;
+        const mC2 = simState.multiC2;
+
+        const momAge = mMom + yr;
+        const c1Age = mC1 + yr;
+        const c2Age = mC2 + yr;
+        const kidsSum = c1Age + c2Age;
+        const diff = momAge - kidsSum;
+
+        document.getElementById('sim-diff-display').textContent = Math.abs(diff);
+        document.getElementById('bar-parent-age').textContent = momAge;
+        document.getElementById('bar-child-age').textContent = `${kidsSum} (${c1Age}+${c2Age})`;
+
+        const maxVal = 90;
+        const momPct = Math.min(100, Math.max(5, (momAge / maxVal) * 100));
+        const kidsPct = Math.min(100, Math.max(5, (kidsSum / maxVal) * 100));
+        pFill.style.width = `${momPct}%`;
+        pFill.textContent = `${momAge}歳`;
+        cFill.style.width = `${kidsPct}%`;
+        cFill.textContent = `${kidsSum}歳`;
+
+        const ratio = kidsSum > 0 ? (momAge / kidsSum) : 0;
+        ratioEl.textContent = ratio > 0 ? ratio.toFixed(2) : '--';
+        document.getElementById('sim-ratio-unit').textContent = '倍';
+
+        // 追いつく年
+        const targetYr = mMom - (mC1 + mC2);
+        document.getElementById('calc-multi-target').textContent = targetYr >= 0 ? `${targetYr} 年後` : `${Math.abs(targetYr)} 年前`;
+
+        if (diff === 0) {
+          eventBox.className = 'p-2.5 rounded-lg bg-emerald-100 border border-emerald-300 text-xs text-emerald-950 font-bold flex items-center gap-1.5 animate-bounce';
+          eventText.textContent = `★ 母${momAge}歳 ＝ 子2人の合計${kidsSum}歳（ちょうど等しくなりました！）`;
+        } else if (diff > 0) {
+          eventBox.className = 'p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 font-bold flex items-center gap-1.5';
+          eventText.textContent = `現在差は ${diff} 歳。毎年1歳ずつ追いついています！`;
+        } else {
+          eventBox.className = 'p-2.5 rounded-lg bg-sky-50 border border-sky-200 text-xs text-sky-900 font-bold flex items-center gap-1.5';
+          eventText.textContent = `子2人の合計が母を ${Math.abs(diff)} 歳追い抜きました！`;
+        }
+      }
+    }
+
+    function togglePlay() {
+      if (simState.isPlaying) {
+        stopSimulation();
+      } else {
+        startSimulation();
+      }
+    }
+
+    function startSimulation() {
+      simState.isPlaying = true;
+      const btn = document.getElementById('btn-play');
+      btn.innerHTML = '<i class="fa-solid fa-pause"></i> <span>一時停止</span>';
+      btn.classList.replace('bg-sky-600', 'bg-amber-600');
+
+      simState.animTimer = setInterval(() => {
+        if (simState.yearOffset >= 30) {
+          stopSimulation();
+          return;
+        }
+        simState.yearOffset += 1;
+        document.getElementById('slider-year').value = simState.yearOffset;
+        updateSimulator();
+      }, 350);
+    }
+
+    function stopSimulation() {
+      simState.isPlaying = false;
+      if (simState.animTimer) clearInterval(simState.animTimer);
+      const btn = document.getElementById('btn-play');
+      btn.innerHTML = '<i class="fa-solid fa-play"></i> <span>時間を進める</span>';
+      btn.classList.replace('bg-amber-600', 'bg-sky-600');
+    }
+
+    function resetSimulation() {
+      stopSimulation();
+      simState.yearOffset = 0;
+      document.getElementById('slider-year').value = 0;
+      updateSimulator();
+    }
+
+    /* ---------------------------------------------------------
+     * クイズシステム（厳選15問・難易度別フィルター付き）
+     * --------------------------------------------------------- */
+    let currentFilter = 'all';
+    let filteredList = [...QUIZ_DATA];
+    let currentQuizIndexInFilter = 0;
+    let quizAnswered = false;
+    const answeredStatus = {}; // { qId: { answered: bool, isCorrect: bool } }
+
+    function filterQuiz(filterType) {
+      currentFilter = filterType;
+      
+      // タブのアクティブスタイル更新
+      ['all', 'easy', 'mid', 'hard'].forEach(ft => {
+        const btn = document.getElementById(`filter-${ft}`);
+        if (ft === filterType) {
+          btn.className = 'px-2.5 py-1 rounded-lg bg-white shadow-xs text-sky-700 font-black transition';
+        } else {
+          btn.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+        }
+      });
+
+      if (filterType === 'all') {
+        filteredList = [...QUIZ_DATA];
+      } else {
+        filteredList = QUIZ_DATA.filter(q => q.difficulty === filterType);
+      }
+
+      currentQuizIndexInFilter = 0;
+      renderNumBar();
+      loadQuiz(0);
+    }
+
+    function renderNumBar() {
+      const bar = document.getElementById('quiz-num-bar');
+      bar.innerHTML = '';
+
+      filteredList.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        const st = answeredStatus[q.id];
+        let bgClass = 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200';
+        
+        if (st && st.answered) {
+          bgClass = st.isCorrect 
+            ? 'bg-emerald-500 text-white border-emerald-600' 
+            : 'bg-rose-500 text-white border-rose-600';
+        }
+
+        if (idx === currentQuizIndexInFilter) {
+          bgClass += ' ring-2 ring-sky-500 font-black';
+        }
+
+        btn.className = `w-7 h-7 rounded-lg text-xs font-bold border transition flex items-center justify-center ${bgClass}`;
+        btn.textContent = q.id;
+        btn.title = `第${q.id}問へジャンプ`;
+        btn.onclick = () => {
+          loadQuiz(idx);
+        };
+        bar.appendChild(btn);
+      });
+    }
+
+    function loadQuiz(idx) {
+      currentQuizIndexInFilter = idx;
+      quizAnswered = false;
+      const data = filteredList[idx];
+
+      document.getElementById('quiz-progress-text').textContent = `${idx + 1} / ${filteredList.length}問 (第${data.id}問)`;
+      document.getElementById('quiz-category').textContent = `${data.diffLabel}｜${data.category}`;
+      
+      // 星アイコン
+      const starsEl = document.getElementById('quiz-diff-stars');
+      if (data.difficulty === 'easy') starsEl.innerHTML = '<i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>';
+      else if (data.difficulty === 'mid') starsEl.innerHTML = '<i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>';
+      else starsEl.innerHTML = '<i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>';
+
+      document.getElementById('quiz-question').innerHTML = data.question;
+
+      const optsContainer = document.getElementById('quiz-options');
+      optsContainer.innerHTML = '';
+
+      data.options.forEach((optText, optIdx) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-opt-btn p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs sm:text-sm text-left transition shadow-xs flex items-center justify-between group';
+        btn.innerHTML = `
+          <span>${optText}</span>
+          <span class="w-5 h-5 rounded-full border border-slate-300 group-hover:border-sky-500 flex items-center justify-center text-[10px] text-transparent group-hover:text-sky-500">
+            ●
+          </span>
+        `;
+        btn.onclick = () => selectOption(optIdx);
+        optsContainer.appendChild(btn);
+      });
+
+      const feedback = document.getElementById('quiz-feedback');
+      feedback.classList.add('hidden');
+
+      // 前後ボタンの制御
+      document.getElementById('btn-prev-quiz').disabled = (idx === 0);
+      document.getElementById('btn-prev-quiz').classList.toggle('opacity-50', idx === 0);
+
+      renderNumBar();
+    }
+
+    function selectOption(selectedIdx) {
+      if (quizAnswered) return;
+      quizAnswered = true;
+
+      const data = filteredList[currentQuizIndexInFilter];
+      const isCorrect = (selectedIdx === data.answerIndex);
+
+      answeredStatus[data.id] = {
+        answered: true,
+        isCorrect: isCorrect
+      };
+
+      const optButtons = document.querySelectorAll('.quiz-opt-btn');
+      optButtons.forEach((btn, idx) => {
+        btn.disabled = true;
+        btn.classList.remove('hover:bg-slate-50');
+        if (idx === data.answerIndex) {
+          btn.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-900');
+          btn.innerHTML = `<span>${data.options[idx]}</span> <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> 正解</span>`;
+        } else if (idx === selectedIdx && !isCorrect) {
+          btn.classList.add('bg-rose-50', 'border-rose-400', 'text-rose-900');
+          btn.innerHTML = `<span>${data.options[idx]}</span> <span class="text-rose-500 font-bold"><i class="fa-solid fa-circle-xmark"></i> 不正解</span>`;
+        } else {
+          btn.classList.add('opacity-40');
+        }
+      });
+
+      const feedback = document.getElementById('quiz-feedback');
+      const titleEl = document.getElementById('quiz-result-title');
+      const expEl = document.getElementById('quiz-explanation');
+
+      if (isCorrect) {
+        feedback.className = 'p-4 sm:p-5 rounded-xl border border-emerald-300 bg-emerald-50/70 block space-y-3';
+        titleEl.className = 'text-sm sm:text-base font-bold flex items-center gap-2 text-emerald-800';
+        titleEl.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i> 正解です！解法の急所を完璧に突けています！';
+      } else {
+        feedback.className = 'p-4 sm:p-5 rounded-xl border border-rose-300 bg-rose-50/70 block space-y-3';
+        titleEl.className = 'text-sm sm:text-base font-bold flex items-center gap-2 text-rose-800';
+        titleEl.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-500 text-lg"></i> おしい！解説で解き方の型を復習しましょう';
+      }
+
+      expEl.innerHTML = data.explanation;
+      feedback.classList.remove('hidden');
+
+      renderNumBar();
+    }
+
+    function nextQuiz() {
+      if (currentQuizIndexInFilter < filteredList.length - 1) {
+        loadQuiz(currentQuizIndexInFilter + 1);
+      } else {
+        // 最後の問題の場合は最初に戻る
+        loadQuiz(0);
+      }
+    }
+
+    function prevQuiz() {
+      if (currentQuizIndexInFilter > 0) {
+        loadQuiz(currentQuizIndexInFilter - 1);
+      }
+    }
+
+    // --- ページ初期化 ---
+    window.addEventListener('DOMContentLoaded', () => {
+      initSimulator();
+      filterQuiz('all');
+    });
+  </script>
+
+</body>
+</html>

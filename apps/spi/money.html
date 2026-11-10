@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>金額計算の巻 〜損益・割増・割引・代金精算〜</title>
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    /* 蛍光ペン風マーカー */
+    .marker-yellow {
+      background: #fef08a;
+      padding: 0 4px;
+      border-radius: 2px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+    .marker-red {
+      color: #dc2626;
+      font-weight: 800;
+    }
+    /* モバイル横スクロールバー非表示用 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* スムーズスクロール & 固定ヘッダー分の余白確保（見切れ防止） */
+    html {
+      scroll-behavior: smooth;
+    }
+    section[id] {
+      scroll-margin-top: 4.5rem;
+    }
+    @media (min-width: 640px) {
+      section[id] {
+        scroll-margin-top: 5.25rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- =========================================================
+       ヘッダー（スマホ対応・横スワイプナビ）
+       ========================================================= -->
+  <header class="bg-gradient-to-r from-blue-600 via-sky-600 to-blue-700 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-4">
+      
+      <!-- タイトルとポータルへのリンク -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <a href="index.html" class="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition flex items-center gap-1.5 shrink-0 border border-white/20" title="ポータルへ戻る">
+            <i class="fa-solid fa-house"></i>
+            <span class="hidden sm:inline">ポータルへ</span>
+          </a>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="bg-yellow-400 text-slate-900 font-black text-[10px] px-2 py-0.5 rounded">非言語</span>
+              <span class="text-yellow-200 text-xs">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                <span class="text-[10px] text-white/80 ml-0.5">頻出度: 超重要</span>
+              </span>
+            </div>
+            <h1 class="font-black text-base sm:text-lg tracking-tight text-white leading-tight">
+              金額計算の巻 <span class="text-xs sm:text-sm font-normal text-sky-100 hidden sm:inline">〜損益・割増・割引・代金精算〜</span>
+            </h1>
+          </div>
+        </div>
+
+        <!-- モバイル用ショートカット（クイズへ直行） -->
+        <a href="#quiz" class="sm:hidden text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 py-1.5 rounded-lg transition shadow shrink-0 flex items-center gap-1">
+          <i class="fa-solid fa-pen-to-square"></i> 実戦15問
+        </a>
+      </div>
+
+      <!-- セクション移動ナビゲーション（モバイル横スワイプ対応） -->
+      <nav class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0 w-full sm:w-auto text-xs font-bold">
+        <a href="index.html" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/10 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center flex items-center gap-1">
+          <i class="fa-solid fa-house text-[10px] text-yellow-300"></i>
+          <span>単元一覧</span>
+        </a>
+        <a href="#formula" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center">
+          <span class="text-[9px] sm:text-[10px] text-yellow-300 block leading-tight font-extrabold">まずはここから</span>3大公式
+        </a>
+        <a href="#concept" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center">
+          <span class="text-[9px] sm:text-[10px] text-emerald-300 block leading-tight font-extrabold">図解＆表</span>考え方
+        </a>
+        <a href="#unit-cheat-sheet" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition shadow-sm text-center">
+          <span class="text-[9px] sm:text-[10px] text-red-600 block leading-tight font-black">ズバリ！</span>暗算のコツ
+        </a>
+        <a href="#simulator" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center">
+          <span class="text-[9px] sm:text-[10px] text-sky-200 block leading-tight">動く観察</span>シミュ
+        </a>
+        <a href="#patterns" class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center">
+          <span class="text-[9px] sm:text-[10px] text-slate-200 block leading-tight">全5型</span>まとめ
+        </a>
+        <a href="#quiz" class="whitespace-nowrap shrink-0 px-2.5 py-1.5 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black transition hidden sm:flex items-center gap-1 text-xs shadow-sm">
+          <i class="fa-solid fa-pen-to-square text-red-600"></i> 実戦15問
+        </a>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- =========================================================
+       メインコンテンツ
+       ========================================================= -->
+  <main class="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-6 sm:space-y-8 flex-1 w-full">
+
+    <!-- 1. 【公式・基本ルールの確認】 -->
+    <section id="formula" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+      <div class="flex items-center gap-2 mb-3 border-b border-slate-100 pb-2.5">
+        <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-sky-500 text-white flex items-center justify-center font-bold text-xs shrink-0">基</span>
+        <h2 class="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+          すべての前提！<span class="marker-yellow">「損益算」と「代金精算」の絶対公式</span>
+        </h2>
+      </div>
+
+      <!-- 公式強調ボックス -->
+      <div class="bg-gradient-to-br from-sky-50 to-blue-50 border-2 border-sky-300 rounded-2xl p-4 sm:p-6 mb-5 shadow-xs">
+        <div class="space-y-3">
+          <div class="inline-block text-xs font-black text-sky-800 bg-sky-200/80 px-2.5 py-1 rounded-full">
+            ★ SPI金額計算の2大ピラー
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            
+            <!-- ピラー1: 損益算 -->
+            <div class="p-3.5 bg-white rounded-xl border border-sky-200/80 shadow-xs space-y-2">
+              <span class="font-bold text-sky-800 block text-xs sm:text-sm flex items-center gap-1.5">
+                <i class="fa-solid fa-tags text-sky-600"></i> ① 損益算の4大用語と関係式
+              </span>
+              <ul class="text-xs text-slate-700 space-y-1.5 font-mono">
+                <li class="flex items-center justify-between bg-slate-50 p-1.5 rounded border border-slate-100">
+                  <span class="font-bold text-slate-800">定価（見込み額）</span>
+                  <span class="text-sky-700 font-bold">原価 × (1 ＋ 利益率)</span>
+                </li>
+                <li class="flex items-center justify-between bg-slate-50 p-1.5 rounded border border-slate-100">
+                  <span class="font-bold text-slate-800">売価（実際の売値）</span>
+                  <span class="text-purple-700 font-bold">定価 × (1 − 割引率)</span>
+                </li>
+                <li class="flex items-center justify-between bg-emerald-50/80 p-1.5 rounded border border-emerald-200">
+                  <span class="font-bold text-emerald-900">利益（手元の儲け）</span>
+                  <span class="text-emerald-700 font-bold">売価 − 原価</span>
+                </li>
+              </ul>
+              <div class="p-2 bg-amber-50 rounded-lg border border-amber-200 text-[11px] text-amber-900 font-bold leading-relaxed">
+                ⚠️ <strong>超重要ルール：</strong>SPIでは<strong class="text-red-600">「利益率は原価に対する割合」</strong>（原価を100%基準とする）です！会計基準（売上基準）と混同しないよう注意！
+              </div>
+            </div>
+
+            <!-- ピラー2: 代金精算 -->
+            <div class="p-3.5 bg-white rounded-xl border border-sky-200/80 shadow-xs space-y-2">
+              <span class="font-bold text-emerald-800 block text-xs sm:text-sm flex items-center gap-1.5">
+                <i class="fa-solid fa-receipt text-emerald-600"></i> ② 代金精算（割り勘）の基本式
+              </span>
+              <ul class="text-xs text-slate-700 space-y-1.5 font-mono">
+                <li class="flex items-center justify-between bg-slate-50 p-1.5 rounded border border-slate-100">
+                  <span class="font-bold text-slate-800">1人の平均負担額</span>
+                  <span class="text-emerald-700 font-bold">支払総額 ÷ 人数</span>
+                </li>
+                <li class="flex items-center justify-between bg-slate-50 p-1.5 rounded border border-slate-100">
+                  <span class="font-bold text-slate-800">個人の精算過不足</span>
+                  <span class="text-blue-700 font-bold">支払った額 − 平均負担額</span>
+                </li>
+                <li class="flex items-center justify-between bg-sky-50 p-1.5 rounded border border-sky-200">
+                  <span class="font-bold text-sky-900">プラス（＋）</span>
+                  <span class="text-sky-700 font-bold">払いすぎ ➔ お金を受け取る側</span>
+                </li>
+                <li class="flex items-center justify-between bg-rose-50 p-1.5 rounded border border-rose-200">
+                  <span class="font-bold text-rose-900">マイナス（−）</span>
+                  <span class="text-rose-700 font-bold">不足 ➔ お金を支払う側</span>
+                </li>
+              </ul>
+              <div class="p-2 bg-indigo-50 rounded-lg border border-indigo-200 text-[11px] text-indigo-900 font-bold leading-relaxed">
+                💡 <strong>精算の鉄則：</strong>全員の「過不足（＋/−）」の合計は必ずちょうど<strong>ゼロ</strong>になります！
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 早見倍数テーブル -->
+      <div class="overflow-x-auto no-scrollbar border border-slate-200 rounded-xl mb-3">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+            <tr>
+              <th class="p-3 sm:px-4 whitespace-nowrap">用語・表現</th>
+              <th class="p-3 sm:px-4 whitespace-nowrap">掛ける数値（小数）</th>
+              <th class="p-3 sm:px-4">計算例（原価1,000円の場合）</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 text-slate-700">
+            <tr class="hover:bg-slate-50/80">
+              <td class="p-3 sm:px-4 font-bold text-slate-900">2割増し（20%増）</td>
+              <td class="p-3 sm:px-4 font-mono font-bold text-sky-700">× 1.2</td>
+              <td class="p-3 sm:px-4 font-mono text-xs text-slate-600">1,000 × 1.2 ＝ 1,200円</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="p-3 sm:px-4 font-bold text-slate-900">3割の利益を見込む</td>
+              <td class="p-3 sm:px-4 font-mono font-bold text-sky-700">× 1.3</td>
+              <td class="p-3 sm:px-4 font-mono text-xs text-slate-600">1,000 × 1.3 ＝ 1,300円</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="p-3 sm:px-4 font-bold text-slate-900">2割引（20%引き）</td>
+              <td class="p-3 sm:px-4 font-mono font-bold text-purple-700">× 0.8</td>
+              <td class="p-3 sm:px-4 font-mono text-xs text-slate-600">定価1,200 × 0.8 ＝ 960円</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="p-3 sm:px-4 font-bold text-slate-900">3割引（30%引き）</td>
+              <td class="p-3 sm:px-4 font-mono font-bold text-purple-700">× 0.7</td>
+              <td class="p-3 sm:px-4 font-mono text-xs text-slate-600">定価1,300 × 0.7 ＝ 910円</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="p-3 sm:px-4 font-bold text-slate-900">半額（50%引き）</td>
+              <td class="p-3 sm:px-4 font-mono font-bold text-purple-700">× 0.5 (÷ 2)</td>
+              <td class="p-3 sm:px-4 font-mono text-xs text-slate-600">定価1,000 × 0.5 ＝ 500円</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 2. 【考え方の本質・図解（視覚ブロック図 ＆ 精算マトリクス表）】 -->
+    <section id="concept" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+      <div class="text-sky-700 font-bold text-xs mb-1 flex items-center gap-1.5">
+        <i class="fa-solid fa-shapes text-indigo-600"></i> セクション 2：考え方の本質・図解
+      </div>
+      <h2 class="text-base sm:text-xl font-bold text-slate-900 tracking-tight mb-2">
+        金額の流れが見える！<span class="text-sky-700 font-black">「損益ブロック図」</span>と<span class="text-emerald-700 font-black">「精算マトリクス表」</span>
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed">
+        文字ばかりの文章題も、ブロック図とマトリクス表に落とし込めば一目瞭然です。
+      </p>
+
+      <!-- 2-1: 損益ブロック図 -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 mb-5">
+        <div class="text-xs font-bold text-slate-700 border-b border-slate-200 pb-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-cubes-stacked text-sky-600"></i> 原価・定価・売価・利益の「金額ブロックフロー」
+        </div>
+
+        <!-- 視覚図（ブロックバー） -->
+        <div class="space-y-3 bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/80">
+          
+          <!-- 原価バー -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs font-bold text-slate-600">
+              <span>① 原価（仕入れ値・100%基準）:</span>
+              <span class="font-mono text-slate-800">1,000円</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-lg h-7 p-1 overflow-hidden">
+              <div class="h-full bg-slate-400 rounded flex items-center justify-center text-[11px] font-black text-white" style="width: 60%;">
+                原価 1,000円 (100%)
+              </div>
+            </div>
+          </div>
+
+          <!-- 定価バー（原価＋見込み利益） -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs font-bold text-sky-700">
+              <span>② 定価（3割の利益を見込む）:</span>
+              <span class="font-mono text-sky-800 font-black">1,300円 (原価 × 1.3)</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-lg h-7 p-1 overflow-hidden">
+              <div class="h-full flex rounded overflow-hidden" style="width: 78%;">
+                <div class="bg-slate-400 h-full flex items-center justify-center text-[11px] font-black text-white border-r border-white/30" style="width: 76.9%;">
+                  原価 1,000円
+                </div>
+                <div class="bg-sky-500 h-full flex items-center justify-center text-[11px] font-black text-white" style="width: 23.1%;">
+                  +300円
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 売価バー（定価の2割引） -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs font-bold text-emerald-700">
+              <span>③ 売価（定価の2割引で売る）:</span>
+              <span class="font-mono text-emerald-800 font-black">1,040円 (1,300 × 0.8)</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-lg h-7 p-1 overflow-hidden">
+              <div class="h-full flex rounded overflow-hidden" style="width: 62.4%;">
+                <div class="bg-slate-400 h-full flex items-center justify-center text-[11px] font-black text-white border-r border-white/30" style="width: 96.1%;">
+                  原価 1,000円
+                </div>
+                <div class="bg-emerald-500 h-full flex items-center justify-center text-[11px] font-black text-white" style="width: 3.9%;">
+                  +40円
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 実際の利益のハイライト -->
+          <div class="pt-1 text-[11px] sm:text-xs text-slate-600 flex items-center gap-2 justify-end">
+            <span class="w-3 h-3 rounded bg-emerald-500 shrink-0"></span>
+            <span>最終的な利益 ＝ 売価1,040円 − 原価1,000円 ＝ <strong class="text-emerald-700 font-black text-sm">40円（原価の4%の儲け）</strong>！</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2-2: 代金精算マトリクス表 -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-emerald-200/80">
+          <span class="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+            <i class="fa-solid fa-table text-emerald-600"></i>
+            <span>図解でわかる！「代金精算マトリクス表」作成術</span>
+          </span>
+          <span class="text-[10px] bg-emerald-200 text-emerald-900 font-black px-2 py-0.5 rounded">誰が誰に払うか一発解決</span>
+        </div>
+
+        <p class="text-xs text-emerald-950 leading-relaxed">
+          「Aが4,500円、Bが3,000円、Cが1,500円払った食事代の割り勘」は、メモ用紙に以下の<strong>3行マトリクス</strong>を書くだけで即解けます！
+        </p>
+
+        <!-- マトリクス表実例 -->
+        <div class="overflow-x-auto no-scrollbar bg-white rounded-xl border border-emerald-200 shadow-xs">
+          <table class="w-full text-center text-xs">
+            <thead class="bg-emerald-100/70 text-emerald-950 font-bold border-b border-emerald-200">
+              <tr>
+                <th class="p-2.5 text-left pl-3">項目</th>
+                <th class="p-2.5">Aさん</th>
+                <th class="p-2.5">Bさん</th>
+                <th class="p-2.5">Cさん</th>
+                <th class="p-2.5 bg-slate-100 text-slate-800">合計 / 平均</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              <tr>
+                <td class="p-2.5 text-left pl-3 font-bold text-slate-800">① 支払った額</td>
+                <td class="p-2.5 font-mono font-bold text-sky-800">4,500円</td>
+                <td class="p-2.5 font-mono font-bold text-slate-800">3,000円</td>
+                <td class="p-2.5 font-mono font-bold text-slate-800">1,500円</td>
+                <td class="p-2.5 font-mono bg-slate-50 font-bold">総額 9,000円</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 text-left pl-3 font-bold text-slate-800">② 平均負担額</td>
+                <td class="p-2.5 font-mono text-slate-500">3,000円</td>
+                <td class="p-2.5 font-mono text-slate-500">3,000円</td>
+                <td class="p-2.5 font-mono text-slate-500">3,000円</td>
+                <td class="p-2.5 font-mono bg-slate-50 text-slate-600">9,000÷3＝3,000円</td>
+              </tr>
+              <tr class="bg-emerald-50/60 font-bold">
+                <td class="p-2.5 text-left pl-3 text-emerald-900">③ 過不足 (① − ②)</td>
+                <td class="p-2.5 font-mono text-sky-700"><span class="text-xs bg-sky-100 px-1.5 py-0.5 rounded">＋1,500円</span> (受取)</td>
+                <td class="p-2.5 font-mono text-slate-500">±0円 (完了)</td>
+                <td class="p-2.5 font-mono text-rose-700"><span class="text-xs bg-rose-100 px-1.5 py-0.5 rounded">−1,500円</span> (支払)</td>
+                <td class="p-2.5 font-mono text-emerald-800">合計 ＝ 0円</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-2.5 bg-white rounded-lg border border-emerald-200 text-xs text-emerald-950 font-medium flex items-center gap-2">
+          <i class="fa-solid fa-arrow-right-arrow-left text-emerald-600"></i>
+          <span><strong>結論：</strong>マイナスの <strong class="text-rose-700">Cさん</strong> が、プラスの <strong class="text-sky-700">Aさん</strong> にちょうど <strong class="text-red-600 font-bold">1,500円</strong> 支払えば全員の精算が完了！</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 【ズバリ！ 暗算＆即答のコツ（試験直結テクニック）】 -->
+    <section id="unit-cheat-sheet" class="scroll-mt-20 sm:scroll-mt-24 bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-6 shadow-sm relative overflow-hidden">
+      <div class="text-amber-800 font-bold text-xs mb-1 flex items-center gap-1.5">
+        <span class="bg-amber-500 text-white px-2 py-0.5 rounded text-[10px] font-black">最速解法</span>
+        <span>ズバリ！ 金額計算の3大即解テクニック</span>
+      </div>
+      <h3 class="text-base sm:text-xl font-bold text-slate-900 tracking-tight mb-2">
+        解くスピードが3倍になる！<span class="text-red-600 font-black">「仮定法」</span>と<span class="text-blue-700 font-black">「掛け算ルール」</span>
+      </h3>
+      
+      <p class="text-xs sm:text-sm text-slate-700 leading-relaxed mb-4">
+        方程式を立てずに暗算で解ける必勝法をマスターすれば、1問あたり30秒以内で完答できます。
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+        
+        <!-- コツ1 -->
+        <div class="p-3.5 bg-white rounded-xl border border-amber-200 shadow-xs space-y-2">
+          <span class="font-bold text-amber-900 block flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+            コツ①：原価を「100円」と仮定せよ！
+          </span>
+          <p class="text-slate-600 text-xs leading-relaxed">
+            具体的な金額が書かれていない問題（「○割の利益で定価をつけ、△割引で売った」など）は、<strong class="text-slate-800">原価＝100円</strong> と勝手に仮定して解くのが最強です！
+          </p>
+          <div class="p-3 bg-amber-50 rounded-xl border-2 border-amber-300 font-mono text-amber-950 space-y-2 shadow-2xs">
+            <div class="text-[11px] text-amber-800 font-bold border-b border-amber-200/60 pb-1">【暗算ステップ例】3割の利益で2割引</div>
+            <div class="text-sm sm:text-base font-bold flex flex-wrap items-center gap-x-2 gap-y-1 leading-snug">
+              <span class="whitespace-nowrap">➔ 定価130円 × 0.8 ＝</span>
+              <span class="text-purple-700 font-black whitespace-nowrap">104円</span>
+            </div>
+            <div class="text-sm sm:text-base font-bold flex flex-wrap items-center gap-x-2 gap-y-1 leading-snug">
+              <span class="whitespace-nowrap">➔ 104 − 100 ＝</span>
+              <span class="inline-flex items-center gap-1 whitespace-nowrap">
+                <strong class="text-red-600 font-black text-base sm:text-lg">4%の利益！</strong>
+                <span class="text-xs text-slate-500 font-normal">（即答）</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- コツ2 -->
+        <div class="p-3.5 bg-white rounded-xl border border-amber-200 shadow-xs space-y-2">
+          <span class="font-bold text-rose-900 block flex items-center gap-1.5">
+            <i class="fa-solid fa-ban text-rose-500"></i>
+            コツ②：連続割増・割引は足し引き禁止！
+          </span>
+          <p class="text-slate-600 text-xs leading-relaxed">
+            「2割増しの2割引」は ±0 ではありません！基準となる金額が変わるため、必ず<strong class="text-purple-700 font-bold">小数の掛け算</strong>で計算します。
+          </p>
+          <div class="p-3 bg-rose-50 rounded-xl border-2 border-rose-300 font-mono text-rose-950 space-y-2 shadow-2xs">
+            <div class="text-[11px] text-rose-800 font-bold border-b border-rose-200/60 pb-1">【掛け算ステップ例】2割増の2割引</div>
+            <div class="text-sm sm:text-base font-bold flex flex-wrap items-center gap-x-2 gap-y-1 leading-snug">
+              <span class="whitespace-nowrap">➔ 1.2 × 0.8 ＝</span>
+              <strong class="text-red-600 font-black text-base sm:text-lg whitespace-nowrap">0.96（4%の損失）</strong>
+            </div>
+            <div class="text-[11px] text-slate-500 leading-snug">
+              <span class="whitespace-nowrap">※30%引の10%引</span> ➔ <span class="whitespace-nowrap">0.7×0.9＝0.63（37%引）</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- コツ3 -->
+        <div class="p-3.5 bg-white rounded-xl border border-amber-200 shadow-xs space-y-2">
+          <span class="font-bold text-emerald-900 block flex items-center gap-1.5">
+            <i class="fa-solid fa-handshake text-emerald-600"></i>
+            コツ③：もとの借金は「後から合算」！
+          </span>
+          <p class="text-slate-600 text-xs leading-relaxed">
+            「以前AがBから2,000円借りていた」のようなトラップ条件は、まず<strong class="text-slate-800">今回の旅行だけの精算額</strong>を出してから、最後に借金をプラスマイナスするのが安全です。
+          </p>
+          <div class="p-3 bg-emerald-50 rounded-xl border-2 border-emerald-300 font-mono text-emerald-950 space-y-2 shadow-2xs">
+            <div class="text-[11px] text-emerald-800 font-bold border-b border-emerald-200/60 pb-1">【相殺ステップ例】受取＋2,000円と借金2,000円</div>
+            <div class="text-sm sm:text-base font-bold flex flex-wrap items-center gap-x-2 gap-y-1 leading-snug">
+              <span class="whitespace-nowrap">➔ ＋2,000円 − 2,000円 ＝</span>
+              <strong class="text-emerald-700 font-black text-base sm:text-lg whitespace-nowrap">±0円（支払不要！）</strong>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. 【動くシミュレーター（損益＆代金精算）】 -->
+    <section id="simulator" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2 mb-4">
+        <div>
+          <span class="text-xs font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 flex items-center gap-1.5 w-fit">
+            <i class="fa-solid fa-sliders text-sky-600"></i> セクション 4：シミュレーター
+          </span>
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900 mt-1">金額・精算インタラクティブシミュレーター</h2>
+        </div>
+        
+        <!-- モード切り替えタブ -->
+        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+          <button id="tab-sim-profit" onclick="switchSimMode('profit')" class="px-3 py-1.5 rounded-lg bg-white shadow-xs text-sky-700 font-black transition">
+            ① 損益・割引シミュ
+          </button>
+          <button id="tab-sim-split" onclick="switchSimMode('split')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            ② 代金精算（割り勘）シミュ
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= 損益シミュレーターUI ================= -->
+      <div id="sim-section-profit" class="space-y-4">
+        <!-- シミュレーション描画ステージ -->
+        <div class="relative w-full bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 p-4 sm:p-5 shadow-inner flex flex-col justify-between min-h-[200px]">
+          <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30"></div>
+
+          <!-- 上部ヘッダー -->
+          <div class="relative z-10 flex justify-between items-center text-xs text-slate-300 border-b border-slate-800 pb-2">
+            <div><i class="fa-solid fa-chart-simple text-sky-400"></i> 損益ビジュアルグラフ</div>
+            <div id="sim-profit-rate-badge" class="px-2.5 py-0.5 rounded font-mono font-bold text-xs bg-emerald-600 text-white shadow-sm">
+              利益率: +4.0%
+            </div>
+          </div>
+
+          <!-- 中央バーグラフ -->
+          <div class="relative z-10 space-y-3 my-auto py-2">
+            <!-- 原価バー -->
+            <div>
+              <div class="flex justify-between text-xs font-bold text-slate-400 mb-0.5">
+                <span>原価: <span id="bar-val-cost" class="text-white font-mono">1,000</span> 円</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-lg h-6 p-0.5 overflow-hidden">
+                <div id="bar-cost-fill" class="h-full bg-slate-400 rounded transition-all duration-150 flex items-center justify-end pr-2 text-[10px] font-bold text-slate-900" style="width: 50%;">
+                  原価
+                </div>
+              </div>
+            </div>
+
+            <!-- 定価バー -->
+            <div>
+              <div class="flex justify-between text-xs font-bold text-sky-300 mb-0.5">
+                <span>定価: <span id="bar-val-price" class="text-white font-mono">1,300</span> 円</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-lg h-6 p-0.5 overflow-hidden">
+                <div id="bar-price-fill" class="h-full bg-gradient-to-r from-blue-500 to-sky-400 rounded transition-all duration-150 flex items-center justify-end pr-2 text-[10px] font-bold text-white" style="width: 65%;">
+                  定価
+                </div>
+              </div>
+            </div>
+
+            <!-- 売価バー -->
+            <div>
+              <div class="flex justify-between text-xs font-bold text-emerald-300 mb-0.5">
+                <span>実際の売価: <span id="bar-val-sell" class="text-white font-mono">1,040</span> 円</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-lg h-6 p-0.5 overflow-hidden">
+                <div id="bar-sell-fill" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded transition-all duration-150 flex items-center justify-end pr-2 text-[10px] font-bold text-white" style="width: 52%;">
+                  売価
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 下部ステータス -->
+          <div class="relative z-10 w-full pt-2 border-t border-slate-800 flex justify-between items-center text-xs">
+            <span class="text-slate-400">最終利益額:</span>
+            <span class="font-mono text-base font-black">
+              <span id="sim-profit-amount" class="text-emerald-400 text-lg">+40</span> 円
+            </span>
+          </div>
+        </div>
+
+        <!-- スライダー操作パネル -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-700">① 原価:</span>
+              <span class="font-mono text-slate-800 font-bold"><span id="val-cost-slider">1,000</span> 円</span>
+            </div>
+            <input type="range" id="slider-cost" min="500" max="5000" value="1000" step="100" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-600">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-700">② 見込み利益率:</span>
+              <span class="font-mono text-sky-700 font-bold"><span id="val-margin-slider">30</span> %</span>
+            </div>
+            <input type="range" id="slider-margin" min="0" max="60" value="30" step="5" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-700">③ 割引率:</span>
+              <span class="font-mono text-purple-700 font-bold"><span id="val-discount-slider">20</span> %</span>
+            </div>
+            <input type="range" id="slider-discount" min="0" max="50" value="20" step="5" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600">
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 代金精算シミュレーターUI ================= -->
+      <div id="sim-section-split" class="hidden space-y-4">
+        <!-- 精算描画ステージ -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-slate-800 text-white space-y-3">
+          <div class="flex justify-between items-center text-xs border-b border-slate-800 pb-2">
+            <span class="text-slate-300 font-bold"><i class="fa-solid fa-users text-emerald-400"></i> 割り勘・精算判定モニター</span>
+            <span class="font-mono text-xs text-yellow-300">1人あたり平均: <span id="split-avg-display" class="font-bold text-sm">3,000</span> 円</span>
+          </div>
+
+          <!-- 各自のステータスカード -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+            <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700 space-y-1">
+              <div class="flex justify-between font-bold text-slate-300">
+                <span>Aさん</span>
+                <span class="font-mono text-sky-300"><span id="split-card-a-pay">4,500</span> 円払った</span>
+              </div>
+              <div id="split-status-a" class="font-bold text-[11px] text-emerald-400 font-mono">過不足: ＋1,500円 (受取)</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700 space-y-1">
+              <div class="flex justify-between font-bold text-slate-300">
+                <span>Bさん</span>
+                <span class="font-mono text-slate-300"><span id="split-card-b-pay">3,000</span> 円払った</span>
+              </div>
+              <div id="split-status-b" class="font-bold text-[11px] text-slate-400 font-mono">過不足: ±0円 (完了)</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700 space-y-1">
+              <div class="flex justify-between font-bold text-slate-300">
+                <span>Cさん</span>
+                <span class="font-mono text-rose-300"><span id="split-card-c-pay">1,500</span> 円払った</span>
+              </div>
+              <div id="split-status-c" class="font-bold text-[11px] text-rose-400 font-mono">過不足: −1,500円 (支払)</div>
+            </div>
+          </div>
+
+          <!-- 受渡し指示ボックス -->
+          <div id="split-action-box" class="p-3 rounded-xl bg-emerald-950/70 border border-emerald-500/50 text-xs text-emerald-200 flex items-center gap-2">
+            <i class="fa-solid fa-arrow-right-arrow-left text-emerald-400 text-sm shrink-0"></i>
+            <span id="split-action-text" class="font-bold">Cさん ➔ Aさん へ 1,500円 支払えば精算完了！</span>
+          </div>
+        </div>
+
+        <!-- 各自の支払額スライダー -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-700">Aさんの支払額:</span>
+              <span class="font-mono text-sky-700 font-bold"><span id="val-split-a">4,500</span> 円</span>
+            </div>
+            <input type="range" id="slider-split-a" min="0" max="9000" value="4500" step="500" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-700">Bさんの支払額:</span>
+              <span class="font-mono text-slate-700 font-bold"><span id="val-split-b">3,000</span> 円</span>
+            </div>
+            <input type="range" id="slider-split-b" min="0" max="9000" value="3000" step="500" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-600">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-700">Cさんの支払額:</span>
+              <span class="font-mono text-rose-700 font-bold"><span id="val-split-c">1,500</span> 円</span>
+            </div>
+            <input type="range" id="slider-split-c" min="0" max="9000" value="1500" step="500" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-rose-600">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 【出題パターン整理（全5型完全攻略）】 -->
+    <section id="patterns" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+      <div class="text-sky-700 font-bold text-xs mb-1 flex items-center gap-1.5">
+        <i class="fa-solid fa-list-check"></i> セクション 5：まとめ（全5型完全攻略）
+      </div>
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">金額計算の全出題パターン（全5型）</h2>
+      <p class="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed">
+        SPI非言語の金額計算は、以下の<strong class="text-slate-800">全5パターン</strong>に分類されます。それぞれの解法の型を押さえておけば、どんな問題でも即座に立式できます。
+      </p>
+
+      <div class="space-y-3.5">
+        
+        <!-- パターン 1 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-xs space-y-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">1</span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">基本の損益算（原価・定価・売価・利益の算出）</h3>
+            </div>
+            <span class="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 w-fit">最頻出・基本</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            定価＝原価×(1＋利益率)、売価＝定価×(1−割引率) の基本通りに計算する形式。
+          </p>
+          <div class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5">
+            <div class="text-xs font-bold text-blue-700 flex items-center gap-1">
+              <i class="fa-solid fa-bolt text-yellow-500"></i> 計算例：
+            </div>
+            <div class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed">
+              <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                <span>定価の3割引が4,200円</span>
+                <span class="text-slate-400 font-normal">➔</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5 whitespace-nowrap text-purple-700 font-black">
+                <span>0.7 × 定価 ＝ 4,200</span>
+                <span class="text-slate-400 font-normal">➔</span>
+              </span>
+              <span class="inline-flex items-center whitespace-nowrap">
+                <span class="bg-red-50 text-red-600 font-black px-2 py-0.5 rounded border border-red-200 text-sm sm:text-lg">定価 ＝ 6,000円！</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- パターン 2 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-xs space-y-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-amber-600 text-white font-bold text-xs flex items-center justify-center shrink-0">2</span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">仮定法で解く割合問題（原価が明示されない問題）</h3>
+            </div>
+            <span class="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 w-fit">暗算テクニック</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            金額が与えられず「利益率は原価の何％か？」だけを問う問題。
+          </p>
+          <div class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5">
+            <div class="text-xs font-bold text-amber-700 flex items-center gap-1">
+              <i class="fa-solid fa-bolt text-yellow-500"></i> 解法手順：
+            </div>
+            <div class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed">
+              <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                <span>原価＝100円と置く</span>
+                <span class="text-slate-400 font-normal">➔</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                <span>定価＝140円</span>
+                <span class="text-slate-400 font-normal">➔</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5 whitespace-nowrap text-purple-700 font-black">
+                <span>売価＝140×0.8＝112円</span>
+                <span class="text-slate-400 font-normal">➔</span>
+              </span>
+              <span class="inline-flex items-center whitespace-nowrap">
+                <span class="bg-red-50 text-red-600 font-black px-2 py-0.5 rounded border border-red-200 text-sm sm:text-lg">利益率 ＝ 12%！</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- パターン 3 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-xs space-y-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-purple-600 text-white font-bold text-xs flex items-center justify-center shrink-0">3</span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">個数・売れ残り廃棄ロス複合型</h3>
+            </div>
+            <span class="text-[11px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-100 w-fit">差がつく応用</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            仕入れた個数のうち一部を定価、残りを値引きで売り、さらに廃棄ロスが出る形式。
+          </p>
+          <div class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1">
+            <div class="text-xs font-bold text-purple-700 flex items-center gap-1">
+              <i class="fa-solid fa-bolt text-yellow-500"></i> 一撃計算の鉄則：
+            </div>
+            <div class="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">
+              総売上（各価格 × 販売個数の合計）を出してから、<strong class="text-purple-800">全体の仕入れ総額を一気に引き算</strong>する！
+            </div>
+          </div>
+        </div>
+
+        <!-- パターン 4 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-xs space-y-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-600 text-white font-bold text-xs flex items-center justify-center shrink-0">4</span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">料金計算（まとめ買い割引・税率・利息）</h3>
+            </div>
+            <span class="text-[11px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 w-fit">実務系問題</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            「○個以上買うと全体が割引」「単利で預けた場合の満期受取額」などの実生活に即した計算。
+          </p>
+          <div class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1">
+            <div class="text-xs font-bold text-sky-700 flex items-center gap-1">
+              <i class="fa-solid fa-bolt text-yellow-500"></i> 単利の公式：
+            </div>
+            <div class="text-xs sm:text-base font-bold text-slate-900 leading-relaxed">
+              満期受取額 ＝ <strong class="text-sky-800 font-black">元金 × (1 ＋ 年利 × 年数)</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- パターン 5 -->
+        <div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200 shadow-xs space-y-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-emerald-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0">5</span>
+              <h3 class="font-bold text-emerald-950 text-sm sm:text-base">代金精算（立替払い・借金相殺・逆算）</h3>
+            </div>
+            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200 w-fit">就活生必修</span>
+          </div>
+          <p class="text-xs sm:text-sm text-emerald-950 leading-relaxed">
+            複数人での旅行や立替で「誰が誰に何円払えば公平になるか」を過不足から求める形式。
+          </p>
+          <div class="bg-white p-3 rounded-xl border border-emerald-200 font-mono shadow-2xs space-y-1">
+            <div class="text-xs font-bold text-emerald-700 flex items-center gap-1">
+              <i class="fa-solid fa-bolt text-yellow-500"></i> 解法手順：
+            </div>
+            <div class="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">
+              総額÷人数＝平均額 ➔ 各人の差額（支払額 − 平均）を出し、<strong class="text-emerald-800 font-black">マイナスの人がプラスの人へ支払う！</strong>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 要点ひとことバナー -->
+      <div class="mt-4 p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl text-center shadow-sm">
+        <p class="text-xs sm:text-sm font-bold text-slate-800">
+          💡 損益算は<span class="marker-yellow text-sm sm:text-base inline-block my-0.5">「原価＝100円の仮定法」</span>、代金精算は<span class="marker-yellow text-sm sm:text-base inline-block my-0.5">「平均額からの過不足テーブル」</span>を使うのが最速の近道です！
+        </p>
+      </div>
+    </section>
+
+    <!-- 6. 【実戦練習: チャレンジ厳選15問（難易度別フィルター付き）】 -->
+    <section id="quiz" class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+      
+      <!-- クイズヘッダー -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 mb-4 gap-2">
+        <div>
+          <span class="text-xs font-bold text-yellow-800 bg-yellow-100 px-2 py-0.5 rounded border border-yellow-200 flex items-center gap-1.5 w-fit">
+            <i class="fa-solid fa-fire text-red-500"></i> SPI本番完全攻略
+          </span>
+          <h2 class="text-base sm:text-xl font-bold text-slate-900 mt-0.5">金額計算 実戦チャレンジ厳選15問</h2>
+        </div>
+        
+        <!-- 難易度切り替えタブ -->
+        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold self-start sm:self-auto overflow-x-auto no-scrollbar">
+          <button id="filter-all" onclick="filterQuiz('all')" class="px-2.5 py-1 rounded-lg bg-white shadow-xs text-sky-700 font-black transition">
+            すべて (15)
+          </button>
+          <button id="filter-easy" onclick="filterQuiz('easy')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            初級 ★☆☆ (5)
+          </button>
+          <button id="filter-mid" onclick="filterQuiz('mid')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            中級 ★★☆ (5)
+          </button>
+          <button id="filter-hard" onclick="filterQuiz('hard')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            上級 ★★★ (5)
+          </button>
+        </div>
+      </div>
+
+      <!-- 問題選択ミニナビゲーション（問題番号ボタン） -->
+      <div class="mb-4 pb-2 border-b border-slate-100">
+        <div class="text-[11px] text-slate-500 font-bold mb-1.5 flex items-center justify-between">
+          <span>問題一覧（クリックでジャンプ）：</span>
+          <span id="quiz-progress-text" class="text-sky-700 font-mono">1 / 15問</span>
+        </div>
+        <div id="quiz-num-bar" class="flex flex-wrap gap-1.5">
+          <!-- JSで動的にボタン生成 -->
+        </div>
+      </div>
+
+      <!-- クイズ表示エリア -->
+      <div id="quiz-container" class="space-y-4">
+        
+        <!-- 問題文エリア -->
+        <div class="p-4 rounded-xl bg-sky-50/50 border border-sky-100 space-y-2">
+          <div class="flex items-center justify-between">
+            <span id="quiz-category" class="text-[11px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded">初級 ★☆☆</span>
+            <span id="quiz-diff-stars" class="text-xs text-amber-500"><i class="fa-solid fa-star"></i></span>
+          </div>
+          <p id="quiz-question" class="text-xs sm:text-base font-bold text-slate-800 leading-relaxed">
+            <!-- JSで動的に問題文が挿入されます -->
+          </p>
+        </div>
+
+        <!-- 選択肢ボタン（JSで動的生成） -->
+        <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- JSで動的にボタンが挿入されます -->
+        </div>
+
+        <!-- 解答・解説エリア（回答後に表示） -->
+        <div id="quiz-feedback" class="hidden p-4 sm:p-5 rounded-xl border transition-all space-y-3">
+          <div id="quiz-result-title" class="text-sm sm:text-base font-bold flex items-center gap-2"></div>
+          
+          <!-- 解説エリア -->
+          <div id="quiz-explanation" class="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-2.5 border-t border-slate-200/60 pt-3">
+            <!-- JSで挿入 -->
+          </div>
+
+          <div class="mt-4 flex items-center justify-between pt-2 border-t border-slate-200/60">
+            <button onclick="prevQuiz()" id="btn-prev-quiz" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-xs sm:text-sm flex items-center gap-1 shadow-xs">
+              <i class="fa-solid fa-arrow-left text-xs"></i> <span>前の問題</span>
+            </button>
+            <button onclick="nextQuiz()" id="btn-next-quiz" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg transition text-xs sm:text-sm flex items-center gap-1.5 shadow-sm">
+              <span>次の問題へ</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================
+       フッター（全単元共通）
+       ========================================================= -->
+  <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs mt-12 border-t border-slate-800">
+    <div class="max-w-5xl mx-auto px-4 space-y-2">
+      <div class="flex items-center justify-center gap-2 text-white font-bold">
+        <a href="index.html" class="hover:text-yellow-300 transition">SPI直感攻略ナビ ポータル</a>
+      </div>
+      <p class="text-slate-500 text-[11px]">© 2026 SPI直感攻略ナビ</p>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       JavaScript ロジック
+       ========================================================= -->
+  <script>
+    /* ---------------------------------------------------------
+     * クイズデータ（初級5問・中級5問・上級5問 ＝ 厳選15問）
+     * --------------------------------------------------------- */
+    const QUIZ_DATA = [
+      // === 初級 ★☆☆ (Q1〜Q5) ===
+      {
+        id: 1,
+        difficulty: "easy",
+        diffLabel: "初級 ★☆☆",
+        category: "パターン1: 損益基本（定価の逆算）",
+        question: "あるランニングシューズを定価の3割引の4,200円で売った。この品物の定価はいくらか？",
+        options: ["5,400円", "5,800円", "6,000円", "6,200円"],
+        answerIndex: 2, // 6,000円
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【即答テクニック】</strong><br>
+            ・3割引で売ったということは、売値4,200円は定価の <strong class="text-purple-700">7割（0.7倍）</strong> にあたります！<br>
+            ・定価 ＝ 4,200 ÷ 0.7 ＝ <strong class="text-red-600 font-black text-sm">6,000円！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            📐 方程式：定価をXとすると、X × (1 − 0.3) ＝ 4,200 ➔ 0.7X ＝ 4,200 ➔ X ＝ 6,000円
+          </div>
+        `
+      },
+      {
+        id: 2,
+        difficulty: "easy",
+        diffLabel: "初級 ★☆☆",
+        category: "パターン1: 割増基本（定価の算出）",
+        question: "原価2,000円の品物に、原価の3割の利益を見込んで定価をつけた。この品物の定価はいくらか？",
+        options: ["2,400円", "2,600円", "2,800円", "3,000円"],
+        answerIndex: 1, // 2,600円
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【即答テクニック】</strong><br>
+            ・3割の利益を見込む ＝ 原価の <strong class="text-purple-700">1.3倍</strong>！<br>
+            ・定価 ＝ 2,000 × 1.3 ＝ <strong class="text-red-600 font-black text-sm">2,600円！</strong><br>
+            <span class="text-slate-500 text-xs">※見込み利益額は 2,000 × 0.3 ＝ 600円 なので、2,000 ＋ 600 ＝ 2,600円 と考えてもOK！</span>
+          </div>
+        `
+      },
+      {
+        id: 3,
+        difficulty: "easy",
+        diffLabel: "初級 ★☆☆",
+        category: "パターン1: 割増と割引の売買",
+        question: "原価1,000円の商品に2割の利益を見込んで定価をつけたが、売れなかったので定価の1割引で売った。このときの利益はいくらか？",
+        options: ["60円", "80円", "100円", "120円"],
+        answerIndex: 1, // 80円
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【ステップ計算】</strong><br>
+            1. <strong>定価を出す</strong>: 1,000 × 1.2 ＝ 1,200円<br>
+            2. <strong>売価を出す</strong>: 1,200 × (1 − 0.1) ＝ 1,200 × 0.9 ＝ 1,080円<br>
+            3. <strong>利益を出す</strong>: 売価1,080円 − 原価1,000円 ＝ <strong class="text-red-600 font-black text-sm">80円！</strong>
+          </div>
+          <div class="text-[11px] text-amber-800 bg-amber-50 p-2 rounded border border-amber-200">
+            ⚠️ <strong>注意：</strong>「2割増しの1割引だから＋1割（100円の利益）」と引き算してはいけません！割引の基準は定価1,200円だからです。
+          </div>
+        `
+      },
+      {
+        id: 4,
+        difficulty: "easy",
+        diffLabel: "初級 ★☆☆",
+        category: "パターン5: 代金精算（3人の均等割り勘）",
+        question: "A、B、Cの3人で食事に行き、Aが4,500円、Bが3,000円、Cが1,500円支払った。3人の負担額を均等にするには、誰が誰にいくら支払えばよいか？",
+        options: [
+          "CがAに1,500円支払う",
+          "CがBに1,500円支払う",
+          "BがAに1,500円支払う",
+          "CがAに1,000円、Bに500円支払う"
+        ],
+        answerIndex: 0, // CがAに1,500円
+        explanation: `
+          <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200 text-emerald-950 font-medium">
+            <strong>📋【精算マトリクスで判定】</strong><br>
+            ・総額：4,500 ＋ 3,000 ＋ 1,500 ＝ 9,000円<br>
+            ・1人あたりの平均負担額：9,000 ÷ 3 ＝ <strong class="text-emerald-700">3,000円</strong><br>
+            ・各人の過不足（支払額 − 3,000円）：<br>
+            　A：4,500 − 3,000 ＝ <strong>＋1,500円（受取側）</strong><br>
+            　B：3,000 − 3,000 ＝ <strong>±0円（精算不要）</strong><br>
+            　C：1,500 − 3,000 ＝ <strong class="text-rose-600">−1,500円（支払側）</strong><br>
+            ➔ したがって <strong class="text-red-600 font-black text-sm">CがAに1,500円支払う</strong> のが正解！
+          </div>
+        `
+      },
+      {
+        id: 5,
+        difficulty: "easy",
+        diffLabel: "初級 ★☆☆",
+        category: "パターン4: 料金割引（まとめ買い割引）",
+        question: "1個300円のケーキがある。10個以上まとめて購入すると全体の代金が15%引きになる。このケーキを12個購入したときの支払総額はいくらか？",
+        options: ["3,000円", "3,060円", "3,120円", "3,240円"],
+        answerIndex: 1, // 3,060円
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【計算手順】</strong><br>
+            1. <strong>定価総額</strong>: 300円 × 12個 ＝ 3,600円<br>
+            2. <strong>15%引き（× 0.85）</strong>: 3,600 × 0.85 ＝ <strong class="text-red-600 font-black text-sm">3,060円！</strong><br>
+            <span class="text-slate-500 text-xs">※暗算のコツ：10%は360円、5%は180円 ➔ 割引額＝360＋180＝540円引き。3,600 − 540 ＝ 3,060円！</span>
+          </div>
+        `
+      },
+
+      // === 中級 ★★☆ (Q6〜Q10) ===
+      {
+        id: 6,
+        difficulty: "mid",
+        diffLabel: "中級 ★★☆",
+        category: "パターン2: 仮定法で解く割合問題",
+        question: "ある商品に原価の4割の利益を見込んで定価をつけたが、売れなかったので定価の2割引で売った。このとき得られる利益は原価の何%か？",
+        options: ["10%", "12%", "14%", "16%"],
+        answerIndex: 1, // 12%
+        explanation: `
+          <div class="bg-amber-50 p-2.5 rounded-lg border border-amber-200 text-amber-950 font-medium">
+            <strong>⚡【原価＝100円の仮定法で即答！】</strong><br>
+            1. 原価を <strong class="text-amber-800">100円</strong> と仮定する。<br>
+            2. 4割増しの定価：100 × 1.4 ＝ <strong>140円</strong><br>
+            3. 2割引の売価：140 × 0.8 ＝ <strong>112円</strong><br>
+            4. 利益：112 − 100 ＝ <strong class="text-red-600 font-black text-sm">12円（＝12%の利益！）</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            📐 倍数の掛け算：1.4 × 0.8 ＝ 1.12 ➔ 原価の1.12倍 ➔ 利益率は 12%！
+          </div>
+        `
+      },
+      {
+        id: 7,
+        difficulty: "mid",
+        diffLabel: "中級 ★★☆",
+        category: "パターン3: 個数複合損益算",
+        question: "原価800円の品物を50個仕入れた。3割の利益を見込んで定価をつけたが、30個売れたところで残りの20個は定価の2割引にして完売した。全体の利益はいくらか？",
+        options: ["7,200円", "7,500円", "7,840円", "8,200円"],
+        answerIndex: 2, // 7,840円
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【個別の利益を足し算する速解テクニック】</strong><br>
+            ・原価：800円<br>
+            ・定価：800 × 1.3 ＝ 1,040円（1個あたりの利益 ＝ 240円）<br>
+            ・値引き後の売価：1,040 × 0.8 ＝ 832円（1個あたりの利益 ＝ 32円）<br><br>
+            ・<strong>定価で売った30個の利益</strong>: 240円 × 30個 ＝ 7,200円<br>
+            ・<strong>値引きで売った20個の利益</strong>: 32円 × 20個 ＝ 640円<br>
+            ・<strong>合計の総利益</strong>: 7,200 ＋ 640 ＝ <strong class="text-red-600 font-black text-sm">7,840円！</strong>
+          </div>
+        `
+      },
+      {
+        id: 8,
+        difficulty: "mid",
+        diffLabel: "中級 ★★☆",
+        category: "パターン5: 代金精算（追加出費がある場合）",
+        question: "A、B、Cの3人で旅行に行き、Aが交通費6,000円、Bが宿泊費9,000円を立て替えた。その後、Cが食事代3,000円を支払った。3人の負担を均等にするには、誰が誰にいくら支払えばよいか？",
+        options: [
+          "CがBに3,000円支払う",
+          "AがBに1,000円、CがBに2,000円支払う",
+          "CがAに1,500円、Bに1,500円支払う",
+          "CがAに3,000円支払う"
+        ],
+        answerIndex: 0, // CがBに3,000円
+        explanation: `
+          <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200 text-emerald-950 font-medium">
+            <strong>📋【精算マトリクスで過不足を一発整理】</strong><br>
+            ・総額：6,000 ＋ 9,000 ＋ 3,000 ＝ 18,000円<br>
+            ・1人あたりの平均負担額：18,000 ÷ 3 ＝ <strong class="text-emerald-700">6,000円</strong><br><br>
+            ・各人の過不足（支払額 − 6,000円）：<br>
+            　A：6,000 − 6,000 ＝ <strong>±0円（支払も受取もなし！）</strong><br>
+            　B：9,000 − 6,000 ＝ <strong class="text-sky-700 font-bold">＋3,000円（受取側）</strong><br>
+            　C：3,000 − 6,000 ＝ <strong class="text-rose-600 font-bold">−3,000円（支払側）</strong><br><br>
+            ➔ Aは過不足ゼロなので動かず、マイナスのCがプラスのBへ <strong class="text-red-600 font-black text-sm">3,000円支払う</strong> だけで完了！
+          </div>
+        `
+      },
+      {
+        id: 9,
+        difficulty: "mid",
+        diffLabel: "中級 ★★☆",
+        category: "パターン5: 代金精算（4人・1人手ぶら精算）",
+        question: "A、B、C、Dの4人でバーベキューをした。Aが12,000円、Bが8,000円、Cが4,000円支払ったが、Dは手持ちがなく何も支払わなかった。4人の負担を均等にするため、Dは誰にいくら支払えばよいか？",
+        options: [
+          "DはAに6,000円支払う",
+          "DはAに4,000円、Bに2,000円支払う",
+          "DはAに3,000円、Bに2,000円、Cに1,000円支払う",
+          "DはAに5,000円、Bに1,000円支払う"
+        ],
+        answerIndex: 0, // DはAに6,000円
+        explanation: `
+          <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200 text-emerald-950 font-medium">
+            <strong>📋【4人の過不足を整理】</strong><br>
+            ・総額：12,000 ＋ 8,000 ＋ 4,000 ＋ 0 ＝ 24,000円<br>
+            ・1人あたりの平均額：24,000 ÷ 4 ＝ <strong class="text-emerald-700">6,000円</strong><br><br>
+            ・過不足（支払額 − 6,000円）：<br>
+            　A：12,000 − 6,000 ＝ <strong>＋6,000円（受取）</strong><br>
+            　B：8,000 − 6,000 ＝ <strong>＋2,000円（受取）</strong><br>
+            　C：4,000 − 6,000 ＝ <strong>−2,000円（支払）</strong><br>
+            　D：0 − 6,000 ＝ <strong>−6,000円（支払）</strong><br><br>
+            ➔ ちょうど C(−2,000) が B(＋2,000) に2,000円払い、<strong class="text-red-600 font-black text-sm">D(−6,000) が A(＋6,000) に6,000円支払う</strong> ことで、最もシンプルに精算できます！
+          </div>
+        `
+      },
+      {
+        id: 10,
+        difficulty: "mid",
+        diffLabel: "中級 ★★☆",
+        category: "パターン4: 料金計算（単利計算）",
+        question: "元金100万円を年利3%（単利）で3年間銀行に預けた場合、満期時に受け取れる金額（元利合計）はいくらか？（税金は考慮しない）",
+        options: ["1,060,000円", "1,090,000円", "1,092,727円", "1,120,000円"],
+        answerIndex: 1, // 1,090,000円
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【単利計算の公式】</strong><br>
+            ・単利とは「最初の元金に対してのみ毎年利息がつく」計算方法です。<br>
+            ・1年間の利息：100万円 × 0.03 ＝ 3万円<br>
+            ・3年間の利息総額：3万円 × 3年 ＝ 9万円<br>
+            ・満期の受取総額：100万円 ＋ 9万円 ＝ <strong class="text-red-600 font-black text-sm">1,090,000円（109万円）！</strong>
+          </div>
+          <div class="text-[11px] text-slate-500 font-mono bg-slate-50 p-2 rounded border border-slate-200">
+            公式：元金 × (1 ＋ 年利 × 年数) ＝ 100万 × (1 ＋ 0.03 × 3) ＝ 100万 × 1.09 ＝ 109万円
+          </div>
+        `
+      },
+
+      // === 上級 ★★★ (Q11〜Q15) ===
+      {
+        id: 11,
+        difficulty: "hard",
+        diffLabel: "上級 ★★★",
+        category: "パターン3: 廃棄ロス複合損益算",
+        question: "1個500円のケーキを100個仕入れ、4割の利益を見込んで定価をつけた。定価で70個売れ、残りは定価の半額に値下げしたところ25個売れ、最後の5個は売れ残って廃棄した。全体の利益はいくらか？",
+        options: ["6,500円", "7,250円", "7,750円", "8,500円"],
+        answerIndex: 2, // 7,750円
+        explanation: `
+          <div class="bg-rose-50 p-2.5 rounded-lg border border-rose-200 text-rose-950 font-medium">
+            <strong>⚡【総売上 − 総仕入れ額 で一発計算！】</strong><br>
+            1. <strong>仕入れ総額</strong>: 500円 × 100個 ＝ <strong class="text-slate-800">50,000円</strong><br>
+            2. <strong>定価</strong>: 500 × 1.4 ＝ 700円<br>
+            3. <strong>半額の売価</strong>: 700 × 0.5 ＝ 350円<br><br>
+            4. <strong>売上総額の計算</strong>:<br>
+            　・定価70個の売上: 700円 × 70個 ＝ 49,000円<br>
+            　・半額25個の売上: 350円 × 25個 ＝ 8,750円<br>
+            　・売上合計: 49,000 ＋ 8,750 ＝ <strong class="text-emerald-700 font-bold">57,750円</strong><br><br>
+            5. <strong>最終利益</strong>: 57,750円 − 50,000円 ＝ <strong class="text-red-600 font-black text-sm">7,750円！</strong>
+          </div>
+        `
+      },
+      {
+        id: 12,
+        difficulty: "hard",
+        diffLabel: "上級 ★★★",
+        category: "パターン5: 借金相殺のある代金精算",
+        question: "A、B、Cの3人で旅行に行き、Aがレンタカー代15,000円、Bがホテル代24,000円を立て替え、Cは何も払っていない。また、旅行前にAはBから2,000円借りていた。この借金を含めて均等に精算するには、どうすればよいか？",
+        options: [
+          "CがBに13,000円支払う（Aの精算はなし）",
+          "CがAに2,000円、Bに11,000円支払う",
+          "CがBに11,000円、AがBに2,000円支払う",
+          "CがAに6,500円、Bに6,500円支払う"
+        ],
+        answerIndex: 0, // CがBに13,000円支払う
+        explanation: `
+          <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200 text-emerald-950 font-medium">
+            <strong>📋【2段階で整理する必勝法】</strong><br>
+            <strong>STEP 1（今回の旅行代金の過不足）:</strong><br>
+            ・総額：15,000 ＋ 24,000 ＝ 39,000円 ➔ 1人平均 39,000 ÷ 3 ＝ <strong>13,000円</strong><br>
+            ・Aの過不足：15,000 − 13,000 ＝ <strong>＋2,000円（2,000円受け取る権利）</strong><br>
+            ・Bの過不足：24,000 − 13,000 ＝ <strong>＋11,000円（11,000円受け取る権利）</strong><br>
+            ・Cの過不足：0 − 13,000 ＝ <strong>−13,000円（13,000円支払う義務）</strong><br><br>
+            <strong>STEP 2（借金の相殺）:</strong><br>
+            ・Aは「旅行で2,000円もらう」はずだが、「Bへ借金2,000円返す」必要があるため、ちょうど <strong class="text-purple-700">±0円で相殺！</strong><br>
+            ・Bは「旅行の11,000円」＋「Aから返ってくる2,000円」＝ <strong class="text-sky-700">計13,000円</strong> 受け取る。<br>
+            ➔ したがって <strong class="text-red-600 font-black text-sm">CがBに13,000円支払う</strong> だけで、全員の精算と借金返済が一度に完了します！
+          </div>
+        `
+      },
+      {
+        id: 13,
+        difficulty: "hard",
+        diffLabel: "上級 ★★★",
+        category: "パターン5: 精算額からの総額逆算",
+        question: "A、B、Cの3人で旅行に行き、費用は各自が一部ずつ負担した。旅行後、3人の負担額を均等にするため精算したところ、AはBから2,400円、Cから3,600円を受け取った。Aが実際に支払っていた金額が12,000円だったとすると、旅行にかかった費用の総額はいくらか？",
+        options: ["15,000円", "18,000円", "21,000円", "24,000円"],
+        answerIndex: 1, // 18,000円
+        explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【Aの払いすぎた金額に着目する逆算解法】</strong><br>
+            1. <strong>Aが受け取った合計額</strong>: 2,400 ＋ 3,600 ＝ <strong class="text-purple-700">6,000円</strong><br>
+            ➔ つまりAは、自分の本来の負担額より「6,000円多く支払っていた（過不足＝＋6,000円）」ということ！<br>
+            2. <strong>1人あたりの平均負担額</strong>: Aの支払額12,000円 − 6,000円 ＝ <strong class="text-emerald-700">6,000円</strong><br>
+            3. <strong>旅行費用の総額</strong>: 1人6,000円 × 3人 ＝ <strong class="text-red-600 font-black text-sm">18,000円！</strong>
+          </div>
+          <div class="text-[11px] text-slate-500 font-mono bg-slate-50 p-2 rounded border border-slate-200">
+            検算：Bの支払額＝6,000−2,400＝3,600円、Cの支払額＝6,000−3,600＝2,400円。3人の合計＝12,000＋3,600＋2,400＝18,000円で完全一致！
+          </div>
+        `
+      },
+      {
+        id: 14,
+        difficulty: "hard",
+        diffLabel: "上級 ★★★",
+        category: "パターン1: 原価逆算の連立問題",
+        question: "ある商品を定価の2割引で売ると400円の利益になり、定価の3割引で売ると100円の損失になる。この商品の原価はいくらか？",
+        options: ["3,200円", "3,400円", "3,600円", "3,800円"],
+        answerIndex: 2, // 3,600円
+        explanation: `
+          <div class="bg-sky-50 p-2.5 rounded-lg border border-sky-200 text-sky-950 font-medium">
+            <strong>⚡【差額に着目する超速解テクニック】</strong><br>
+            ・「2割引（0.8倍）」と「3割引（0.7倍）」の売値の差は、定価の <strong class="text-sky-700">1割（0.1倍）</strong> です。<br>
+            ・金額の差：利益＋400円 と 損失−100円 の差 ＝ <strong class="text-slate-800">500円</strong>！<br>
+            ・定価の0.1倍が500円なので、<strong>定価 ＝ 500 ÷ 0.1 ＝ 5,000円</strong>！<br><br>
+            ・2割引で売った売価：5,000 × 0.8 ＝ 4,000円<br>
+            ・利益が400円なので、原価は 4,000 − 400 ＝ <strong class="text-red-600 font-black text-sm">3,600円！</strong>
+          </div>
+        `
+      },
+      {
+        id: 15,
+        difficulty: "hard",
+        diffLabel: "上級 ★★★",
+        category: "パターン5: 4人の最少受渡ペアリング",
+        question: "A、B、C、Dの4人で食事をした。Aが14,000円、Bが10,000円、Cが6,000円、Dが2,000円支払った。4人の負担を均等にするため、現金の受け渡しの回数を最も少なくして精算を終える手順として正しいものはどれか？",
+        options: [
+          "DがAに6,000円、CがBに2,000円支払う（計2回）",
+          "DがAに4,000円、CがAに2,000円支払う（計2回）",
+          "DがBに6,000円、CがAに2,000円支払う（計2回）",
+          "全員がAに集めてから再配分する（計3回）"
+        ],
+        answerIndex: 0, // DがAに6,000円、CがBに2,000円
+        explanation: `
+          <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200 text-emerald-950 font-medium">
+            <strong>📋【過不足のペアリング（相殺）テクニック】</strong><br>
+            1. <strong>総額と平均</strong>: 14,000＋10,000＋6,000＋2,000 ＝ 32,000円 ➔ 1人平均 <strong class="text-emerald-700">8,000円</strong><br>
+            2. <strong>各人の過不足</strong>:<br>
+            　A：14,000 − 8,000 ＝ <strong class="text-sky-700 font-bold">＋6,000円</strong> (受取)<br>
+            　B：10,000 − 8,000 ＝ <strong class="text-sky-700 font-bold">＋2,000円</strong> (受取)<br>
+            　C：6,000 − 8,000 ＝ <strong class="text-rose-600 font-bold">−2,000円</strong> (支払)<br>
+            　D：2,000 − 8,000 ＝ <strong class="text-rose-600 font-bold">−6,000円</strong> (支払)<br><br>
+            3. <strong>最少回数のペアリング</strong>:<br>
+            　・金額が一致するペア同士を直接繋ぎます！<br>
+            　➔ <strong class="text-red-600 font-bold">D(−6,000) が A(＋6,000) へ 6,000円支払う</strong><br>
+            　➔ <strong class="text-red-600 font-bold">C(−2,000) が B(＋2,000) へ 2,000円支払う</strong><br>
+            これだけで、たった<strong>2回の受け渡し</strong>で全員の精算が完全に終了します！
+          </div>
+        `
+      }
+    ];
+
+    /* ---------------------------------------------------------
+     * シミュレーター制御（損益 ＆ 代金精算）
+     * --------------------------------------------------------- */
+    let currentSimMode = 'profit'; // 'profit' or 'split'
+
+    function switchSimMode(mode) {
+      currentSimMode = mode;
+      const tabProfit = document.getElementById('tab-sim-profit');
+      const tabSplit = document.getElementById('tab-sim-split');
+      const secProfit = document.getElementById('sim-section-profit');
+      const secSplit = document.getElementById('sim-section-split');
+
+      if (mode === 'profit') {
+        tabProfit.className = 'px-3 py-1.5 rounded-lg bg-white shadow-xs text-sky-700 font-black transition';
+        tabSplit.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+        secProfit.classList.remove('hidden');
+        secSplit.classList.add('hidden');
+        updateProfitSim();
+      } else {
+        tabSplit.className = 'px-3 py-1.5 rounded-lg bg-white shadow-xs text-sky-700 font-black transition';
+        tabProfit.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+        secSplit.classList.remove('hidden');
+        secProfit.classList.add('hidden');
+        updateSplitSim();
+      }
+    }
+
+    // 損益シミュレーターの更新
+    function updateProfitSim() {
+      const cost = parseInt(document.getElementById('slider-cost').value);
+      const margin = parseInt(document.getElementById('slider-margin').value);
+      const discount = parseInt(document.getElementById('slider-discount').value);
+
+      document.getElementById('val-cost-slider').textContent = cost.toLocaleString();
+      document.getElementById('val-margin-slider').textContent = margin;
+      document.getElementById('val-discount-slider').textContent = discount;
+
+      const price = Math.round(cost * (1 + margin / 100));
+      const sell = Math.round(price * (1 - discount / 100));
+      const profit = sell - cost;
+      const profitRate = ((profit / cost) * 100).toFixed(1);
+
+      document.getElementById('bar-val-cost').textContent = cost.toLocaleString();
+      document.getElementById('bar-val-price').textContent = price.toLocaleString();
+      document.getElementById('bar-val-sell').textContent = sell.toLocaleString();
+
+      // バーの幅更新（最大値基準）
+      const maxVal = Math.max(price, cost * 1.5);
+      document.getElementById('bar-cost-fill').style.width = `${Math.min(100, (cost / maxVal) * 100)}%`;
+      document.getElementById('bar-price-fill').style.width = `${Math.min(100, (price / maxVal) * 100)}%`;
+      document.getElementById('bar-sell-fill').style.width = `${Math.min(100, (sell / maxVal) * 100)}%`;
+
+      const amountEl = document.getElementById('sim-profit-amount');
+      const badgeEl = document.getElementById('sim-profit-rate-badge');
+
+      if (profit >= 0) {
+        amountEl.textContent = `+${profit.toLocaleString()}`;
+        amountEl.className = 'text-emerald-400 text-lg';
+        badgeEl.textContent = `利益率: +${profitRate}%`;
+        badgeEl.className = 'px-2.5 py-0.5 rounded font-mono font-bold text-xs bg-emerald-600 text-white shadow-sm';
+      } else {
+        amountEl.textContent = `${profit.toLocaleString()}`;
+        amountEl.className = 'text-rose-400 text-lg';
+        badgeEl.textContent = `損失率: ${profitRate}% (赤字)`;
+        badgeEl.className = 'px-2.5 py-0.5 rounded font-mono font-bold text-xs bg-rose-600 text-white shadow-sm';
+      }
+    }
+
+    // 代金精算シミュレーターの更新
+    function updateSplitSim() {
+      const a = parseInt(document.getElementById('slider-split-a').value);
+      const b = parseInt(document.getElementById('slider-split-b').value);
+      const c = parseInt(document.getElementById('slider-split-c').value);
+
+      document.getElementById('val-split-a').textContent = a.toLocaleString();
+      document.getElementById('val-split-b').textContent = b.toLocaleString();
+      document.getElementById('val-split-c').textContent = c.toLocaleString();
+
+      document.getElementById('split-card-a-pay').textContent = a.toLocaleString();
+      document.getElementById('split-card-b-pay').textContent = b.toLocaleString();
+      document.getElementById('split-card-c-pay').textContent = c.toLocaleString();
+
+      const total = a + b + c;
+      const avg = Math.round(total / 3);
+      document.getElementById('split-avg-display').textContent = avg.toLocaleString();
+
+      const diffA = a - avg;
+      const diffB = b - avg;
+      const diffC = c - avg;
+
+      renderPersonStatus('split-status-a', diffA);
+      renderPersonStatus('split-status-b', diffB);
+      renderPersonStatus('split-status-c', diffC);
+
+      // 受渡テキストの自動生成
+      const actionTextEl = document.getElementById('split-action-text');
+      const actions = [];
+
+      const list = [
+        { name: 'Aさん', diff: diffA },
+        { name: 'Bさん', diff: diffB },
+        { name: 'Cさん', diff: diffC }
+      ];
+
+      const payers = list.filter(p => p.diff < 0).map(p => ({ ...p, owe: -p.diff }));
+      const receivers = list.filter(p => p.diff > 0).map(p => ({ ...p, get: p.diff }));
+
+      payers.forEach(p => {
+        receivers.forEach(r => {
+          if (p.owe > 0 && r.get > 0) {
+            const transfer = Math.min(p.owe, r.get);
+            actions.push(`${p.name} ➔ ${r.name} へ ${transfer.toLocaleString()}円`);
+            p.owe -= transfer;
+            r.get -= transfer;
+          }
+        });
+      });
+
+      if (actions.length === 0) {
+        actionTextEl.textContent = '全員均等に支払っています！（精算不要）';
+      } else {
+        actionTextEl.textContent = `${actions.join('、 ')} 支払えば精算完了！`;
+      }
+    }
+
+    function renderPersonStatus(elId, diff) {
+      const el = document.getElementById(elId);
+      if (diff > 0) {
+        el.className = 'font-bold text-[11px] text-emerald-400 font-mono';
+        el.textContent = `過不足: ＋${diff.toLocaleString()}円 (受取)`;
+      } else if (diff < 0) {
+        el.className = 'font-bold text-[11px] text-rose-400 font-mono';
+        el.textContent = `過不足: −${Math.abs(diff).toLocaleString()}円 (支払)`;
+      } else {
+        el.className = 'font-bold text-[11px] text-slate-400 font-mono';
+        el.textContent = '過不足: ±0円 (完了)';
+      }
+    }
+
+    function initSimulator() {
+      // 損益スライダーイベント
+      ['slider-cost', 'slider-margin', 'slider-discount'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updateProfitSim);
+      });
+
+      // 精算スライダーイベント
+      ['slider-split-a', 'slider-split-b', 'slider-split-c'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updateSplitSim);
+      });
+
+      updateProfitSim();
+      updateSplitSim();
+    }
+
+    /* ---------------------------------------------------------
+     * クイズシステム（厳選15問・難易度別フィルター付き）
+     * --------------------------------------------------------- */
+    let currentFilter = 'all';
+    let filteredList = [...QUIZ_DATA];
+    let currentQuizIndexInFilter = 0;
+    let quizAnswered = false;
+    const answeredStatus = {}; // { qId: { answered: bool, isCorrect: bool } }
+
+    function filterQuiz(filterType) {
+      currentFilter = filterType;
+      
+      ['all', 'easy', 'mid', 'hard'].forEach(ft => {
+        const btn = document.getElementById(`filter-${ft}`);
+        if (ft === filterType) {
+          btn.className = 'px-2.5 py-1 rounded-lg bg-white shadow-xs text-sky-700 font-black transition';
+        } else {
+          btn.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+        }
+      });
+
+      if (filterType === 'all') {
+        filteredList = [...QUIZ_DATA];
+      } else {
+        filteredList = QUIZ_DATA.filter(q => q.difficulty === filterType);
+      }
+
+      currentQuizIndexInFilter = 0;
+      renderNumBar();
+      loadQuiz(0);
+    }
+
+    function renderNumBar() {
+      const bar = document.getElementById('quiz-num-bar');
+      bar.innerHTML = '';
+
+      filteredList.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        const st = answeredStatus[q.id];
+        let bgClass = 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200';
+        
+        if (st && st.answered) {
+          bgClass = st.isCorrect 
+            ? 'bg-emerald-500 text-white border-emerald-600' 
+            : 'bg-rose-500 text-white border-rose-600';
+        }
+
+        if (idx === currentQuizIndexInFilter) {
+          bgClass += ' ring-2 ring-sky-500 font-black';
+        }
+
+        btn.className = `w-7 h-7 rounded-lg text-xs font-bold border transition flex items-center justify-center ${bgClass}`;
+        btn.textContent = q.id;
+        btn.title = `第${q.id}問へジャンプ`;
+        btn.onclick = () => {
+          loadQuiz(idx);
+        };
+        bar.appendChild(btn);
+      });
+    }
+
+    function loadQuiz(idx) {
+      currentQuizIndexInFilter = idx;
+      quizAnswered = false;
+      const data = filteredList[idx];
+
+      document.getElementById('quiz-progress-text').textContent = `${idx + 1} / ${filteredList.length}問 (第${data.id}問)`;
+      document.getElementById('quiz-category').textContent = `${data.diffLabel}｜${data.category}`;
+      
+      const starsEl = document.getElementById('quiz-diff-stars');
+      if (data.difficulty === 'easy') starsEl.innerHTML = '<i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>';
+      else if (data.difficulty === 'mid') starsEl.innerHTML = '<i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>';
+      else starsEl.innerHTML = '<i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>';
+
+      document.getElementById('quiz-question').innerHTML = data.question;
+
+      const optsContainer = document.getElementById('quiz-options');
+      optsContainer.innerHTML = '';
+
+      data.options.forEach((optText, optIdx) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-opt-btn p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs sm:text-sm text-left transition shadow-xs flex items-center justify-between group';
+        btn.innerHTML = `
+          <span>${optText}</span>
+          <span class="w-5 h-5 rounded-full border border-slate-300 group-hover:border-sky-500 flex items-center justify-center text-[10px] text-transparent group-hover:text-sky-500">
+            ●
+          </span>
+        `;
+        btn.onclick = () => selectOption(optIdx);
+        optsContainer.appendChild(btn);
+      });
+
+      const feedback = document.getElementById('quiz-feedback');
+      feedback.classList.add('hidden');
+
+      document.getElementById('btn-prev-quiz').disabled = (idx === 0);
+      document.getElementById('btn-prev-quiz').classList.toggle('opacity-50', idx === 0);
+
+      renderNumBar();
+    }
+
+    function selectOption(selectedIdx) {
+      if (quizAnswered) return;
+      quizAnswered = true;
+
+      const data = filteredList[currentQuizIndexInFilter];
+      const isCorrect = (selectedIdx === data.answerIndex);
+
+      answeredStatus[data.id] = {
+        answered: true,
+        isCorrect: isCorrect
+      };
+
+      const optButtons = document.querySelectorAll('.quiz-opt-btn');
+      optButtons.forEach((btn, idx) => {
+        btn.disabled = true;
+        btn.classList.remove('hover:bg-slate-50');
+        if (idx === data.answerIndex) {
+          btn.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-900');
+          btn.innerHTML = `<span>${data.options[idx]}</span> <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> 正解</span>`;
+        } else if (idx === selectedIdx && !isCorrect) {
+          btn.classList.add('bg-rose-50', 'border-rose-400', 'text-rose-900');
+          btn.innerHTML = `<span>${data.options[idx]}</span> <span class="text-rose-500 font-bold"><i class="fa-solid fa-circle-xmark"></i> 不正解</span>`;
+        } else {
+          btn.classList.add('opacity-40');
+        }
+      });
+
+      const feedback = document.getElementById('quiz-feedback');
+      const titleEl = document.getElementById('quiz-result-title');
+      const expEl = document.getElementById('quiz-explanation');
+
+      if (isCorrect) {
+        feedback.className = 'p-4 sm:p-5 rounded-xl border border-emerald-300 bg-emerald-50/70 block space-y-3';
+        titleEl.className = 'text-sm sm:text-base font-bold flex items-center gap-2 text-emerald-800';
+        titleEl.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i> 正解です！金額計算の型を完璧に使いこなせています！';
+      } else {
+        feedback.className = 'p-4 sm:p-5 rounded-xl border border-rose-300 bg-rose-50/70 block space-y-3';
+        titleEl.className = 'text-sm sm:text-base font-bold flex items-center gap-2 text-rose-800';
+        titleEl.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-500 text-lg"></i> おしい！解説で立式の手順を確認しましょう';
+      }
+
+      expEl.innerHTML = data.explanation;
+      feedback.classList.remove('hidden');
+
+      renderNumBar();
+    }
+
+    function nextQuiz() {
+      if (currentQuizIndexInFilter < filteredList.length - 1) {
+        loadQuiz(currentQuizIndexInFilter + 1);
+      } else {
+        loadQuiz(0);
+      }
+    }
+
+    function prevQuiz() {
+      if (currentQuizIndexInFilter > 0) {
+        loadQuiz(currentQuizIndexInFilter - 1);
+      }
+    }
+
+    // --- ページ初期化 ---
+    window.addEventListener('DOMContentLoaded', () => {
+      initSimulator();
+      filterQuiz('all');
+    });
+  </script>
+
+</body>
+</html>
+
