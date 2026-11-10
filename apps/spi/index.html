@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPI直感攻略ナビ 〜ホーム〜</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    .marker-yellow {
+      background: #fef08a;
+      padding: 0 4px;
+      border-radius: 2px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+    .marker-red {
+      color: #dc2626;
+      font-weight: 800;
+    }
+    /* モバイル横スクロールバー非表示用 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- ヘッダー: 親しみやすい爽やかなブルー調（spi.htmlと統一） -->
+  <header class="bg-gradient-to-r from-blue-600 via-sky-600 to-blue-700 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3">
+      <div class="flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-2.5 sm:gap-3 hover:opacity-95 transition">
+          <!-- SPIロゴ -->
+          <div class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl bg-white/20 flex items-center justify-center font-black tracking-wider text-yellow-300 text-xs sm:text-base shadow-inner border border-white/20 shrink-0">
+            SPI
+          </div>
+          <div>
+            <h1 class="font-black text-sm sm:text-lg tracking-tight text-white leading-tight">SPI直感攻略ナビ</h1>
+            <p class="text-[10px] sm:text-[11px] text-yellow-200 font-bold flex items-center gap-1">
+              総合ポータル
+            </p>
+          </div>
+        </a>
+        <a href="spi.html" class="sm:hidden text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1 shrink-0">
+          <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+          通過算へ
+        </a>
+      </div>
+      
+      <!-- ナビゲーションリンク（モバイルでは横スワイプ可能） -->
+      <nav class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0 w-full sm:w-auto">
+        <button onclick="setFilter('all')" class="whitespace-nowrap shrink-0 text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2.5 sm:px-3 py-1.5 rounded-lg transition">
+          全単元 (<span id="nav-count-all">15</span>)
+        </button>
+        <button onclick="setFilter('nonverbal')" class="whitespace-nowrap shrink-0 text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2.5 sm:px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-300"></span> 非言語 (<span id="nav-count-nonverbal">10</span>)
+        </button>
+        <button onclick="setFilter('verbal')" class="whitespace-nowrap shrink-0 text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2.5 sm:px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-rose-300"></span> 言語 (5)
+        </button>
+        <a href="spi.html" class="whitespace-nowrap shrink-0 text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 sm:px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1">
+          通過算
+        </a>
+        <a href="age.html" class="whitespace-nowrap shrink-0 text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-black px-2.5 sm:px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1">
+          年齢算
+        </a>
+        <a href="money.html" class="whitespace-nowrap shrink-0 text-xs bg-amber-400 hover:bg-amber-300 text-slate-900 font-black px-2.5 sm:px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping"></span>
+          金額計算 NEW!
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 space-y-6 sm:space-y-10 flex-1 w-full">
+
+    <!-- ヒーローセクション -->
+    <section class="bg-gradient-to-br from-blue-700 via-sky-600 to-indigo-700 rounded-2xl sm:rounded-3xl p-5 sm:p-10 text-white shadow-lg relative overflow-hidden">
+      <!-- 背景装飾アイコン -->
+      <div class="absolute -right-10 -bottom-10 text-white/10 text-9xl font-black pointer-events-none select-none">
+        <i class="fa-solid fa-shapes"></i>
+      </div>
+      
+      <div class="max-w-3xl relative z-10 space-y-3.5 sm:space-y-4">
+        <div class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-yellow-300 text-[11px] sm:text-xs font-bold">
+          <i class="fa-solid fa-sparkles text-yellow-300"></i> 動くシミュレーションで本質理解
+        </div>
+        <h2 class="text-xl sm:text-3xl md:text-4xl font-black leading-snug sm:leading-tight tracking-tight">
+          公式の丸暗記を卒業！<br>
+          <span class="text-yellow-300 underline decoration-yellow-400/50 decoration-wavy">直感的な図解</span>でSPIを最速攻略
+        </h2>
+        <p class="text-xs sm:text-base text-blue-100 leading-relaxed max-w-2xl">
+          解法の手順をただ覚えるだけでなく、アニメーションや図解を通して「なぜその計算になるのか」を目で見て直感的にマスター。SPI非言語の攻略を強力にサポートします。
+        </p>
+
+        <!-- CTAエリア -->
+        <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+          <a href="spi.html" class="px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 group">
+            <i class="fa-solid fa-train text-slate-900 group-hover:translate-x-0.5 transition"></i>
+            <span>第1弾【通過算】</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </a>
+          <a href="age.html" class="px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-black text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 group">
+            <i class="fa-solid fa-clock-rotate-left text-slate-900 group-hover:rotate-[-45deg] transition"></i>
+            <span>第2弾【年齢算】</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </a>
+          <a href="money.html" class="px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 group">
+            <i class="fa-solid fa-coins text-slate-900 group-hover:scale-110 transition"></i>
+            <span>第3弾【金額計算】NEW!</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </a>
+          <a href="#category-section" class="px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs sm:text-sm backdrop-blur-sm border border-white/25 transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-list-check"></i> 単元一覧
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- サイトの3大特徴 -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex items-start gap-4 hover:shadow-md transition">
+        <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0 text-xl font-bold">
+          <i class="fa-solid fa-sliders"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-sm sm:text-base mb-1">動くシミュレーター</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            スライダーで数値を変えて動きをリアルタイム観察。数式の意味を「目で見て納得」できます。
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex items-start gap-4 hover:shadow-md transition">
+        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 text-xl font-bold">
+          <i class="fa-solid fa-lightbulb"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-sm sm:text-base mb-1">単位計算・公式のコツ</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            失点原因になりやすい「km/hとm/sの換算」や「はじき」の使い分けなど、試験直結の裏ワザを整理。
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex items-start gap-4 hover:shadow-md transition">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 text-xl font-bold">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-sm sm:text-base mb-1">即時判定クイズ</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            各単元末尾に厳選問題を収録。丁寧なステップ別解説で、解法の手順を確実に定着させます。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 単元一覧セクション -->
+    <section id="category-section" class="space-y-6">
+      
+      <!-- サイトコンセプト・学習指針の注釈バナー -->
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5 text-slate-700 shadow-sm">
+        <div class="flex items-start gap-3.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 font-bold text-base mt-0.5 shadow-sm">
+            <i class="fa-solid fa-circle-info"></i>
+          </div>
+          <div class="space-y-2 text-xs sm:text-sm leading-relaxed">
+            <h3 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+              当サイトのコンセプトと学習の進め方について
+            </h3>
+            <p class="text-slate-700">
+              このサイトでは<strong class="text-amber-900 font-bold">「非言語を図解で目で見て覚える」</strong>をコンセプトとしています。
+              重きを置いているのは<strong class="text-sky-700 font-bold">非言語</strong>分野です。
+              言語分野は今後作成するか未定となっております。
+              なお、<span class="text-slate-500 font-medium">英語はここでは取り扱わないものとします</span>。
+            </p>
+            <div class="pt-1 border-t border-amber-200/80 flex items-center gap-1.5 text-xs text-amber-950 font-bold">
+              <span>💡 学習のアドバイス：</span>
+              <span class="font-medium text-slate-700">
+                学習はこのサイトのシミュレーターも活用しつつ、参考書や過去問など<strong class="text-red-600 font-bold">複数のソースで勉強</strong>を進めてください！
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- コントロールバー（大分類タブ ＆ 検索） -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-book-open text-sky-600"></i> SPI3 攻略単元カテゴリー（全15単元）
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">学びたい分野を選択するか、キーワードで絞り込んでください</p>
+          </div>
+
+          <!-- 検索インプット -->
+          <div class="relative w-full md:w-72">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input 
+              id="search-input" 
+              type="text" 
+              oninput="handleSearch()"
+              placeholder="単元名・キーワードで検索..." 
+              class="w-full pl-8 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+            >
+          </div>
+        </div>
+
+        <!-- カテゴリタブ切り替え（モバイルで横スワイプ可能） -->
+        <div class="flex overflow-x-auto no-scrollbar gap-2 pt-2 border-t border-slate-100 pb-1">
+          <button onclick="setFilter('all')" class="cat-filter-btn whitespace-nowrap shrink-0 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-sky-600 text-white shadow-sm flex items-center gap-1.5" data-category="all">
+            すべて (<span id="count-all">15</span>)
+          </button>
+          <button onclick="setFilter('nonverbal')" class="cat-filter-btn whitespace-nowrap shrink-0 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition flex items-center gap-1.5" data-category="nonverbal">
+            <span class="w-2 h-2 rounded-full bg-sky-500"></span> 非言語 (<span id="count-nonverbal">10</span>)
+          </button>
+          <button onclick="setFilter('verbal')" class="cat-filter-btn whitespace-nowrap shrink-0 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition flex items-center gap-1.5" data-category="verbal">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span> 言語 (5) <span class="text-[10px] text-slate-400">※未定</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 単元カードグリッド（全15単元） -->
+      <div id="unit-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        
+        <!-- ==================== 【非言語 10項目】 ==================== -->
+
+        <!-- 1. 速度算（公開中！） -->
+        <div class="unit-card bg-white rounded-2xl p-5 border-2 border-sky-400 shadow-md flex flex-col justify-between hover:shadow-lg hover:-translate-y-0.5 transition duration-200 relative overflow-hidden" data-type="nonverbal" data-title="速度算 速さ 時間 距離 追い越す 出会う 通過算 旅人算 流水算 はじき">
+          <!-- 公開中リボンバッジ -->
+          <div class="absolute top-0 right-0 bg-gradient-to-l from-emerald-500 to-teal-500 text-white text-[10px] font-black px-3 py-1 rounded-bl-xl shadow-sm flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+            第1弾 公開中
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-800">非言語</span>
+              <span class="text-xs text-amber-500">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
+                <span class="text-slate-400 text-[10px] ml-1">難易度: 普通</span>
+              </span>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
+                <i class="fa-solid fa-gauge-high"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">非言語：速度算</h3>
+                <p class="text-xs text-sky-700 font-bold mt-0.5">通過算・旅人算・出会いと追いつき</p>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed bg-sky-50/50 p-2.5 rounded-xl border border-sky-100">
+              速さ・時間・距離の関係を利用して、追い越す時刻や出会う時刻などの計算を行う
+            </p>
+          </div>
+
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <a href="spi.html" class="w-full py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl transition shadow-sm flex items-center justify-center gap-2 text-xs sm:text-sm">
+              <span>【第1弾 通過算】を学習する</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- 2. 年齢算（第2弾 公開中！） -->
+        <div class="unit-card bg-white rounded-2xl p-5 border-2 border-emerald-400 shadow-md flex flex-col justify-between hover:shadow-lg hover:-translate-y-0.5 transition duration-200 relative overflow-hidden" data-type="nonverbal" data-title="年齢算 年齢 親子 差 倍数 方程式 暗算 年後 年前 和">
+          <!-- 公開中リボンバッジ -->
+          <div class="absolute top-0 right-0 bg-gradient-to-l from-emerald-600 to-teal-500 text-white text-[10px] font-black px-3 py-1 rounded-bl-xl shadow-sm flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+            第2弾 公開中
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-800">非言語</span>
+              <span class="text-xs text-amber-500">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                <span class="text-slate-400 text-[10px] ml-1">難易度: 頻出</span>
+              </span>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">非言語：年齢算</h3>
+                <p class="text-xs text-emerald-700 font-bold mt-0.5">差は不変・暗算4ステップ・方程式</p>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100">
+              「年齢差は何年経っても不変」を利用し、何年後に何倍になるかを差÷(倍数-1)で20秒暗算！
+            </p>
+          </div>
+
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <a href="age.html" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-sm flex items-center justify-center gap-2 text-xs sm:text-sm">
+              <span>【第2弾 年齢算】を学習する</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- 2. 推論 -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="nonverbal" data-title="推論 与えられた条件 情報 論理的 結論 関係性 順序 位置 勝敗 真偽">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-800">非言語</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-sky-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-brain"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">非言語：推論</h3>
+                <p class="text-xs text-slate-500 mt-0.5">条件整理・論理的帰結</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              与えられた条件や情報を基に、論理的に結論や関係性を導き出す
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('非言語：推論')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. 表の読み取り -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="nonverbal" data-title="表の読み取り 表 グラフ 数値 計算 比較 資料解釈 統計">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-800">非言語</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-sky-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-table-cells"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">非言語：表の読み取り</h3>
+                <p class="text-xs text-slate-500 mt-0.5">資料解釈・数値比較</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              表やグラフから必要な数値を読み取り、計算や比較を行う
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('非言語：表の読み取り')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. 集合 -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="nonverbal" data-title="集合 グループ 条件 重複 除外 人数 数 ベン図 キャロット表">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-800">非言語</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-sky-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-circle-nodes"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">非言語：集合</h3>
+                <p class="text-xs text-slate-500 mt-0.5">グループ分け・重複の除外</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              複数のグループや条件を整理し、重複や除外に注意しながら該当する人数や数を求める
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('非言語：集合')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+        <!-- 5. 場合の数 -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="nonverbal" data-title="場合の数 並べ方 組み合わせ 総数 P C 順列">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-800">非言語</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-sky-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-arrow-down-1-9"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">非言語：場合の数</h3>
+                <p class="text-xs text-slate-500 mt-0.5">並べ方・組み合わせの総数</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              並べ方や組み合わせの総数を求める
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('非言語：場合の数')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+        <!-- 6. 確率 -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="nonverbal" data-title="確率 事象 起こる確率 サイコロ くじ 余事象">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-800">非言語</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-sky-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-dice"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">非言語：確率</h3>
+                <p class="text-xs text-slate-500 mt-0.5">事象の起こる確率・余事象</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              ある事象が起こる確率を求める
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('非言語：確率')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+        <!-- 7. 金額計算（第3弾 公開中！） -->
+        <div class="unit-card bg-white rounded-2xl p-5 border-2 border-amber-400 shadow-md flex flex-col justify-between hover:shadow-lg hover:-translate-y-0.5 transition duration-200 relative overflow-hidden" data-type="nonverbal" data-title="金額計算 割増 割引 損益 原価 定価 売値 利益 代金精算 割り勘 立替">
+          <!-- 公開中リボンバッジ -->
+          <div class="absolute top-0 right-0 bg-gradient-to-l from-amber-500 to-yellow-500 text-slate-900 text-[10px] font-black px-3 py-1 rounded-bl-xl shadow-sm flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>
+            第3弾 公開中
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-800">非言語</span>
+              <span class="text-xs text-amber-500">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                <span class="text-slate-400 text-[10px] ml-1">難易度: 頻出・超重要</span>
+              </span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
+                <i class="fa-solid fa-coins"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">非言語：金額計算</h3>
+                <p class="text-xs text-amber-700 font-bold mt-0.5">損益・割増・割引・代金精算</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-amber-50/50 p-2.5 rounded-xl border border-amber-100">
+              原価・定価・売価の関係、割増割引の仮定法、複数人の代金立替（割り勘）を直感図解で最速マスター！
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <a href="money.html" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-900 font-black rounded-xl transition shadow-sm flex items-center justify-center gap-2 text-xs sm:text-sm">
+              <span>【第3弾 金額計算】を学習する</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- 8. 分担計算 -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="nonverbal" data-title="分担計算 複数人 作業 分担 分割払い 仕事算 水槽算">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-800">非言語</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-sky-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-briefcase"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">非言語：分担計算</h3>
+                <p class="text-xs text-slate-500 mt-0.5">作業分担・分割払い</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              複数人で作業を分担したり、分割払いした際の計算を行う
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('非言語：分担計算')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+        <!-- 9. 割合 -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="nonverbal" data-title="割合 全体 比率 百分率 パーセント 比">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-800">非言語</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-sky-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-percent"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">非言語：割合</h3>
+                <p class="text-xs text-slate-500 mt-0.5">全体比率・百分率</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              全体に対する割合や比率を求める
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('非言語：割合')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+        <!-- ==================== 【言語 5項目】 ==================== -->
+
+        <!-- 10. 二語の関係 -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="verbal" data-title="言語 二語の関係 2つの語句 関係性 同じ関係 組み合わせ 包含 対義 同義 原料">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800">言語分野</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-rose-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-link"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">言語：二語の関係</h3>
+                <p class="text-xs text-slate-500 mt-0.5">語句の関係性の見極め</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              提示された2つの語句の関係性を考え、同じ関係にある語句の組み合わせを選ぶ
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('言語：二語の関係')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+        <!-- 11. 熟語の成り立ち -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="verbal" data-title="言語 熟語の成り立ち 二字熟語 構成 漢字同士 関係 主語 述語 修飾">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800">言語分野</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-rose-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-cubes-stacked"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">言語：熟語の成り立ち</h3>
+                <p class="text-xs text-slate-500 mt-0.5">二字熟語の構成・漢字の関係</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              二字熟語の構成や、漢字同士の関係を見極める
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('言語：熟語の成り立ち')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+        <!-- 12. 語句の用法 -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="verbal" data-title="言語 語句の用法 設問文 語句 同じ意味 使い方 多義語 助詞 品詞">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800">言語分野</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-rose-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-spell-check"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">言語：語句の用法</h3>
+                <p class="text-xs text-slate-500 mt-0.5">同義用法・文脈識別</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              設問文中の語句と同じ意味や使い方をしているものを選ぶ
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('言語：語句の用法')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+        <!-- 13. 文の並び替え -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="verbal" data-title="言語 文の並び替え バラバラ 語句 文節 正しい順序 並べ替え 文章整序 接続詞">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800">言語分野</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-rose-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-arrow-down-wide-short"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">言語：文の並び替え</h3>
+                <p class="text-xs text-slate-500 mt-0.5">文節の順序・論理整序</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              バラバラに並んだ語句や文節を、意味が通るように正しい順序に並べ替える
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('言語：文の並び替え')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+        <!-- 14. 空欄補充 -->
+        <div class="unit-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition" data-type="verbal" data-title="言語 空欄補充 文章中 空欄 適切 語句 選択 穴埋め 接続語">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800">言語分野</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">準備中</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-rose-600 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">言語：空欄補充</h3>
+                <p class="text-xs text-slate-500 mt-0.5">文脈合致・適切な語句選択</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              文章中の空欄にもっとも適切な語句を選ぶ
+            </p>
+          </div>
+          <div class="pt-4 mt-2 border-t border-slate-100">
+            <button onclick="openComingSoonModal('言語：空欄補充')" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-clock"></i> 準備中
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 検索ヒット0件時のメッセージ -->
+      <div id="no-results-msg" class="hidden bg-white p-8 rounded-2xl border border-slate-200 text-center space-y-3">
+        <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+        <p class="font-bold text-slate-700">該当する単元が見つかりませんでした</p>
+        <p class="text-xs text-slate-500">キーワードを変えるか、フィルターを「すべて」に戻してお試しください。</p>
+        <button onclick="resetFilters()" class="px-4 py-2 bg-sky-600 text-white rounded-xl text-xs font-bold hover:bg-sky-700 transition">
+          フィルターをリセット
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- 準備中案内モーダル -->
+  <div id="coming-soon-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-100 space-y-4 animate-in fade-in duration-200">
+      <div class="flex items-center justify-between">
+        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-lg">
+          <i class="fa-solid fa-hourglass-half"></i>
+        </div>
+        <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 hover:bg-slate-200 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div>
+        <span class="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">準備中</span>
+        <h3 id="modal-unit-name" class="font-black text-slate-800 text-lg mt-1">単元名</h3>
+        <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+          こちらの単元は現在コンテンツおよびシミュレーターを準備中です！<br>
+          公開済みの単元をぜひ先にご体験ください。
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <!-- 第1弾 通過算 -->
+        <div class="bg-sky-50 border border-sky-100 rounded-xl p-3 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-sky-600 text-white flex items-center justify-center text-xs">
+              <i class="fa-solid fa-train"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-800">速度算：通過算の巻</div>
+              <div class="text-[10px] text-slate-500">動く電車シミュレーター付き</div>
+            </div>
+          </div>
+          <a href="spi.html" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
+            体験する
+          </a>
+        </div>
+
+        <!-- 第2弾 年齢算 -->
+        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-800">年齢算の巻（NEW!）</div>
+              <div class="text-[10px] text-slate-500">差÷(倍数-1) 暗算シミュ付き</div>
+            </div>
+          </div>
+          <a href="age.html" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
+            体験する
+          </a>
+        </div>
+      </div>
+
+      <div class="pt-2 flex justify-end">
+        <button onclick="closeModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
+          とじる
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- フッター -->
+  <footer class="bg-slate-900 text-slate-400 py-8 text-center text-xs border-t border-slate-800 mt-12 w-full">
+    <div class="max-w-7xl mx-auto px-4 space-y-3">
+      <div class="flex items-center justify-center gap-2 text-white font-bold text-sm">
+        <span class="px-2 py-0.5 rounded bg-white/20 text-yellow-300 text-xs">SPI</span>
+        <span>SPI直感攻略ナビ</span>
+      </div>
+      <p class="text-slate-500 text-[11px]">
+        非言語分野を図解と直感シミュレーションで目で見て覚えるSPI学習ポータル
+      </p>
+      <div class="flex items-center justify-center gap-4 text-xs pt-1">
+        <a href="../../index.html" class="inline-flex items-center gap-1.5 text-slate-300 hover:text-white font-bold transition px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/60">
+          <i class="fa-solid fa-arrow-left text-[11px]"></i>
+          <span>メインページ（作品一覧）に戻る</span>
+        </a>
+      </div>
+      <div class="pt-2 text-slate-500 text-[11px] border-t border-slate-800/80">
+        <p>© 2026 SPI直感攻略ナビ</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- スクリプト -->
+  <script>
+    let currentFilter = 'all';
+
+    function setFilter(category) {
+      currentFilter = category;
+      
+      // ボタンのアクティブ状態更新
+      document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+        if (btn.dataset.category === category) {
+          btn.className = 'cat-filter-btn whitespace-nowrap shrink-0 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-sky-600 text-white shadow-sm flex items-center gap-1.5';
+        } else {
+          btn.className = 'cat-filter-btn whitespace-nowrap shrink-0 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition flex items-center gap-1.5';
+        }
+      });
+
+      applyFiltering();
+    }
+
+    function handleSearch() {
+      applyFiltering();
+    }
+
+    function applyFiltering() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      const cards = document.querySelectorAll('.unit-card');
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const type = card.dataset.type;
+        const titleText = (card.dataset.title || '').toLowerCase();
+        
+        const matchesCategory = (currentFilter === 'all' || type === currentFilter);
+        const matchesQuery = (query === '' || titleText.includes(query));
+
+        if (matchesCategory && matchesQuery) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      const noResults = document.getElementById('no-results-msg');
+      if (visibleCount === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+      }
+    }
+
+    function resetFilters() {
+      document.getElementById('search-input').value = '';
+      setFilter('all');
+    }
+
+    function openComingSoonModal(unitName) {
+      document.getElementById('modal-unit-name').textContent = unitName;
+      document.getElementById('coming-soon-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('coming-soon-modal').classList.add('hidden');
+    }
+
+    // モーダル外クリックで閉じる
+    window.addEventListener('click', (e) => {
+      const modal = document.getElementById('coming-soon-modal');
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // ESCキーで閉じる
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
