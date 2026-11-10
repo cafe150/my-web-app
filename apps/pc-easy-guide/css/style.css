@@ -1,0 +1,215 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   PCパーツ解説サイト カスタムスタイルシート
+   3色ルール:
+   - Base (70%): #f8fafc (Slate 50)
+   - Main (25%): #0f172a / #1e293b (Slate 900 / 800)
+   - Accent (5%): #f97316 (Orange 500)
+   ========================================================================== */
+
+:root {
+  --bg-base: #f8fafc;
+  --bg-surface: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --color-primary: #1e293b;
+  --color-primary-light: #334155;
+  --color-accent: #f97316;
+  --color-accent-light: #ffedd5;
+  --color-accent-hover: #ea580c;
+  --border-subtle: #e2e8f0;
+  --border-focus: #cbd5e1;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --font-sans: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, Monaco, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-base);
+  color: var(--text-main);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* スクロールバー装飾 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* 用語解説ツールチップ（ポップアップ） */
+.term-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border-bottom: 1.5px dashed var(--color-accent);
+  color: var(--text-main);
+  cursor: help;
+  font-weight: 600;
+  padding: 0 2px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.term-tooltip:hover {
+  background-color: var(--color-accent-light);
+  color: var(--color-accent-hover);
+}
+
+.term-tooltip .tooltip-content {
+  visibility: hidden;
+  opacity: 0;
+  width: 280px;
+  max-width: 90vw;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  font-size: 0.8125rem;
+  font-weight: normal;
+  line-height: 1.5;
+  position: absolute;
+  z-index: 50;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+  pointer-events: none;
+}
+
+.term-tooltip .tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--color-primary) transparent transparent transparent;
+}
+
+.term-tooltip:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* スマホ表示時の画面外はみ出し防止 */
+@media (max-width: 640px) {
+  .term-tooltip .tooltip-content {
+    left: 0;
+    transform: translateY(5px);
+  }
+  .term-tooltip:hover .tooltip-content {
+    transform: translateY(0);
+  }
+  .term-tooltip .tooltip-content::after {
+    left: 20px;
+  }
+}
+
+/* サイドバー目次のアクティブハイライト */
+.toc-link.active {
+  color: var(--color-accent);
+  background-color: #fff7ed;
+  border-left-color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* プログレスバー */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(to right, #ea580c, #f97316, #fb923c);
+  z-index: 100;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+/* アニメーション用カード */
+.card-hover {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -5px rgba(15, 23, 42, 0.08);
+}
+
+/* 重要度スター */
+.star-rating {
+  color: #f59e0b;
+  letter-spacing: 2px;
+}
+
+/* 見出しの美しい改行バランス */
+h1, h2, h3, h4 {
+  text-wrap: balance;
+}
+
+/* 比喩アイコンバッジ */
+.metaphor-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 単語・バッジの途中改行禁止ユーティリティ */
+.badge-nowrap,
+.tag-nowrap {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 診断シミュレーター */
+.simulator-panel {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+}
+
+/* ボトルネック視覚化バー */
+.meter-fill {
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 印刷対応 */
+@media print {
+  #sidebar-toc, #scroll-progress, .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+    color: black;
+  }
+}
