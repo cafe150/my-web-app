@@ -338,6 +338,48 @@
             gap: 10px;
         }
 
+        /* --- Julesサ終・開発環境移行お知らせボックス --- */
+        .jules-notice-box {
+            background-color: #fff9eb;
+            border: 1px solid #f9d8a7;
+            border-left: 5px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-bottom: 20px;
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: #4a3b2c;
+        }
+
+        .jules-notice-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #b45309;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .jules-notice-badge {
+            background: #f59e0b;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .jules-notice-content p {
+            margin: 0 0 8px 0;
+        }
+
+        .jules-notice-content p:last-child {
+            margin-bottom: 0;
+        }
+
         .bug-report-card .form-group {
             margin-bottom: 20px;
         }
@@ -745,6 +787,20 @@
         <div class="bug-report-card">
             <h2>バグ・不具合報告</h2>
             <p class="description">アプリやWebサイトで発生した不具合の報告フォームです。入力後、GitHubのIssue作成画面へ安全に転送されます。</p>
+
+            <!-- Google Julesサービス終了・開発環境移行のお知らせ -->
+            <div class="jules-notice-box">
+                <div class="jules-notice-header">
+                    <span class="jules-notice-badge">お知らせ</span>
+                    <span>Google Julesサービス終了に伴う開発環境移行について</span>
+                </div>
+                <div class="jules-notice-content">
+                    <p>いつもあざます　11/11にバグ報告フォームで使ってたJulesがサ終すると公式発表がありました</p>
+                    <p>後継としてantigravityを使えというお達しが出ました</p>
+                    <p>いつもantigravity使って開発してるけど裏でバグ報告フォーム検知したら自動で直してくれるようにしてたのでこれから修正速度遅くなるよ　ごめんね</p>
+                    <p>新しいサイトはどんどん出します　修正のペースは落ちるかも</p>
+                </div>
+            </div>
 
             <div class="notice-box">
                 <span>💡</span>
