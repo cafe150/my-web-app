@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【騙されるな】失敗しないゲーミングPCパーツ本音攻略バイブル | 初心者が20万ドブに捨てないための教科書</title>
+  <meta name="description" content="PCショップや適当な情報に騙されてカクつくPCを買わされないための本音攻略サイト。主要パーツの役割、モニター・回線の罠、ボトルネック防止法を会社や人間の体に例えて超わかりやすく解説！">
+  
+  <!-- Google Fonts: Noto Sans JP & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              base: '#f8fafc',
+              main: '#0f172a',
+              secondary: '#1e293b',
+              accent: '#f97316',
+              accentHover: '#ea580c',
+              accentLight: '#ffedd5',
+              surface: '#ffffff'
+            }
+          },
+          fontFamily: {
+            sans: ['"Noto Sans JP"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-[#f8fafc] text-slate-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900">
+
+  <!-- スクロール進捗インジケーター -->
+  <div id="scroll-progress"></div>
+
+  <!-- ナビゲーションバー（ヘッダー） -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-sm group-hover:bg-orange-600 transition-colors">
+          <i data-lucide="cpu" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-orange-600 block">絶対に後悔したくない人のための</span>
+          <span class="font-bold text-base sm:text-lg text-slate-900 leading-tight">ゲーミングPCパーツ本音攻略ガイド</span>
+        </div>
+      </a>
+
+      <!-- クイックリンク ＆ モバイルメニューボタン -->
+      <div class="flex items-center gap-4">
+        <a href="#simulator-section" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+          <i data-lucide="sliders" class="w-3.5 h-3.5 text-orange-600"></i>
+          ボトルネック診断
+        </a>
+        <a href="#diagnosis-section" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors shadow-xs">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          用途別おすすめ診断
+        </a>
+        <button id="mobile-toc-toggle" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100" aria-label="目次を開く">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインレイアウト（PCでは左サイド固定目次 ＋ 中央1カラムスクロール） -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div class="flex gap-8 items-start">
+
+      <!-- 左側：デスクトップ固定サイドナビ（目次） -->
+      <aside id="sidebar-toc" class="hidden lg:block w-64 shrink-0 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pr-3">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+          <div class="flex items-center gap-2 font-bold text-slate-900 text-sm mb-4 pb-3 border-b border-slate-100">
+            <i data-lucide="list-ordered" class="w-4 h-4 text-orange-600"></i>
+            <span>攻略目次ナビ</span>
+          </div>
+          <nav class="space-y-1 text-xs">
+            <a href="#intro" class="toc-link block px-3 py-2 rounded-lg border-l-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+              はじめに：20万ドブに捨てないために
+            </a>
+            <a href="#desktop-vs-laptop" class="toc-link block px-3 py-2 rounded-lg border-l-2 border-transparent text-rose-700 font-bold bg-rose-50/60 hover:bg-rose-100/70 transition-colors">
+              🚨 警告：ゲームならデスクトップ一択！
+            </a>
+            <a href="#chapter-1" class="toc-link block px-3 py-2 rounded-lg border-l-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+              第1章：PC本体 7大パーツの役割と本音
+            </a>
+            <a href="#chapter-2" class="toc-link block px-3 py-2 rounded-lg border-l-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+              第2章：モニターとケーブルの落とし穴
+            </a>
+            <a href="#network-environment" class="toc-link block px-3 py-2 rounded-lg border-l-2 border-transparent text-blue-700 font-semibold bg-blue-50/60 hover:bg-blue-100/70 transition-colors">
+              🌐 超重要：回線が弱けりゃ即負け！
+            </a>
+            <a href="#chapter-3" class="toc-link block px-3 py-2 rounded-lg border-l-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+              第3章：なぜゲームには「つよつよPC」が必要？
+            </a>
+            <a href="#chapter-4" class="toc-link block px-3 py-2 rounded-lg border-l-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+              第4章：ボトルネック（高いグラボが無駄になる理由）
+            </a>
+            <a href="#chapter-5" class="toc-link block px-3 py-2 rounded-lg border-l-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+              第5章：用途別スペック診断＆直前チェック
+            </a>
+            <a href="#bto-shops" class="toc-link block px-3 py-2 rounded-lg border-l-2 border-transparent text-orange-600 font-bold bg-orange-50/60 hover:bg-orange-100/70 transition-colors">
+              💡 迷ったらここで買え！定番BTOショップ6選
+            </a>
+            <a href="#glossary" class="toc-link block px-3 py-2 rounded-lg border-l-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+              用語クイック検索辞書
+            </a>
+          </nav>
+
+          <div class="mt-6 pt-4 border-t border-slate-100">
+            <div class="text-[11px] text-slate-500 font-medium mb-2">💡 読みやすさの鉄則</div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              波線が引かれた単語（例: <span class="text-orange-600 font-semibold">CPU</span>）にマウスを乗せると、わかりやすい補足が出ます！
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- モバイル用 目次ドロワー -->
+      <div id="mobile-toc-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 hidden lg:hidden"></div>
+      <div id="mobile-toc-drawer" class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white z-50 shadow-2xl p-6 transform translate-x-full transition-transform duration-300 ease-in-out lg:hidden flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+            <span class="font-bold text-slate-900 text-base flex items-center gap-2">
+              <i data-lucide="list-ordered" class="w-5 h-5 text-orange-600"></i>
+              攻略目次ナビ
+            </span>
+            <button id="mobile-toc-close" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100">
+              <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+          </div>
+          <nav class="space-y-2 text-sm">
+            <a href="#intro" class="block py-2 text-slate-700 hover:text-orange-600 font-medium">はじめに：20万ドブに捨てないために</a>
+            <a href="#desktop-vs-laptop" class="block py-2 text-rose-600 hover:text-rose-700 font-bold">🚨 警告：ゲームならデスクトップ一択！</a>
+            <a href="#chapter-1" class="block py-2 text-slate-700 hover:text-orange-600 font-medium">第1章：PC本体 7大パーツの役割と本音</a>
+            <a href="#chapter-2" class="block py-2 text-slate-700 hover:text-orange-600 font-medium">第2章：モニターとケーブルの落とし穴</a>
+            <a href="#network-environment" class="block py-2 text-blue-600 hover:text-blue-700 font-bold">🌐 超重要：回線が弱けりゃ即負け！</a>
+            <a href="#chapter-3" class="block py-2 text-slate-700 hover:text-orange-600 font-medium">第3章：なぜゲームにはつよつよPCが必要？</a>
+            <a href="#chapter-4" class="block py-2 text-slate-700 hover:text-orange-600 font-medium">第4章：ボトルネック（高いグラボが無駄になる理由）</a>
+            <a href="#chapter-5" class="block py-2 text-slate-700 hover:text-orange-600 font-medium">第5章：用途別スペック診断＆直前チェック</a>
+            <a href="#bto-shops" class="block py-2 text-orange-600 hover:text-orange-700 font-bold">💡 迷ったらここで買え！定番BTOショップ6選</a>
+            <a href="#glossary" class="block py-2 text-slate-700 hover:text-orange-600 font-medium">用語クイック検索辞書</a>
+          </nav>
+        </div>
+        <div class="text-xs text-slate-400 pt-4 border-t border-slate-100">
+          ゲーミングPCパーツ本音攻略バイブル
+        </div>
+      </div>
+
+      <!-- 中央：1カラム縦長スクロール コンテンツエリア -->
+      <main class="flex-1 min-w-0 max-w-4xl space-y-16 sm:space-y-24">
+
+        <!-- =================================================================
+             はじめに：初心者が20万ドブに捨てないための導入
+             ================================================================= -->
+        <section id="intro" class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/90 shadow-sm relative overflow-hidden">
+          <div class="absolute -right-12 -top-12 w-48 h-48 bg-orange-100/50 rounded-full blur-2xl pointer-events-none"></div>
+
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold mb-4">
+            <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+            初心者必読！失敗ゼロのバイブル
+          </div>
+
+          <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+            PCショップや適当な情報に騙されるな！<br class="hidden sm:inline">
+            パーツの役割と本音を知れば、<span class="inline-block"><span class="text-orange-600 underline decoration-orange-200 decoration-wavy underline-offset-4">「20万ドブに捨てる悲劇」</span>を確実に防げる。</span>
+          </h1>
+
+          <p class="text-slate-600 text-base sm:text-lg leading-relaxed mb-8">
+            「ゲーミングPCが欲しいけど、パーツの名前や数字ばかりでさっぱり分からない…」<br>
+            「店員やネットの情報を鵜呑みにして、高いゴミを買わされたらどうしよう…」と不安になっていませんか？<br>
+            実は、PCの中身は<strong class="text-slate-900">「チームで働くひとつの会社（オフィス）」</strong>に例えると、小学生でも驚くほど直感的に理解できます。<br>
+            カタログの小難しい数字ではなく、<strong class="text-orange-600 font-bold">「どこにお金をかけるべきか？」「どこをケチると痛い目を見るか？」</strong>を忖度なしの本音でぶっちゃけます。
+          </p>
+
+          <!-- 3つの知るメリット -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+              <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm mb-2">1</div>
+              <h2 class="font-bold text-slate-900 text-sm mb-1">無駄金を1円も払わない</h2>
+              <p class="text-xs text-slate-600 leading-relaxed">高すぎる不要パーツや、名前負けしているハズレ構成を回避して、最高コスパの1台を手に入れられます。</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+              <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm mb-2">2</div>
+              <h2 class="font-bold text-slate-900 text-sm mb-1">カクつく原因が即わかる</h2>
+              <p class="text-xs text-slate-600 leading-relaxed">「なんか重い」「敵がワープする」時に、どのパーツや回線が足を引っ張っているか自力で特定できます。</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+              <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm mb-2">3</div>
+              <h2 class="font-bold text-slate-900 text-sm mb-1">ゲームの楽しさが激変</h2>
+              <p class="text-xs text-slate-600 leading-relaxed">ぬるぬる動く高fps、美しい映像美、遅延ゼロの操作感を最短ルートで手に入れられます。</p>
+            </div>
+          </div>
+
+          <!-- 早見比喩バナー -->
+          <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-5 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center text-white shrink-0">
+                <i data-lucide="building-2" class="w-5 h-5"></i>
+              </div>
+              <div class="text-xs sm:text-sm">
+                <span class="font-bold text-orange-400">5秒でわかる会社の例え：</span><br>
+                社長（CPU）が指示を出し、専属画家（GPU）が毎秒描きまくり、広い机（メモリ）に資料を広げ、書庫（SSD）から爆速で取り出す！
+              </div>
+            </div>
+            <a href="#desktop-vs-laptop" class="shrink-0 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5">
+              緊急警告コラムを読む
+              <i data-lucide="arrow-down" class="w-4 h-4"></i>
+            </a>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             特別警告コラム：ゲームをするなら絶対にデスクトップを買え！
+             ================================================================= -->
+        <section id="desktop-vs-laptop" class="bg-gradient-to-b from-rose-50/70 via-white to-slate-50 rounded-3xl p-6 sm:p-10 border-2 border-rose-300 shadow-sm relative overflow-hidden space-y-8">
+          <div class="absolute -right-16 -top-16 w-60 h-60 bg-rose-200/40 rounded-full blur-3xl pointer-events-none"></div>
+
+          <!-- ヘッダーバナー -->
+          <div class="space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-600 text-white text-xs font-bold shadow-xs">
+              <i data-lucide="alert-octagon" class="w-4 h-4"></i>
+              購入前の最重要・鉄の掟
+            </div>
+
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              <span class="inline-block">ゲームをしたいなら</span><span class="inline-block"><span class="text-rose-600 underline decoration-rose-300 decoration-wavy underline-offset-6">絶対にデスクトップを買え！</span></span><br class="hidden sm:inline">
+              <span class="inline-block">ノートは絶対に買うな！</span><span class="inline-block">安いモニターを買ってでもデスクトップ一択の理由</span>
+            </h2>
+
+            <p class="text-slate-700 text-sm sm:text-base leading-relaxed">
+              「部屋が狭いから」「持ち運べるかもしれないから」という理由でゲーミングノートPCを検討していませんか？<br>
+              <strong class="text-rose-600 font-bold">「出張や移動先での使用がどうしても必須な人」以外は、ゲーム用途でノートPCを選ぶと後悔するリスクが極めて高いです。</strong><br>
+              「安いモニター（1.5万〜2万円）を買ってでも、絶対にデスクトップPCを選ぶべき」ハードウェアの圧倒的真実を解説します。
+            </p>
+          </div>
+
+          <!-- 5つの致命的理由 -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- 理由1: ノート版GPUの電力制限（TGP） -->
+            <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-xs card-hover">
+              <div class="flex items-center gap-2.5 font-bold text-slate-900 text-sm mb-2">
+                <span class="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-bold shrink-0">1</span>
+                <span>同じ名称でも中身が違う！？「ノート版GPUの電力制限（TGP）の罠」</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                ノートPCのグラフィックボード（例: RTX 4070 Laptop）は、デスクトップ版と似た型番がついていますが、バッテリーと発熱の制約により<strong class="text-rose-600">供給電力が大幅に制限された別仕様</strong>です。
+              </p>
+              <div class="p-3 bg-slate-50 rounded-xl text-[11px] space-y-1 font-mono text-slate-700 border border-slate-200">
+                <div class="flex justify-between"><span>デスクトップ版 RTX 4070:</span><span class="font-bold text-emerald-600">200W供給（100%フルパワー）</span></div>
+                <div class="flex justify-between"><span>ノート版 RTX 4070:</span><span class="font-bold text-rose-600">60〜100W制限（デスクトップの60%程度）</span></div>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-2">
+                熱とバッテリーの限界があるため、デスクトップの「RTX 4060」にすら負けるケースが日常茶飯事です。
+              </p>
+            </div>
+
+            <!-- 理由2: 排熱地獄と爆音 -->
+            <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-xs card-hover">
+              <div class="flex items-center gap-2.5 font-bold text-slate-900 text-sm mb-2">
+                <span class="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-bold shrink-0">2</span>
+                <span>激狭サウナの排熱地獄 ＆ 掃除機のような爆音</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                厚さわずか2cmの薄型ケースに、熱湯を沸かせるレベルの発熱部品を詰め込んでいます。
+              </p>
+              <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+                <li><strong class="text-slate-800">ファンがジェットエンジン音</strong>：ヘッドセットを突き抜けて周囲に迷惑をかける爆音。</li>
+                <li><strong class="text-slate-800">キーボードが熱くて触れない</strong>：ゲーム操作中に手が火傷しそうになる。</li>
+                <li><strong class="text-rose-600">数分で強制減速（サーマルスロットリング）</strong>：100℃に達し、ゲームがカクカクに低下。</li>
+              </ul>
+            </div>
+
+            <!-- 理由3: 修理・拡張がゼロ -->
+            <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-xs card-hover">
+              <div class="flex items-center gap-2.5 font-bold text-slate-900 text-sm mb-2">
+                <span class="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-bold shrink-0">3</span>
+                <span>パーツ個別交換が不可能（故障時に部分修理ができず高額になりやすい）</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                デスクトップなら「グラフィックボードだけ新型に交換」「メモリを32GBに増設」「電源だけ買い替え」で<strong class="text-slate-900">5年〜7年以上も一線で戦えます。</strong><br>
+                一方、ノートPCはCPUもGPUも基板（マザーボード）にハンダ付けされており、<strong class="text-rose-600">主要パーツの個別交換ができません。</strong>故障時に基板ごと全交換となり修理代が高額になりやすく、将来グラボだけ取り替えて延命することも不可能です。
+              </p>
+            </div>
+
+            <!-- 理由4: 健康と操作性の崩壊 -->
+            <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-xs card-hover">
+              <div class="flex items-center gap-2.5 font-bold text-slate-900 text-sm mb-2">
+                <span class="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-bold shrink-0">4</span>
+                <span>首・肩・目の破壊 ＆ 結局持ち運ばない罠</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                「カフェでゲームするかも」は完全な幻想です。ACアダプターはレンガのように重く、バッテリー駆動では数十分しか動かず性能も1/3に落ちます。<br>
+                さらに15インチ程度の極小画面を覗き込むため、激しいストレートネックと眼精疲労に。結局、家で<strong class="text-slate-900">「外付けキーボード」と「外付け大画面モニター」を繋ぐことになり、ただの邪魔で重い弁当箱と化します。</strong>
+              </p>
+            </div>
+
+          </div>
+
+          <!-- コスト比較シミュレーション表 -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200">
+            <h3 class="font-bold text-slate-900 text-sm sm:text-base mb-3 flex items-center gap-2">
+              <i data-lucide="scale" class="w-4 h-4 text-orange-600"></i>
+              【同額予算で比較】デスクトップ＋格安モニター vs ゲーミングノート
+            </h3>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
+                <thead class="bg-slate-900 text-white">
+                  <tr>
+                    <th class="py-3 px-4 w-36">比較項目</th>
+                    <th class="py-3 px-4 bg-emerald-950/70 text-emerald-200 font-bold">
+                      🏆 デスクトップPC ＋ 格安144Hzモニター
+                    </th>
+                    <th class="py-3 px-4 bg-rose-950/70 text-rose-200 font-bold">
+                      ❌ ゲーミングノートPC
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                  <tr>
+                    <td class="py-3 px-4 font-bold bg-slate-50">合計予算目安</td>
+                    <td class="py-3 px-4 font-mono font-bold text-emerald-700">
+                      約 18万円〜20万円<br>
+                      <span class="text-[11px] font-normal text-slate-500">（本体16.5万 ＋ 144Hzモニター1.8万 ＋ 安マウスキーボード）</span>
+                    </td>
+                    <td class="py-3 px-4 font-mono font-bold text-slate-800">
+                      約 19万円〜22万円<br>
+                      <span class="text-[11px] font-normal text-slate-500">（本体のみで同等価格）</span>
+                    </td>
+                  </tr>
+                  <tr class="bg-slate-50/50">
+                    <td class="py-3 px-4 font-bold bg-slate-50">ゲーム実性能（fps）</td>
+                    <td class="py-3 px-4 font-bold text-emerald-700">
+                      圧倒的！ 144fps〜200fps安定<br>
+                      <span class="text-[11px] font-normal text-slate-500">（フルパワー給電・ボトルネックなし）</span>
+                    </td>
+                    <td class="py-3 px-4 text-rose-700 font-semibold">
+                      電力制限で60〜100fps止まり<br>
+                      <span class="text-[11px] font-normal text-slate-500">（発熱ですぐにスタッター発生）</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 px-4 font-bold bg-slate-50">画面の見やすさ</td>
+                    <td class="py-3 px-4 font-bold text-emerald-700">
+                      24〜27インチ大画面（迫力抜群）
+                    </td>
+                    <td class="py-3 px-4 text-slate-600">
+                      15〜16インチ極小画面（敵が見えない）
+                    </td>
+                  </tr>
+                  <tr class="bg-slate-50/50">
+                    <td class="py-3 px-4 font-bold bg-slate-50">静音性・快適さ</td>
+                    <td class="py-3 px-4 font-bold text-emerald-700">
+                      静か。手元は熱くならず快適
+                    </td>
+                    <td class="py-3 px-4 text-rose-700 font-semibold">
+                      掃除機の爆音、手元が灼熱地獄
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 px-4 font-bold bg-slate-50">寿命・アップグレード</td>
+                    <td class="py-3 px-4 font-bold text-emerald-700">
+                      5〜7年以上（パーツ個別換装が可能）
+                    </td>
+                    <td class="py-3 px-4 text-rose-700 font-semibold">
+                      2〜3年で性能限界（パーツ個別換装ができないため長期延命が困難）
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 結論バナー -->
+          <div class="p-4 sm:p-5 bg-gradient-to-r from-rose-600 to-orange-600 text-white rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-center gap-3">
+              <i data-lucide="check-check" class="w-8 h-8 shrink-0 text-white"></i>
+              <div class="text-xs sm:text-sm leading-relaxed">
+                <strong class="font-extrabold text-sm sm:text-base block">結論：1.5万円の安いモニターを買い足してでも、デスクトップ一択！</strong>
+                Amazon等で1.5万〜1.8万円で買える144HzゲーミングモニターとデスクトップPCを組み合わせた方が、同額のノートPCより100倍快適で長く使えます。
+              </div>
+            </div>
+            <a href="#chapter-1" class="shrink-0 px-4 py-2.5 bg-white text-rose-700 hover:bg-slate-100 text-xs font-bold rounded-xl transition-colors shadow-xs">
+              7大パーツ解説へ進む
+            </a>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             第1章：PC本体の基本構成（主要7大パーツ）
+             ================================================================= -->
+        <section id="chapter-1" class="space-y-8">
+          <div class="border-b border-slate-200 pb-4">
+            <div class="flex items-center gap-2 text-xs font-bold text-orange-600 uppercase tracking-widest mb-1">
+              <span>Chapter 01</span>
+              <span>•</span>
+              <span>ハードウェアの役割と本音</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              PC本体 7大パーツの役割と本音（どこにお金をかけるべき？）
+            </h2>
+            <p class="text-slate-600 text-sm mt-2">
+              「どのパーツにお金をかけて、どこを抑えればいいのか？」を会社の役職に例えてぶっちゃけます。パーツごとの重要度と、初心者がハマる罠を1つずつチェックしましょう。
+            </p>
+          </div>
+
+          <!-- 7大パーツ カード一覧（1パーツずつ大きく解説） -->
+          <div class="space-y-8">
+
+            <!-- 1. CPU -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm card-hover">
+              <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                    1
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                        <span class="term-tooltip">CPU
+                          <span class="tooltip-content">Central Processing Unit（中央処理装置）。パソコン全体の演算とすべての命令を統括する司令塔。</span>
+                        </span>
+                      </h3>
+                      <span class="text-xs text-slate-400 font-mono">Central Processing Unit</span>
+                    </div>
+                    <div class="metaphor-badge mt-1">
+                      <i data-lucide="brain" class="w-4 h-4"></i>
+                      比喩：パソコンの「頭脳 / 社長（司令塔）」
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <div class="text-xs font-semibold text-slate-500 mb-0.5">ゲームでの重要度</div>
+                  <div class="star-rating text-base font-bold">★★★★☆</div>
+                </div>
+              </div>
+
+              <!-- 役割 ＆ 重要性 -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                  <h4 class="font-bold text-slate-900 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                    どんな役割をしているの？
+                  </h4>
+                  <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    マウスやキーボードの入力判定、敵キャラクターのAI行動、物理シミュレーション（弾道の計算など）をすべて演算し、グラフィックボードへ「この画面を描け！」と毎秒猛スピードで指示を出します。
+                  </p>
+                </div>
+
+                <div class="bg-orange-50/60 p-4 rounded-2xl border border-orange-200/70">
+                  <h4 class="font-bold text-orange-950 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-orange-600"></i>
+                    なぜ重要？（遅いとどうなる？）
+                  </h4>
+                  <p class="text-xs sm:text-sm text-orange-900 leading-relaxed">
+                    社長の頭の回転（演算）が遅いと、専属画家（グラボ）に指示が届かず、全パーツが「待ちぼうけ」になります。どれだけ高級なグラボを積んでも、画面が激しくカクつく（ボトルネック）最大の原因になります。
+                  </p>
+                </div>
+              </div>
+
+              <!-- スペックの見方 ＆ 失敗あるある -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-4 border-t border-slate-100">
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">🔍 スペックの着目点</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    ・<strong class="text-slate-800">コア数/スレッド数</strong>：同時に働ける頭脳の人数（8コア16スレッド等）<br>
+                    ・<strong class="text-slate-800">動作クロック (<span class="term-tooltip">GHz<span class="tooltip-content">ギガヘルツ。1秒間に何十億回計算できるかの速度指標。ゲームでは1コアあたりのクロックが高いほど有利。</span></span>)</strong>：頭の回転スピード<br>
+                    ・代表格：Intel Core i5 / i7、AMD Ryzen 5 / 7
+                  </p>
+                </div>
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">⚠️ 初心者のよくある失敗</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    「グラボにお金を全額使ってしまい、CPUを数年前の激安品にしたら、ゲーム中にCPU使用率100%に張り付いて画面がガクガクに…」
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. GPU / グラフィックボード -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm card-hover">
+              <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-orange-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                    2
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                        <span class="term-tooltip">GPU / グラフィックボード
+                          <span class="tooltip-content">Graphics Processing Unit。3D映像や超高精細グラフィックの描画を専門に行う巨大なパーツ。ゲームPCの最重要パーツ。</span>
+                        </span>
+                      </h3>
+                      <span class="text-xs text-slate-400 font-mono">Graphics Processing Unit</span>
+                    </div>
+                    <div class="metaphor-badge mt-1">
+                      <i data-lucide="palette" class="w-4 h-4"></i>
+                      比喩：映像専門の「超一流専属画家集団」
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <div class="text-xs font-semibold text-slate-500 mb-0.5">ゲームでの重要度</div>
+                  <div class="star-rating text-base font-bold text-orange-600">★★★★★（最重要）</div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                  <h4 class="font-bold text-slate-900 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                    どんな役割をしているの？
+                  </h4>
+                  <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    CPUから受け取った設計指示をもとに、3Dモデルの骨組みにポリゴンを貼り、陰影、リアルな光の反射（<span class="term-tooltip">レイトレーシング<span class="tooltip-content">光線の軌跡を1本ずつ追跡計算し、水面やガラスへの映り込みを本物同等に表現する最新技術。非常に重い。</span></span>）を計算して、1秒間に何百回も美麗な絵を描き上げます。
+                  </p>
+                </div>
+
+                <div class="bg-orange-50/60 p-4 rounded-2xl border border-orange-200/70">
+                  <h4 class="font-bold text-orange-950 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-orange-600"></i>
+                    なぜ重要？（性能が足りないと？）
+                  </h4>
+                  <p class="text-xs sm:text-sm text-orange-900 leading-relaxed">
+                    画家の腕が足りないと、1秒間に描ける絵の枚数（<span class="term-tooltip">fps<span class="tooltip-content">Frames Per Second（フレーム毎秒）。1秒間に画面が更新される回数。一般的な動画は30〜60fps、ゲーミングは144fps以上が目標。</span></span>）がガタ落ちし、紙芝居のようなガタガタ映像になります。ゲーミングPCの予算の40〜50%をかけるべき心臓部です。
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-4 border-t border-slate-100">
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">🔍 スペックの着目点</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    ・<strong class="text-slate-800"><span class="term-tooltip">VRAM（ビデオメモリ）<span class="tooltip-content">GPU専用の超高速作業メモリ。高解像度（WQHDや4K）や大作ゲームを遊ぶなら12GB〜16GB以上が現代の安心ライン。</span></span></strong>：最低8GB、最新ゲームは12GB〜16GB推奨<br>
+                    ・代表格：NVIDIA GeForce RTX 4060 / 4070 / 4080
+                  </p>
+                </div>
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">⚠️ 初心者のよくある失敗</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    「普通の事務用ノートPCで最新3Dゲームを起動したら、グラボ（画家）が乗っていなくてファンが爆音で唸り、起動すらできなかった…」
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. メモリ (RAM) -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm card-hover">
+              <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                    3
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                        <span class="term-tooltip">メモリ (RAM)
+                          <span class="tooltip-content">Random Access Memory。CPUやGPUが現在作業しているデータを一時的に広げておく場所。電源を切ると中身は消える。</span>
+                        </span>
+                      </h3>
+                      <span class="text-xs text-slate-400 font-mono">Random Access Memory</span>
+                    </div>
+                    <div class="metaphor-badge mt-1">
+                      <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                      比喩：作業する「机の広さ」
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <div class="text-xs font-semibold text-slate-500 mb-0.5">ゲームでの重要度</div>
+                  <div class="star-rating text-base font-bold">★★★★☆</div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                  <h4 class="font-bold text-slate-900 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                    どんな役割をしているの？
+                  </h4>
+                  <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    いま遊んでいるゲームのマップデータ、Discord通話、Webブラウザのタブなどを広げておく「作業スペース」です。机が広いほど、たくさんのアプリを同時に快適に動かせます。
+                  </p>
+                </div>
+
+                <div class="bg-orange-50/60 p-4 rounded-2xl border border-orange-200/70">
+                  <h4 class="font-bold text-orange-950 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-orange-600"></i>
+                    なぜ重要？（狭いとどうなる？）
+                  </h4>
+                  <p class="text-xs sm:text-sm text-orange-900 leading-relaxed">
+                    どんなに頭の良い社長（CPU）でも、机が書類で埋まると作業が進みません。机から溢れたデータは遅いSSDに退避（スワップ）されるため、ゲームが突然1秒間フリーズする（スタッター）激痛が発生します。
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-4 border-t border-slate-100">
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">🔍 容量の選定基準</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    ・<strong class="text-slate-800">16GB</strong>：最低ライン（単体プレイなら快適）<br>
+                    ・<strong class="text-slate-800">32GB</strong>：<span class="text-orange-600 font-bold">現代のゲーミング新標準！</span>（Discord＋攻略ブラウザ同時起動に必須）<br>
+                    ・<strong class="text-slate-800">64GB</strong>：4K動画編集や本格配信向け
+                  </p>
+                </div>
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">⚠️ 初心者のよくある失敗</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    「1枚挿し（シングルチャネル）にしてしまい、データの通り道が半分になってゲームの平均fpsが10〜20%落ちていた…（8GB×2枚や16GB×2枚のデュアルチャネルが鉄則！）」
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. ストレージ (SSD) -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm card-hover">
+              <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                    4
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                        <span class="term-tooltip">ストレージ (SSD)
+                          <span class="tooltip-content">Solid State Drive。データを長期保存する記憶装置。かつてのHDDと違い、半導体チップで超高速に読み書きする。</span>
+                        </span>
+                      </h3>
+                      <span class="text-xs text-slate-400 font-mono">Solid State Drive</span>
+                    </div>
+                    <div class="metaphor-badge mt-1">
+                      <i data-lucide="archive" class="w-4 h-4"></i>
+                      比喩：データをしまう「本棚・書庫」
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <div class="text-xs font-semibold text-slate-500 mb-0.5">ゲームでの重要度</div>
+                  <div class="star-rating text-base font-bold">★★★☆☆</div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                  <h4 class="font-bold text-slate-900 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                    どんな役割をしているの？
+                  </h4>
+                  <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    Windows（OS）やゲームプログラム、写真・動画などのデータを、PCの電源を切ってもずっと保存しておく場所です。机（メモリ）に書類を運ぶときのスピードを決めます。
+                  </p>
+                </div>
+
+                <div class="bg-orange-50/60 p-4 rounded-2xl border border-orange-200/70">
+                  <h4 class="font-bold text-orange-950 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-orange-600"></i>
+                    なぜ重要？（HDDとSSDの違い）
+                  </h4>
+                  <p class="text-xs sm:text-sm text-orange-900 leading-relaxed">
+                    昔ながらのHDD（ハードディスク）は毎分円盤を回すため超低速でした。最新の<span class="term-tooltip">NVMe M.2 SSD<span class="tooltip-content">マザーボードに直接挿すガム形状の超小型SSD。HDDの数十倍の速度でゲームのロードが一瞬で終わる。</span></span>なら、ゲームのロード時間やPC起動が数秒で終わります。
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-4 border-t border-slate-100">
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">🔍 おすすめ容量目安</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    ・<strong class="text-slate-800">最低1TB、理想は2TB</strong><br>
+                    ・最近のゲームは1本で100GB〜150GB消費するため、500GBだと3〜4本入れただけで満杯になりOSのアップデートすらできなくなります。
+                  </p>
+                </div>
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">⚠️ 初心者のよくある失敗</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    「容量をケチって500GBにしてしまい、ゲームをダウンロードするたびに別のゲームをアンインストールする羽目に…」
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. マザーボード -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm card-hover">
+              <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                    5
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                        <span class="term-tooltip">マザーボード
+                          <span class="tooltip-content">Motherboard（主基板）。CPU、GPU、メモリ、SSDなどすべてのパーツを装着し、データと電力を相互にやり取りする土台。</span>
+                        </span>
+                      </h3>
+                      <span class="text-xs text-slate-400 font-mono">Motherboard / Mainboard</span>
+                    </div>
+                    <div class="metaphor-badge mt-1">
+                      <i data-lucide="layers" class="w-4 h-4"></i>
+                      比喩：オフィスの「床・土台 ＆ 神経網」
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <div class="text-xs font-semibold text-slate-500 mb-0.5">ゲームでの重要度</div>
+                  <div class="star-rating text-base font-bold">★★★☆☆</div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                  <h4 class="font-bold text-slate-900 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                    どんな役割をしているの？
+                  </h4>
+                  <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    すべてのパーツがこの大きな板の上に挿さります。パーツ同士が超高速でデータを通信するための「ハイウェイ（配線）」と、電力を安定して分配するインフラの役割を果たします。
+                  </p>
+                </div>
+
+                <div class="bg-orange-50/60 p-4 rounded-2xl border border-orange-200/70">
+                  <h4 class="font-bold text-orange-950 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-orange-600"></i>
+                    なぜ重要？（安物を選ぶと？）
+                  </h4>
+                  <p class="text-xs sm:text-sm text-orange-900 leading-relaxed">
+                    CPUへ電気を送る回路（VRM電源回路）が貧弱なマザーボードを選ぶと、高負荷時に基板が高熱になり、CPU本来の性能を強制抑制してしまいます。拡張スロットの数やWi-Fiの有無もここで決まります。
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-4 border-t border-slate-100">
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">🔍 チップセットの選び方</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    ・Intel系：B760（高コスパ・おすすめ）/ Z790（最上位・OC対応）<br>
+                    ・AMD系：B650（高コスパ・大定番）/ X670（拡張性最強）
+                  </p>
+                </div>
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">⚠️ 初心者のよくある失敗</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    「CPUとマザーボードの規格（ソケット形状）が合わないものを買ってしまい、物理的に刺さらず買い直す羽目に…」
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. 電源ユニット (PSU) -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm card-hover">
+              <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                    6
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                        <span class="term-tooltip">電源ユニット (PSU)
+                          <span class="tooltip-content">Power Supply Unit。家庭用コンセントの交流（AC）をPC部品が扱える精密な直流（DC）に変換し、安定して電気を送り届ける心臓部。</span>
+                        </span>
+                      </h3>
+                      <span class="text-xs text-slate-400 font-mono">Power Supply Unit</span>
+                    </div>
+                    <div class="metaphor-badge mt-1">
+                      <i data-lucide="heart-pulse" class="w-4 h-4"></i>
+                      比喩：PCの「心臓 / 血液ポンプ」
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <div class="text-xs font-semibold text-slate-500 mb-0.5">ゲームでの重要度</div>
+                  <div class="star-rating text-base font-bold">★★★★☆</div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                  <h4 class="font-bold text-slate-900 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                    どんな役割をしているの？
+                  </h4>
+                  <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    家庭のコンセントから流れてくる100Vの交流電流を、各パーツが求める+12Vや+5Vの直流に綺麗に整流し、淀みなく送り届ける生命線です。
+                  </p>
+                </div>
+
+                <div class="bg-orange-50/60 p-4 rounded-2xl border border-orange-200/70">
+                  <h4 class="font-bold text-orange-950 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-orange-600"></i>
+                    なぜ超重要？（粗悪品のリスク）
+                  </h4>
+                  <p class="text-xs sm:text-sm text-orange-900 leading-relaxed">
+                    電源の容量不足や粗悪なコンデンサは、ゲーム中に突然PCが強制シャットダウンする原因になります。最悪の場合、心不全のようにショートして他の高価なパーツ（道連れ）を壊してしまいます。
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-4 border-t border-slate-100">
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">🔍 容量と変換効率の目安</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    ・<strong class="text-slate-800">容量（W数）</strong>：全パーツの最大消費電力 × 約1.5〜2倍（650W〜850Wが定番）<br>
+                    ・<strong class="text-slate-800">80 PLUS認証</strong>：Bronze / Gold。省エネ・発熱軽減の証である「Gold認証」が断然おすすめ。
+                  </p>
+                </div>
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">⚠️ 初心者のよくある失敗</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    「予算を浮かせようと無名の激安電源を買ったら、ゲームプレイ中にパチンと火花を吹いてマザーボードごと壊れた…（電源は絶対にケチるな！が自作の鉄則）」
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 7. 冷却＆ケース -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm card-hover">
+              <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                    7
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                        <span class="term-tooltip">冷却ファン ＆ PCケース
+                          <span class="tooltip-content">CPUクーラー（空冷・水冷）やケースファン。激しい演算で100度近くに達する熱を外部へ排出し、パーツの寿命と性能を守る。</span>
+                        </span>
+                      </h3>
+                      <span class="text-xs text-slate-400 font-mono">Cooling & Chassis</span>
+                    </div>
+                    <div class="metaphor-badge mt-1">
+                      <i data-lucide="wind" class="w-4 h-4"></i>
+                      比喩：オフィスの「空調・排熱設備 ＆ 建物」
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <div class="text-xs font-semibold text-slate-500 mb-0.5">ゲームでの重要度</div>
+                  <div class="star-rating text-base font-bold">★★★☆☆</div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                  <h4 class="font-bold text-slate-900 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                    どんな役割をしているの？
+                  </h4>
+                  <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    最新のCPUやグラボは、フル稼働すると電気ストーブ並みの熱（80℃〜95℃以上）を発します。ファンや冷却液（水冷）で熱を吸い上げ、ケースの外へと一気に吐き出します（エアフロー）。
+                  </p>
+                </div>
+
+                <div class="bg-orange-50/60 p-4 rounded-2xl border border-orange-200/70">
+                  <h4 class="font-bold text-orange-950 text-xs flex items-center gap-1.5 mb-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-orange-600"></i>
+                    なぜ重要？（サーマルスロットリング）
+                  </h4>
+                  <p class="text-xs sm:text-sm text-orange-900 leading-relaxed">
+                    パーツは限界温度に達すると、自らの溶損を防ぐために自動で性能を半分以下に落とす安全装置（<span class="term-tooltip">サーマルスロットリング<span class="tooltip-content">熱暴走を防ぐため、クロック数を強制低下させて熱を下げる安全機能。ゲームが急に激重になる。</span></span>）が発動します。冷やせないPCは本来のパワーを一切出せません。
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-4 border-t border-slate-100">
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">🔍 空冷 vs 水冷</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    ・<strong class="text-slate-800">空冷クーラー</strong>：ヒートシンク＋ファン。故障が少なく長寿命・メンテ不要。<br>
+                    ・<strong class="text-slate-800">簡易水冷クーラー</strong>：冷却液をポンプ循環。ハイエンドCPU（Core i7/i9等）の爆熱を確実に冷やす。
+                  </p>
+                </div>
+                <div>
+                  <span class="font-bold text-slate-900 block mb-1">⚠️ 初心者のよくある失敗</span>
+                  <p class="text-slate-600 leading-relaxed">
+                    「見た目の小ささやデザインだけで通気孔の少ない密閉ケースを選んだら、内部がサウナ状態になって夏場に熱暴走で落ちまくった…」
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- =================================================================
+             第2章：映像出力環境（モニター ＆ 伝送ケーブル）
+             ================================================================= -->
+        <section id="chapter-2" class="space-y-8">
+          <div class="border-b border-slate-200 pb-4">
+            <div class="flex items-center gap-2 text-xs font-bold text-orange-600 uppercase tracking-widest mb-1">
+              <span>Chapter 02</span>
+              <span>•</span>
+              <span>画面とケーブルの罠</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              モニターとケーブルの落とし穴（本体が強くても画面がダメなら全部台無し！）
+            </h2>
+            <p class="text-slate-600 text-sm mt-2">
+              「30万円の高級PCを買ったのに、モニターが普通の事務用60Hzで画面がカクつく…」という悲劇が後を絶ちません。画面の出口とケーブルの罠を完全攻略します。
+            </p>
+          </div>
+
+          <!-- モニターの4大選定基準 -->
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="monitor" class="w-5 h-5 text-orange-600"></i>
+              ゲーミングモニター 4大スペック選定基準
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- 解像度 -->
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-bold text-slate-900 text-sm">1. 解像度（画面のきめ細かさ）</span>
+                  <span class="text-xs font-mono text-slate-500">Resolution</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                  画素（ドット）の数です。解像度が上がるほどGPUへの負荷は2倍、4倍と激増します。
+                </p>
+                <div class="space-y-1.5 text-xs">
+                  <div class="p-2 bg-white rounded-lg border border-slate-200 flex justify-between items-center">
+                    <div><strong class="text-slate-800">フルHD (1920×1080)</strong><span class="text-slate-500 ml-1">競技FPSの標準</span></div>
+                    <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[11px] font-semibold">GPU負荷：小</span>
+                  </div>
+                  <div class="p-2 bg-white rounded-lg border border-slate-200 flex justify-between items-center">
+                    <div><strong class="text-slate-800">WQHD (2560×1440)</strong><span class="text-slate-500 ml-1">画質と滑らかさの黄金比</span></div>
+                    <span class="text-blue-700 bg-blue-50 px-2 py-0.5 rounded text-[11px] font-semibold">GPU負荷：中</span>
+                  </div>
+                  <div class="p-2 bg-white rounded-lg border border-slate-200 flex justify-between items-center">
+                    <div><strong class="text-slate-800">4K (3840×2160)</strong><span class="text-slate-500 ml-1">超美麗・映画並み</span></div>
+                    <span class="text-rose-700 bg-rose-50 px-2 py-0.5 rounded text-[11px] font-semibold">GPU負荷：極大</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- リフレッシュレート -->
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-bold text-slate-900 text-sm">2. リフレッシュレート (Hz)</span>
+                  <span class="text-xs font-mono text-orange-600 font-bold">最重要指標</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                  モニターが1秒間に画面を何回書き換えられるかを表す数値。PCが200fps出していても、モニターが60Hzなら60回しか表示されません。
+                </p>
+                <div class="space-y-1.5 text-xs">
+                  <div class="p-2 bg-white rounded-lg border border-slate-200 flex justify-between items-center">
+                    <div><strong class="text-slate-800">60Hz</strong><span class="text-slate-500 ml-1">一般的な事務用</span></div>
+                    <span class="text-slate-500 text-[11px]">ゲームには残像が多い</span>
+                  </div>
+                  <div class="p-2 bg-white rounded-lg border border-slate-200 flex justify-between items-center">
+                    <div><strong class="text-slate-800">144Hz 〜 180Hz</strong><span class="text-slate-500 ml-1">ゲーミングの登竜門</span></div>
+                    <span class="text-orange-700 bg-orange-50 px-2 py-0.5 rounded text-[11px] font-semibold">劇的に滑らか！</span>
+                  </div>
+                  <div class="p-2 bg-white rounded-lg border border-slate-200 flex justify-between items-center">
+                    <div><strong class="text-slate-800">240Hz 〜 360Hz</strong><span class="text-slate-500 ml-1">プロゲーマー・競技用</span></div>
+                    <span class="text-purple-700 bg-purple-50 px-2 py-0.5 rounded text-[11px] font-semibold">敵の動きが丸見え</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 応答速度 -->
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-bold text-slate-900 text-sm">3. 応答速度（GtG / MPRT）</span>
+                  <span class="text-xs font-mono text-slate-500">1ms以下が必須</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  画面のドット（ピクセル）が別の色へと変色するスピード。応答速度が遅い（5ms以上など）と、視点を素早く振ったときに敵や背景がモヤモヤとブレる「残像感（ゴースト）」が発生します。<strong class="text-slate-800">「1ms (GtG) 以下」</strong>と書かれた製品を選びましょう。
+                </p>
+              </div>
+
+              <!-- パネル方式の比較 -->
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-bold text-slate-900 text-sm">4. パネル方式の特徴</span>
+                  <span class="text-xs font-mono text-slate-500">用途に合わせて選ぶ</span>
+                </div>
+                <ul class="text-xs text-slate-600 space-y-1.5">
+                  <li>・<strong class="text-slate-800">IPS</strong>：発色が綺麗で視野角が広い。一番人気で迷ったらコレ！</li>
+                  <li>・<strong class="text-slate-800">Fast TN</strong>：応答速度が最速。ApexなどのFPS特化。発色は控えめ。</li>
+                  <li>・<strong class="text-slate-800">VA</strong>：黒の引き締まり（コントラスト）が高く、映画鑑賞にも向く。</li>
+                  <li>・<strong class="text-slate-800">OLED (有機EL)</strong>：応答速度ほぼ0ms、真の黒表現。最高峰だが高価。</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- ケーブル仕様の罠 -->
+            <div class="mt-8 pt-6 border-t border-slate-100">
+              <h4 class="font-bold text-slate-900 text-sm mb-3 flex items-center gap-2">
+                <i data-lucide="cable" class="w-4 h-4 text-orange-600"></i>
+                ケーブル仕様の罠：DisplayPort vs HDMI
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div class="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl">
+                  <div class="font-bold text-blue-900 text-sm mb-1 flex items-center gap-1.5">
+                    <i data-lucide="check" class="w-4 h-4 text-blue-600"></i>
+                    DisplayPort (DP 1.4 / 2.1)
+                  </div>
+                  <p class="text-blue-800 leading-relaxed">
+                    <strong class="text-blue-950">ゲーミングPCの最優先規格！</strong> 帯域幅が極めて広く、高リフレッシュレート（144Hz〜240Hz+）や、画面のズレ（テアリング）を防ぐG-SYNC / FreeSync機能に標準対応しています。付属していれば迷わずこれを使用してください。
+                  </p>
+                </div>
+
+                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                  <div class="font-bold text-slate-900 text-sm mb-1 flex items-center gap-1.5">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-slate-600"></i>
+                    HDMI (2.0 vs 2.1)
+                  </div>
+                  <p class="text-slate-600 leading-relaxed">
+                    テレビやPS5でも使われる汎用規格ですが、古いHDMI 2.0ケーブルだと「フルHD 144Hzまで」や「4K 60Hz止まり」になる制限があります。4Kで120Hz〜144Hzを出すには<strong class="text-slate-900">「HDMI 2.1 Ultra High Speed 認証」</strong>の専用ケーブルが必要です。
+                  </p>
+                </div>
+              </div>
+
+              <!-- 初心者最大の落とし穴：挿す場所注意喚起 -->
+              <div class="mt-4 p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                  <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+                </div>
+                <div class="text-xs text-amber-950">
+                  <span class="font-extrabold text-sm block mb-0.5">🚨 初心者が100人中90人やる「ケーブルの挿し間違い」！</span>
+                  PCの背面には、マザーボード側（上部）とグラフィックボード側（下部の横並び端子）の2箇所に映像端子があります。<br>
+                  <strong class="underline decoration-amber-600 decoration-2">必ず「下側のグラフィックボード（GPU）の端子」にケーブルを挿してください！</strong><br>
+                  上側のマザーボード端子に挿してしまうと、せっかくの高級グラボが使われず、低性能なCPU内蔵グラフィックで動くためゲームが激重になります。
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             特別セクション：快適にゲームするためのネットワーク環境
+             ================================================================= -->
+        <section id="network-environment" class="bg-gradient-to-b from-blue-50/70 via-white to-slate-50 rounded-3xl p-6 sm:p-10 border-2 border-blue-200 shadow-sm relative overflow-hidden space-y-8">
+          <div class="absolute -right-16 -top-16 w-60 h-60 bg-blue-200/40 rounded-full blur-3xl pointer-events-none"></div>
+
+          <!-- ヘッダー -->
+          <div class="space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-bold shadow-xs">
+              <i data-lucide="wifi" class="w-4 h-4"></i>
+              ゲーム環境の超重要インフラ
+            </div>
+
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              <span class="inline-block">【重要】快適にゲームするための</span><span class="inline-block"><span class="text-blue-600 underline decoration-blue-300 decoration-wavy underline-offset-6">ネットワーク環境</span></span><br class="hidden sm:inline">
+              <span class="inline-block">「弾が当たらない」「急にワープする」……</span><span class="inline-block">それ、腕前ではなく回線のせいです！</span>
+            </h2>
+
+            <p class="text-slate-700 text-sm sm:text-base leading-relaxed">
+              「絶対に当たったはずなのに負けた」「敵が瞬間移動した」「同期ズレで弾がすり抜けた」……<br>
+              それ、あなたのデバイスや腕前の問題ではなく<strong class="text-blue-600 font-bold">【回線環境（ネットワーク）】</strong>が原因の可能性大です。<br>
+              いくら何十万円もするハイスペックPCを揃えても、回線が貧弱なら即撃ち負けます。快適なプレイ環境を維持するため、以下の基準を厳守してください。
+            </p>
+          </div>
+
+          <!-- 3つの主要トピック -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- 1. 回線契約の基準 -->
+            <div class="bg-white p-6 rounded-2xl border border-blue-200/90 shadow-xs space-y-4">
+              <div class="flex items-center gap-2.5">
+                <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">1</span>
+                <h3 class="font-bold text-slate-900 text-base">回線契約の基準（光回線1Gbpsが最低条件）</h3>
+              </div>
+
+              <div class="space-y-3 text-xs leading-relaxed text-slate-700">
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                  <strong class="text-slate-900 font-bold block mb-1">⚡ 光回線 1Gbps以上がスタートライン</strong>
+                  一般的なWeb閲覧なら数十Mbpsで十分ですが、対戦ゲームでは大容量通信と同時に「応答速度（Ping）」が命です。必ず光回線1Gbps以上の戸建て・マンションプランを契約しましょう。
+                </div>
+
+                <div class="p-3.5 bg-amber-50/80 rounded-xl border border-amber-200 text-amber-950">
+                  <strong class="text-amber-900 font-bold block mb-1">⚠️ マンションの「無料Wi-Fi付き」「備え付け回線」は危険</strong>
+                  アパート全体の住人で1本の回線を共有するため、20時〜24時のゴールデンタイムに帯域がパンクし、Ping跳ね・パケットロスが多発します。対戦ゲーム用途には極力非推奨です。
+                </div>
+
+                <div class="p-3.5 bg-rose-50 rounded-xl border border-rose-200 text-rose-950">
+                  <strong class="text-rose-900 font-bold block mb-1">🚨 VDSL方式（電話線配線）は諦めましょう</strong>
+                  マンションの棟内配線が昔ながらの「電話線（VDSL）」の場合、<strong class="underline decoration-rose-500">理論上最大100Mbpsが上限</strong>です。さらに電話線はノイズに極めて弱く、激しい遅延とラグの温床になります。<br>
+                  光配線方式への変更工事を管理会社に相談するか、戸建てタイプ個別引き込み、あるいはホームルーター（docomo home 5G / WiMAX）等の別回線乗り換えを強く推奨します。
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. 配線・接続の鉄則 -->
+            <div class="bg-white p-6 rounded-2xl border border-blue-200/90 shadow-xs space-y-4">
+              <div class="flex items-center gap-2.5">
+                <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">2</span>
+                <h3 class="font-bold text-slate-900 text-base">配線・接続の鉄則（有線必須 ＆ LAN規格）</h3>
+              </div>
+
+              <div class="space-y-3 text-xs leading-relaxed text-slate-700">
+                <div class="p-3.5 bg-blue-50/60 rounded-xl border border-blue-200">
+                  <strong class="text-blue-900 font-bold block mb-1">🔌 有線接続は必須（対戦ゲームでのWi-Fi厳禁！）</strong>
+                  電波のアンテナが何本立っていようと、Wi-Fiは電子レンジや壁、近隣電波の干渉で<strong class="text-rose-600 font-bold">突発的な遅延（ジッター）とパケットロス（パケロス）の塊</strong>です。一瞬の同期ズレで勝敗が決まるオンラインゲームでは、ルーターからPCへ必ずLANケーブルを直接挿してください。
+                </div>
+
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                  <strong class="text-slate-900 font-bold block mb-1">🏷️ LANケーブルの規格を確認（CAT5e 以上を推奨）</strong>
+                  実家や昔からある古い「CAT5」ケーブルを挿していませんか？ CAT5は<strong class="text-rose-600 font-bold">最大100Mbpsで頭打ち</strong>になり、せっかくの1Gbps光回線を完全に殺してしまいます。<br>
+                  ケーブル側面の印字を見て<strong class="text-slate-900">「CAT5e」「CAT6」「CAT6A」</strong>になっているか確認してください。
+                </div>
+
+                <div class="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-950">
+                  <strong class="text-emerald-900 font-bold block mb-1">💡 豆知識：CAT7やCAT8は不要！CAT6/6Aで十分</strong>
+                  高価な「CAT7」「CAT8」は業務用データセンター向けの規格（STP）であり、家庭用PCではアース接地ができないためノイズを拾いやすく逆に不具合の原因になります。安くて取り回しやすい「CAT6」または「CAT6A」が最も安定して最適です。
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ゲーマーのための光回線の選び方完全ガイド -->
+          <div class="bg-white rounded-2xl p-6 sm:p-8 border border-blue-200 space-y-6">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold mb-2">
+                <i data-lucide="network" class="w-3.5 h-3.5"></i>
+                光回線の選び方完全ガイド
+              </div>
+              <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                どれを契約すればいい？ 光回線4大分類 ＆ 営業トラップ回避術
+              </h3>
+              <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                光回線は大きく分けて4種類あります。それぞれの特徴と、初心者が絶対に引っかかってはいけない営業の罠を解説します。
+              </p>
+            </div>
+
+            <!-- 4大分類カード -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <!-- 1. 光コラボ -->
+              <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                    <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">A</span>
+                    光コラボ（光コラボレーション）
+                  </span>
+                  <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[11px] font-bold">基本はコレ！王道</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  NTT東日本・西日本の光ファイバー網を通信事業者が借り受けて、プロバイダとセット提供している回線（2015年開始）。使用回線自体はフレッツ光と全く同一です。<br>
+                  <strong class="text-slate-800">代表例：ドコモ光、SoftBank光、BIGLOBE光など</strong><br>
+                  全国どこでも契約でき、スマホとのセット割も強力。プロバイダ一体型で契約も簡単です。
+                </p>
+
+                <!-- ホームルーター（置くだけWi-Fi）の罠注意喚起 -->
+                <div class="p-3 bg-rose-50 border-2 border-rose-300 rounded-xl text-xs text-rose-950 space-y-1">
+                  <strong class="font-extrabold flex items-center gap-1 text-rose-700">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                    ⚠️【絶対注意】「ホームルーター（置くだけWi-Fi）」の営業トークに流されるな！
+                  </strong>
+                  <p class="leading-relaxed text-[11px] text-rose-900">
+                    家電量販店等で「工事不要ですぐ使える」「光と同じですよ」と勧められることがありますが、<strong class="underline decoration-rose-600 font-bold">対戦ゲーム用途では絶対に避けるべきです。</strong><br>
+                    ホームルーター（SoftBank Airやdocomo home 5Gなど）は、スマホと同じモバイル電波（4G/5G）を受信する仕組みのため、有線の光回線と比べてPingの乱高下やパケットロスが避けられません。「置くだけWi-Fi」は断り、<strong class="text-slate-900 font-bold">必ず本物の有線光回線工事</strong>を通してください。
+                  </p>
+                </div>
+              </div>
+
+              <!-- 2. 電力会社系の光回線 -->
+              <div class="p-5 bg-gradient-to-b from-orange-50/50 to-white rounded-2xl border-2 border-orange-300 space-y-3 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                    <span class="w-5 h-5 rounded-full bg-orange-600 text-white flex items-center justify-center text-xs">B</span>
+                    電力会社系の光回線
+                  </span>
+                  <span class="px-2 py-0.5 rounded bg-orange-600 text-white text-[11px] font-bold flex items-center gap-1">
+                    <i data-lucide="flame" class="w-3 h-3"></i>
+                    作者おすすめ！
+                  </span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  各地域の電力会社が独自に管理・保有している光ファイバー網を利用した光回線サービス。<br>
+                  <strong class="text-slate-800">代表例：コミュファ光（中部）、メガ・エッグ 光ネット（中国）、ピカラ光（四国）、BBIQ光インターネット（九州）など</strong>
+                </p>
+                <div class="p-3 bg-white/90 border border-orange-200 rounded-xl text-xs text-orange-950 space-y-1">
+                  <strong class="font-bold text-orange-800 block">💡 なぜ超おすすめなのか？</strong>
+                  <p class="leading-relaxed text-[11px]">
+                    ・NTT回線と利用者が混ざらないため、夜間でも混雑せず<strong class="font-bold">常に超高速＆極低Ping</strong>！<br>
+                    ・月額料金も全体的に割安。<br>
+                    ・特に<strong class="text-orange-700 font-bold">コミュファ光は「ゲーミングカスタム」などゲーム特化に全力を注いでいる超優良企業！</strong> エリア内に住んでいるなら最優先で検討すべきです。
+                  </p>
+                </div>
+              </div>
+
+              <!-- 3. ダークファイバー（独自回線） -->
+              <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                    <span class="w-5 h-5 rounded-full bg-slate-800 text-white flex items-center justify-center text-xs">C</span>
+                    ダークファイバー（独自回線）
+                  </span>
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-[11px] font-bold">エリア内ならOK</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  NTTの使われていない予備光ファイバー（ダークファイバー）や自社網を借りて独自設備で提供する回線（全体の約1割）。<br>
+                  <strong class="text-slate-800">代表例：auひかり、NURO光</strong><br>
+                  混雑が少なく爆速になりやすい反面、提供エリアが狭く、マンションによっては導入できない・開通工事に数ヶ月かかるケースがあります。初心者にはややハードルが高めですが、対応物件であれば視野に入れてもOKです。
+                </p>
+              </div>
+
+              <!-- 4. フレッツ光系（単体契約） -->
+              <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                    <span class="w-5 h-5 rounded-full bg-slate-800 text-white flex items-center justify-center text-xs">D</span>
+                    フレッツ光系（単体契約）
+                  </span>
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-[11px] font-bold">初心者非推奨</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  NTT東西の回線契約と、プロバイダ（OCN、So-net等）を別々に契約する元祖方式。日本国内の光回線の約9割の大元ですが、契約が2重になり、IPv6 IPoE（v6プラス等）に対応したプロバイダ選びが難しいため初心者には非推奨。基本は同じ回線を使っている「光コラボ」で十分です。
+                </p>
+              </div>
+
+            </div>
+
+            <!-- 4大光回線の比較マトリクス表 -->
+            <div class="overflow-x-auto pt-2">
+              <table class="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
+                <thead class="bg-slate-900 text-white">
+                  <tr>
+                    <th class="py-2.5 px-3 w-28">種類</th>
+                    <th class="py-2.5 px-3 w-28">おすすめ度</th>
+                    <th class="py-2.5 px-3">代表サービス</th>
+                    <th class="py-2.5 px-3">特徴・向いている人</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                  <tr class="bg-orange-50/40">
+                    <td class="py-2.5 px-3 font-bold text-orange-900">電力会社系</td>
+                    <td class="py-2.5 px-3 font-bold text-orange-600">★★★★★<br>(作者イチオシ)</td>
+                    <td class="py-2.5 px-3 font-medium">コミュファ光、メガ・エッグ、ピカラ光、BBIQ</td>
+                    <td class="py-2.5 px-3">独自網で夜間も爆速＆低Ping。料金も割安。対象エリアなら最優先！</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2.5 px-3 font-bold text-blue-900">光コラボ</td>
+                    <td class="py-2.5 px-3 font-bold text-blue-600">★★★★☆<br>(王道・基本)</td>
+                    <td class="py-2.5 px-3 font-medium">ドコモ光、SoftBank光、BIGLOBE光など</td>
+                    <td class="py-2.5 px-3">全国どこでも引けてスマホセット割が強力。迷ったらスマホに合わせて選べばOK。</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2.5 px-3 font-bold text-slate-900">ダークファイバー</td>
+                    <td class="py-2.5 px-3 font-semibold text-slate-600">★★★☆☆<br>(エリア限定)</td>
+                    <td class="py-2.5 px-3 font-medium">auひかり、NURO光</td>
+                    <td class="py-2.5 px-3">混雑が少なく爆速だが、提供エリアが狭く工事期間が長め。対応物件ならアリ。</td>
+                  </tr>
+                  <tr class="bg-slate-50">
+                    <td class="py-2.5 px-3 font-bold text-slate-500">フレッツ光単体</td>
+                    <td class="py-2.5 px-3 text-slate-400">★★☆☆☆<br>(非推奨)</td>
+                    <td class="py-2.5 px-3 text-slate-500">NTTフレッツ ＋ 各種プロバイダ</td>
+                    <td class="py-2.5 px-3 text-slate-500">プロバイダ選択が難解で請求も分かれるため、初心者には光コラボを推奨。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 3. あなたの回線状況を診断します！fast.com測定＆シミュレーター -->
+          <div class="bg-white rounded-2xl p-6 sm:p-8 border border-blue-200 space-y-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <div>
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wider block">Network Diagnoser</span>
+                <h3 class="text-xl font-extrabold text-slate-900">
+                  あなたの回線状況を診断！ fast.com測定 ＆ 合格判定ツール
+                </h3>
+                <p class="text-xs text-slate-500 mt-1">
+                  今の環境が快適にゲームできる合格ラインか、実際に速度を測って確認してみましょう！
+                </p>
+              </div>
+
+              <!-- fast.com 外部測定ボタン -->
+              <a href="https://fast.com/ja/" target="_blank" rel="noopener noreferrer" class="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs">
+                <i data-lucide="gauge" class="w-4 h-4"></i>
+                <span>fast.com で回線速度を測る（Netflix提供）</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </a>
+            </div>
+
+            <!-- 測定手順の説明 -->
+            <div class="bg-slate-50 p-4 rounded-xl text-xs text-slate-600 leading-relaxed space-y-2 border border-slate-200">
+              <strong class="text-slate-900 block font-bold">👉 測定方法の手順：</strong>
+              <ol class="list-decimal list-inside space-y-1">
+                <li>上のボタンから「fast.com」を開くと自動で測定が始まります。</li>
+                <li>大きな数字（ダウンロード速度）が出たら、下の<strong class="text-slate-800">「詳細を表示」</strong>をクリックします。</li>
+                <li>表示された<strong class="text-blue-600">「アンロード済み（レイテンシ/Ping ms）」</strong>と<strong class="text-slate-800">「ダウンロード速度（Mbps）」</strong>を下のシミュレーターに入力してください。</li>
+              </ol>
+            </div>
+
+            <!-- インタラクティブ回線判定シミュレーター -->
+            <div class="bg-gradient-to-r from-slate-50 to-blue-50/40 p-5 rounded-2xl border border-blue-100 space-y-4">
+              <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4 text-blue-600"></i>
+                即実戦OKか判定シミュレーター
+              </h4>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="net-ping" class="block text-xs font-bold text-slate-700 mb-1">
+                    レイテンシ / Ping値（ms）
+                  </label>
+                  <input type="number" id="net-ping" placeholder="例: 15" value="15" min="1" max="999" class="w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                  <span class="text-[11px] text-slate-400 mt-1 block">※fast.comの「レイテンシ アンロード済み」の数値</span>
+                </div>
+
+                <div>
+                  <label for="net-speed" class="block text-xs font-bold text-slate-700 mb-1">
+                    ダウンロード速度（Mbps）
+                  </label>
+                  <input type="number" id="net-speed" placeholder="例: 250" value="250" min="1" max="9999" class="w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                  <span class="text-[11px] text-slate-400 mt-1 block">※fast.comのメインの速度数値</span>
+                </div>
+              </div>
+
+              <button id="net-diagnose-btn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-xs">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                <span>回線環境を判定する</span>
+              </button>
+
+              <!-- 判定結果カード -->
+              <div id="net-result" class="transition-all"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             第3章：なぜゲームには「つよつよPC」が必要なのか？
+             ================================================================= -->
+        <section id="chapter-3" class="space-y-8">
+          <div class="border-b border-slate-200 pb-4">
+            <div class="flex items-center gap-2 text-xs font-bold text-orange-600 uppercase tracking-widest mb-1">
+              <span>Chapter 03</span>
+              <span>•</span>
+              <span>ゲーム負荷の現実</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              なぜゲームには「つよつよPC」が必要なのか？（カクつき・撃ち負けの正体）
+            </h2>
+            <p class="text-slate-600 text-sm mt-2">
+              YouTubeや事務作業なら3万円のPCで余裕なのに、なぜゲームは20万〜30万もするのか？ わずか数ミリ秒で何が起きているのかを直感解説します。
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6">
+
+            <!-- 1. 描画猶予時間（Frame Time）の壁 -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-4">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
+                  A
+                </div>
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900">
+                  描画猶予時間（Frame Time）の過酷なタイムリミット
+                </h3>
+              </div>
+
+              <p class="text-sm text-slate-600 leading-relaxed">
+                ゲームは「あらかじめ録画されたビデオ」を再生しているのではなく、<strong class="text-slate-900">リアルタイムに世界を計算して絵を描き続けています。</strong><br>
+                1秒間に描くコマ数を増やすほど、1コマあたりにかけられる猶予時間は極限まで削られます。
+              </p>
+
+              <!-- 計算式とミリ秒比較 -->
+              <div class="bg-slate-900 text-white p-5 rounded-2xl font-mono text-center my-4">
+                <div class="text-xs text-slate-400 mb-1">描画猶予時間（Frame Time）の計算式</div>
+                <div class="text-lg sm:text-2xl font-bold text-orange-400">
+                  Frame Time = 1000 ms ÷ 目標fps
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                  <div class="text-xs text-slate-500 font-semibold mb-1">一般テレビ・動画 (60 fps)</div>
+                  <div class="text-2xl font-bold text-slate-800 font-mono">約 16.6 ms</div>
+                  <div class="text-[11px] text-slate-500 mt-1">1コマ描くのに0.016秒の猶予</div>
+                </div>
+
+                <div class="p-4 bg-orange-50 border border-orange-200 rounded-2xl">
+                  <div class="text-xs text-orange-700 font-semibold mb-1">ゲーミング標準 (144 fps)</div>
+                  <div class="text-2xl font-bold text-orange-600 font-mono">約 6.94 ms</div>
+                  <div class="text-[11px] text-orange-800 mt-1">瞬きする暇もない超高速演算</div>
+                </div>
+
+                <div class="p-4 bg-purple-50 border border-purple-200 rounded-2xl">
+                  <div class="text-xs text-purple-700 font-semibold mb-1">競技FPS極限 (240 fps)</div>
+                  <div class="text-2xl font-bold text-purple-600 font-mono">約 4.16 ms</div>
+                  <div class="text-[11px] text-purple-800 mt-1">わずか0.004秒ですべて完結</div>
+                </div>
+              </div>
+
+              <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200">
+                CPUとGPUは、この<strong class="text-slate-900">わずか数ミリ秒（4〜6ms）の間</strong>に、「プレイヤーの操作検知 $\rightarrow$ 敵AIの移動計算 $\rightarrow$ 弾の当たり判定 $\rightarrow$ ポリゴンモデル配置 $\rightarrow$ 影と光のシェーディング $\rightarrow$ 画面出力」をすべて終わらせなければなりません。1ミリ秒でも遅れれば、即座に画面がガクッと止まります。
+              </p>
+            </div>
+
+            <!-- 2. レイトレーシング ＆ VRAMの爆食い -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-4">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
+                  B
+                </div>
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900">
+                  レイトレーシング（光線追跡）とVRAMの爆食い
+                </h3>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                  <h4 class="font-bold text-slate-900 text-sm mb-2 flex items-center gap-2">
+                    <i data-lucide="sun" class="w-4 h-4 text-orange-600"></i>
+                    レイトレーシングの重さ
+                  </h4>
+                  <p class="text-xs text-slate-600 leading-relaxed">
+                    太陽や街灯からの無数の光線が、水たまりや車体、ガラスにどう反射・屈折するかを物理法則に従って1本ずつシミュレーションします。<br>
+                    現実と見分けがつかない映像が生まれる反面、通常の描画の数倍〜十数倍もの演算負荷がかかるため、専用のアクセラレータ（GeForceのRTコア等）を搭載したハイエンドGPUが必須になります。
+                  </p>
+                </div>
+
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                  <h4 class="font-bold text-slate-900 text-sm mb-2 flex items-center gap-2">
+                    <i data-lucide="database" class="w-4 h-4 text-orange-600"></i>
+                    高解像度テクスチャとVRAM容量
+                  </h4>
+                  <p class="text-xs text-slate-600 leading-relaxed">
+                    キャラクターの衣服の質感や岩肌の凹凸を緻密に見せるため、最新ゲームはギガバイト単位の超巨大画像（テクスチャ）を大量に展開します。<br>
+                    これがGPU専用メモリ（VRAM）の容量を超えると、途端に描画が追いつかなくなり、激しい画面硬直（スタッター）を起こします。<strong class="text-slate-900">現代の重量級ゲームでは12GB〜16GB以上のVRAMが推奨されます。</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. オープンワールドとデータストリーミング -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-4">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
+                  C
+                </div>
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900">
+                  オープンワールドと「メモリ32GB時代」の到来
+                </h3>
+              </div>
+
+              <p class="text-sm text-slate-600 leading-relaxed">
+                ロード画面を挟まずにシームレスに冒険できるオープンワールドゲームでは、プレイヤーが向かう先々の街や敵のデータを、SSDから超高速で読み込み（ストリーミング）、RAM（机）の上に絶え間なく展開し続けます。
+              </p>
+
+              <div class="p-4 bg-slate-900 text-white rounded-2xl text-xs space-y-2">
+                <div class="font-bold text-orange-400 text-sm">💡 現代のゲーマーが同時に起動しているもの一覧：</div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 font-mono">
+                  <div class="bg-slate-800 p-2 rounded-lg text-center">最新大作ゲーム<br>(12GB〜18GB消費)</div>
+                  <div class="bg-slate-800 p-2 rounded-lg text-center">Discord ボイスチャット<br>(約 1GB〜1.5GB)</div>
+                  <div class="bg-slate-800 p-2 rounded-lg text-center">ブラウザ（攻略タブ多数）<br>(約 2GB〜4GB)</div>
+                  <div class="bg-slate-800 p-2 rounded-lg text-center">録画ソフト / OBS配信<br>(約 2GB〜5GB)</div>
+                </div>
+              </div>
+
+              <div class="p-3.5 bg-orange-50 border border-orange-200 rounded-xl text-xs text-orange-950 font-medium leading-relaxed">
+                これらを合計すると簡単に20GBを超えます。そのため、これまでの定番だった「16GB」ではメモリ不足によるプチフリーズが多発するようになり、<strong class="underline decoration-orange-500 font-bold">2026年現在のゲーミングPCでは「32GB」が絶対的な新基準</strong>となっています。
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- =================================================================
+             第4章：パーツ間のバランスと「ボトルネック」
+             ================================================================= -->
+        <section id="chapter-4" class="space-y-8">
+          <div class="border-b border-slate-200 pb-4">
+            <div class="flex items-center gap-2 text-xs font-bold text-orange-600 uppercase tracking-widest mb-1">
+              <span>Chapter 04</span>
+              <span>•</span>
+              <span>性能バランスの極意</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              パーツバランスとボトルネック（高いグラボを買っても無駄になる理由）
+            </h2>
+            <p class="text-slate-600 text-sm mt-2">
+              「高いグラフィックボードを積めばゲームは快適になる」は大間違い！ どこか1つでも遅い部品があると、全体の足を引っ張る「ボトルネック」が発生します。
+            </p>
+          </div>
+
+          <!-- ボトルネック検証マトリクス表 -->
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-4">
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="table" class="w-5 h-5 text-orange-600"></i>
+              ボトルネック検証マトリクス
+            </h3>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
+                <thead class="bg-slate-900 text-white font-bold">
+                  <tr>
+                    <th class="py-3 px-4 text-center w-20">CPU性能</th>
+                    <th class="py-3 px-4 text-center w-20">GPU性能</th>
+                    <th class="py-3 px-4 w-64">発生する現象</th>
+                    <th class="py-3 px-4">診断・改善方針</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr class="bg-amber-50/50 hover:bg-amber-50 transition-colors">
+                    <td class="py-3.5 px-4 text-center font-bold text-amber-700 bg-amber-100/50">低</td>
+                    <td class="py-3.5 px-4 text-center font-bold text-emerald-700 bg-emerald-100/50">高</td>
+                    <td class="py-3.5 px-4">
+                      <strong class="text-amber-900 block font-bold">⚠️ CPUボトルネック（NG）</strong>
+                      <span class="text-slate-600">GPU使用率が50〜60%で低迷。グラボが高性能でも指示待ちとなり、激しいカクつきが発生。</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-700">
+                      高価なグラボが無駄になっています。CPUを現行世代の上位モデルに刷新することで本来の性能が解き放たれます。
+                    </td>
+                  </tr>
+                  <tr class="bg-emerald-50/40 hover:bg-emerald-50 transition-colors">
+                    <td class="py-3.5 px-4 text-center font-bold text-emerald-700 bg-emerald-100/50">高</td>
+                    <td class="py-3.5 px-4 text-center font-bold text-slate-700 bg-slate-100">中〜低</td>
+                    <td class="py-3.5 px-4">
+                      <strong class="text-emerald-900 block font-bold">✅ GPU律速（最も健全な正常状態）</strong>
+                      <span class="text-slate-600">GPU使用率が95〜99%でフル稼働。CPUには余裕があり、fpsも安定する。</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-700">
+                      ゲーミングPCとして最も理想的。性能をさらに伸ばしたい場合は、グラボのみを上位へ換装すれば素直にfpsが向上します。
+                    </td>
+                  </tr>
+                  <tr class="bg-blue-50/40 hover:bg-blue-50 transition-colors">
+                    <td class="py-3.5 px-4 text-center font-bold text-blue-700 bg-blue-100/50">高</td>
+                    <td class="py-3.5 px-4 text-center font-bold text-blue-700 bg-blue-100/50">高</td>
+                    <td class="py-3.5 px-4">
+                      <strong class="text-blue-900 block font-bold">🌟 ハイエンド均衡（最高峰）</strong>
+                      <span class="text-slate-600">4Kや超高fpsでも安定動作。一切の無駄がなく最高の映像体験。</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-700">
+                      電源ユニット容量（750W〜1000W）と、冷却クーラー・ケースの排熱能力の確保が必須条件となります。
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- インタラクティブ・ボトルネックシミュレーター -->
+          <div id="simulator-section" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <span class="text-xs font-bold text-orange-600 uppercase tracking-wider block">Interactive Tool</span>
+                <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                  CPU × GPU ボトルネック診断シミュレーター
+                </h3>
+              </div>
+              <span class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full">リアルタイム判定</span>
+            </div>
+
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              想定しているパーツのランクとプレイ解像度を選んでみてください。使用率のバランスと、ボトルネックの有無を瞬時にシミュレーションします。
+            </p>
+
+            <!-- 選択コントロール -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200">
+              <div>
+                <label for="sim-cpu" class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <i data-lucide="cpu" class="w-3.5 h-3.5 text-orange-600"></i>
+                  CPU性能ランク
+                </label>
+                <select id="sim-cpu" class="w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium">
+                  <option value="1">エントリー（Core i3 / 昔のCore i7）</option>
+                  <option value="2" selected>ミドルクラス（Core i5-14400 / Ryzen 5 7500F）</option>
+                  <option value="3">ハイエンド（Core i7-14700 / Ryzen 7 7800X3D）</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="sim-gpu" class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <i data-lucide="palette" class="w-3.5 h-3.5 text-orange-600"></i>
+                  GPU性能ランク
+                </label>
+                <select id="sim-gpu" class="w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium">
+                  <option value="1">エントリー（GTX 1650 / RTX 3050）</option>
+                  <option value="2" selected>ミドルクラス（RTX 4060 / 4060 Ti）</option>
+                  <option value="3">ハイエンド（RTX 4070 Ti SUPER / 4080）</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="sim-resolution" class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <i data-lucide="monitor" class="w-3.5 h-3.5 text-orange-600"></i>
+                  想定モニター解像度
+                </label>
+                <select id="sim-resolution" class="w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium">
+                  <option value="fhd" selected>フルHD (1080p) - CPU負荷高め</option>
+                  <option value="wqhd">WQHD (1440p) - バランス</option>
+                  <option value="4k">4K (2160p) - GPU負荷極大</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- シミュレーション結果表示領域（JSで動的生成） -->
+            <div id="sim-result" class="transition-all"></div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             第5章：用途別スペック指標 ＆ 選定基準
+             ================================================================= -->
+        <section id="chapter-5" class="space-y-8">
+          <div class="border-b border-slate-200 pb-4">
+            <div class="flex items-center gap-2 text-xs font-bold text-orange-600 uppercase tracking-widest mb-1">
+              <span>Chapter 05</span>
+              <span>•</span>
+              <span>実践選定ガイド</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              用途別スペック診断 ＆ 購入直前チェックリスト
+            </h2>
+            <p class="text-slate-600 text-sm mt-2">
+              あなたの「やりたいゲームや用途」に合わせて、どこにお金をかけるべきかが一目でわかる診断ツールと、ポチる直前の失敗防止チェックリストです。
+            </p>
+          </div>
+
+          <!-- インタラクティブ用途別おすすめ診断 -->
+          <div id="diagnosis-section" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+            <div>
+              <span class="text-xs font-bold text-orange-600 uppercase tracking-wider block">Interactive Guide</span>
+              <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                あなたの用途別 おすすめパーツ配分チェッカー
+              </h3>
+              <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                知りたい主な用途をクリックしてください。優先して予算を投じるべきパーツ順位と推奨スペックが表示されます。
+              </p>
+            </div>
+
+            <!-- 用途切り替えタブボタン -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button data-target="fps" class="req-btn p-3 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold transition-all text-center flex flex-col items-center justify-center gap-1.5 bg-slate-900 text-white shadow-md">
+                <i data-lucide="crosshair" class="w-4 h-4 text-orange-500"></i>
+                競技FPSゲーム
+              </button>
+              <button data-target="aaa" class="req-btn p-3 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold transition-all text-center flex flex-col items-center justify-center gap-1.5 bg-white text-slate-700 hover:border-slate-300">
+                <i data-lucide="flame" class="w-4 h-4 text-orange-500"></i>
+                重量級AAA・4K
+              </button>
+              <button data-target="streamer" class="req-btn p-3 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold transition-all text-center flex flex-col items-center justify-center gap-1.5 bg-white text-slate-700 hover:border-slate-300">
+                <i data-lucide="video" class="w-4 h-4 text-orange-500"></i>
+                実況配信・動画編集
+              </button>
+              <button data-target="office" class="req-btn p-3 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold transition-all text-center flex flex-col items-center justify-center gap-1.5 bg-white text-slate-700 hover:border-slate-300">
+                <i data-lucide="file-text" class="w-4 h-4 text-orange-500"></i>
+                日常事務・レポート
+              </button>
+            </div>
+
+            <!-- 出力領域 -->
+            <div id="requirement-profile-output"></div>
+          </div>
+
+          <!-- 購入前・注文前 最終チェックリスト（ローカル保存） -->
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <h3 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="check-square" class="w-5 h-5 text-orange-600"></i>
+                  購入前の最終確認チェックリスト
+                </h3>
+                <p class="text-xs text-slate-500 mt-1">ポチる前にここだけは確認！ チェック状態は自動保存されます。</p>
+              </div>
+              <div class="text-xs bg-slate-100 px-3 py-1.5 rounded-full font-mono font-bold text-slate-700">
+                達成度: <span id="checklist-count" class="text-orange-600">0 / 8</span>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <label class="checklist-item flex items-start gap-3 p-3.5 bg-rose-50/80 hover:bg-rose-100/70 rounded-2xl cursor-pointer border-2 border-rose-300 transition-colors">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500">
+                <div class="text-xs leading-relaxed">
+                  <strong class="text-rose-950 font-bold block mb-0.5">【大原則】「持ち運んでゲームするかも…」の幻想を捨て、絶対にデスクトップを選んだか？</strong>
+                  <span class="text-rose-800">ノートPCは電力・熱制限で性能が激減しパーツ交換も不可。安い144Hzモニター（約1.5万円）を買い足してでもデスクトップを選ぶのが最強のコスパです。</span>
+                </div>
+              </label>
+
+              <label class="checklist-item flex items-start gap-3 p-3.5 bg-blue-50/80 hover:bg-blue-100/70 rounded-2xl cursor-pointer border-2 border-blue-300 transition-colors">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                <div class="text-xs leading-relaxed">
+                  <strong class="text-blue-950 font-bold block mb-0.5">【通信環境】Wi-Fiではなく、CAT6等の「有線LANケーブル」を用意したか？</strong>
+                  <span class="text-blue-800">Wi-Fiは弾抜け・ワープの原因です。またCAT5ケーブルだと100Mbps制限になるため、CAT5e/6の有線LAN接続が必須です。</span>
+                </div>
+              </label>
+
+              <label class="checklist-item flex items-start gap-3 p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded-2xl cursor-pointer border border-slate-200/70 transition-colors">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-orange-600 rounded border-slate-300 focus:ring-orange-500">
+                <div class="text-xs leading-relaxed">
+                  <strong class="text-slate-900 font-bold block mb-0.5">メモリは「32GB」または「デュアルチャネル（2枚組）」になっているか？</strong>
+                  <span class="text-slate-600">1枚だけのシングルチャネルや、容量16GB以下での大作ゲーム同時起動はスタッターの原因になります。</span>
+                </div>
+              </label>
+
+              <label class="checklist-item flex items-start gap-3 p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded-2xl cursor-pointer border border-slate-200/70 transition-colors">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-orange-600 rounded border-slate-300 focus:ring-orange-500">
+                <div class="text-xs leading-relaxed">
+                  <strong class="text-slate-900 font-bold block mb-0.5">ストレージは「1TB以上のNVMe M.2 SSD」を選んでいるか？</strong>
+                  <span class="text-slate-600">500GB以下やHDD起動は絶対に避けること。あっという間に満杯になります。</span>
+                </div>
+              </label>
+
+              <label class="checklist-item flex items-start gap-3 p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded-2xl cursor-pointer border border-slate-200/70 transition-colors">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-orange-600 rounded border-slate-300 focus:ring-orange-500">
+                <div class="text-xs leading-relaxed">
+                  <strong class="text-slate-900 font-bold block mb-0.5">電源ユニットのワット数はグラボ推奨値より余裕（+150W〜200W）があるか？</strong>
+                  <span class="text-slate-600">RTX 4060なら650W、RTX 4070以上なら750W〜850W Gold認証が推奨ラインです。</span>
+                </div>
+              </label>
+
+              <label class="checklist-item flex items-start gap-3 p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded-2xl cursor-pointer border border-slate-200/70 transition-colors">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-orange-600 rounded border-slate-300 focus:ring-orange-500">
+                <div class="text-xs leading-relaxed">
+                  <strong class="text-slate-900 font-bold block mb-0.5">モニターのリフレッシュレートは144Hz以上に対応しているか？</strong>
+                  <span class="text-slate-600">一般的な60Hzモニターのままだと、どんな高価なPCでも映像は秒間60回しか描画されません。</span>
+                </div>
+              </label>
+
+              <label class="checklist-item flex items-start gap-3 p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded-2xl cursor-pointer border border-slate-200/70 transition-colors">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-orange-600 rounded border-slate-300 focus:ring-orange-500">
+                <div class="text-xs leading-relaxed">
+                  <strong class="text-slate-900 font-bold block mb-0.5">DisplayPortケーブルを用意したか？（またはHDMI 2.1認証品か？）</strong>
+                  <span class="text-slate-600">古いHDMIケーブルを使い回すと144Hzが出ない罠に引っかかります。</span>
+                </div>
+              </label>
+
+              <label class="checklist-item flex items-start gap-3 p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded-2xl cursor-pointer border border-slate-200/70 transition-colors">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-orange-600 rounded border-slate-300 focus:ring-orange-500">
+                <div class="text-xs leading-relaxed">
+                  <strong class="text-slate-900 font-bold block mb-0.5">【到着後】ケーブルをマザーボードではなくグラボ側に挿す覚悟はできたか？</strong>
+                  <span class="text-slate-600">PCの背面下部にある独立グラボのポートに挿すことを絶対に忘れないでください。</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             ラスト救済コーナー：迷ったらここで買え！定番BTOショップ6選
+             ================================================================= -->
+        <section id="bto-shops" class="bg-gradient-to-b from-orange-50/60 via-white to-slate-50 rounded-3xl p-6 sm:p-10 border-2 border-orange-300 shadow-sm relative overflow-hidden space-y-8">
+          <div class="absolute -right-16 -top-16 w-60 h-60 bg-orange-200/40 rounded-full blur-3xl pointer-events-none"></div>
+
+          <!-- ヘッダー -->
+          <div class="space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-600 text-white text-xs font-bold shadow-xs">
+              <i data-lucide="store" class="w-4 h-4"></i>
+              初心者ラスト救済コーナー
+            </div>
+
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              <span class="inline-block">これを見ても理解できないそこの君！！！</span><br class="hidden sm:inline">
+              <span class="inline-block"><span class="text-orange-600 underline decoration-orange-300 decoration-wavy underline-offset-6">何も考えずに欲しいならここで買え！</span></span> <span class="inline-block">信頼の定番BTOショップ6選</span>
+            </h2>
+
+            <p class="text-slate-700 text-sm sm:text-base leading-relaxed">
+              「パーツの仕組みを読んでも結局どれを選べばいいか分からない…」「調べる時間がないから、絶対に失敗しないショップでサクッと買いたい！」という人は、以下の<strong class="text-slate-900 font-bold">国内定番BTOメーカーから予算に合わせて選べば間違いありません。</strong>
+            </p>
+
+            <div class="p-3.5 bg-white/90 border border-orange-200 rounded-xl text-xs text-orange-950 flex items-center gap-2.5 font-medium shadow-xs">
+              <i data-lucide="shield-check" class="w-5 h-5 text-orange-600 shrink-0"></i>
+              <span><strong>ステマ・アフィリエイトではありません！</strong> 純粋に出荷速度・耐久性・サポート体制・価格競争力において圧倒的な実績を持つ安心の国内ショップのみを掲載しています。</span>
+            </div>
+          </div>
+
+          <!-- 6ブランド カード一覧（グリッド） -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+            <!-- 1. ドスパラ（ガレリア） -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col justify-between card-hover">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-full bg-slate-900 text-white text-[11px] font-bold whitespace-nowrap shrink-0">国内シェアNo.1</span>
+                  <span class="text-xs font-bold text-orange-600 whitespace-nowrap shrink-0">一番人気</span>
+                </div>
+                <h3 class="text-lg font-extrabold text-slate-900 mb-1">
+                  ドスパラ（GALLERIA）
+                </h3>
+                <p class="text-xs text-orange-600 font-bold mb-3">
+                  「みんなが買っている一番の王道！注文から届くまでが超爆速」
+                </p>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                  日本で最も利用者が多い超王道ゲーミングPCブランド。最大の強みは<strong class="text-slate-800">「最短翌日出荷」の圧倒的スピード</strong>。「今すぐゲームを始めたい！」という人や、周りと同じ安心のPCが欲しい初心者ならまずここを見ておけば間違いありません。
+                </p>
+              </div>
+              <div class="pt-3 border-t border-slate-100">
+                <a href="https://www.dospara.co.jp/TC30" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
+                  <span>ガレリア公式サイトを見る</span>
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- 2. マウスコンピューター（NEXTGEAR） -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col justify-between card-hover">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold whitespace-nowrap shrink-0">国産・3年保証付き</span>
+                  <span class="text-xs font-bold text-blue-600 whitespace-nowrap shrink-0">WEB通販限定</span>
+                </div>
+                <h3 class="text-lg font-extrabold text-slate-900 mb-1">
+                  マウス（NEXTGEAR）
+                </h3>
+                <p class="text-xs text-blue-600 font-bold mb-3">
+                  「なんか異常に安くて国産の安心感！標準3年保証＆24時間電話サポート」
+                </p>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                  大手マウスコンピューターが展開するオンライン限定コスパ特化ブランド。長野県での国内生産に加え、<strong class="text-slate-800">「3年間センドバック無償修理保証」と「24時間365日電話サポート」が標準で付属！</strong> それなのに他社より異常に安い超大本命です。
+                </p>
+              </div>
+              <div class="pt-3 border-t border-slate-100">
+                <a href="https://www.mouse-jp.co.jp/store/r/ra3060100/" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors">
+                  <span>NEXTGEAR公式サイトを見る</span>
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- 3. STORM（ストーム） -->
+            <div class="bg-gradient-to-b from-orange-50/50 to-white rounded-2xl p-5 border-2 border-orange-400 shadow-sm flex flex-col justify-between card-hover relative overflow-hidden">
+              <div class="absolute -right-10 -top-10 w-24 h-24 bg-orange-300/30 rounded-full blur-xl pointer-events-none"></div>
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-full bg-orange-600 text-white text-[11px] font-bold flex items-center gap-1 whitespace-nowrap shrink-0">
+                    <i data-lucide="flame" class="w-3 h-3"></i>
+                    作者イチオシ！
+                  </span>
+                  <span class="text-xs font-bold text-orange-600 whitespace-nowrap shrink-0">LINEサポート対応</span>
+                </div>
+                <h3 class="text-lg font-extrabold text-slate-900 mb-1">
+                  STORM（ストーム）
+                </h3>
+                <p class="text-xs text-orange-600 font-bold mb-3">
+                  「サポートがLINEでできて安心！映えるガラス張りPC＆痒い所に手が届く」
+                </p>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                  いま大人気の2面ガラス張り「ピラーレスケース」や「裏配線PC」など、白を基調とした最高に美しいPCが得意な注目メーカー。購入相談やトラブルを<strong class="text-slate-800">LINEで気軽に聞ける手厚さ</strong>があり、中身のパーツ品質も妥協のない作者絶賛ブランドです。
+                </p>
+              </div>
+              <div class="pt-3 border-t border-orange-100">
+                <a href="https://www.stormst.com/" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs">
+                  <span>STORM公式サイトを見る</span>
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- 4. TSUKUMO（G-GEAR） -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col justify-between card-hover">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold whitespace-nowrap shrink-0">ヤマダデンキ系列</span>
+                  <span class="text-xs font-bold text-emerald-600 whitespace-nowrap shrink-0">老舗パーツ専門店</span>
+                </div>
+                <h3 class="text-lg font-extrabold text-slate-900 mb-1">
+                  TSUKUMO（G-GEAR）
+                </h3>
+                <p class="text-xs text-emerald-600 font-bold mb-3">
+                  「秋葉原の老舗発祥！高品質パーツ採用で故障率が極めて低い」
+                </p>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                  自作PCパーツのメッカ・秋葉原で古くから愛される老舗。マザーボードや電源ユニットに有名メーカーの信頼性が高いパーツを標準採用。<strong class="text-slate-800">「パーツの耐久性と安定性」</strong>を何よりも最優先したい堅実派・長期運用派に圧倒的におすすめです。
+                </p>
+              </div>
+              <div class="pt-3 border-t border-slate-100">
+                <a href="https://www.tsukumo.co.jp/bto/pc/game/" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
+                  <span>G-GEAR公式サイトを見る</span>
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- 5. パソコン工房（LEVEL∞） -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col justify-between card-hover">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-full bg-purple-100 text-purple-800 text-[11px] font-bold whitespace-nowrap shrink-0">ストリーマー愛用</span>
+                  <span class="text-xs font-bold text-purple-600 whitespace-nowrap shrink-0">全国に実店舗多数</span>
+                </div>
+                <h3 class="text-lg font-extrabold text-slate-900 mb-1">
+                  パソコン工房（LEVEL∞）
+                </h3>
+                <p class="text-xs text-purple-600 font-bold mb-3">
+                  「有名配信者・プロが使いがち！全国の実店舗に持ち込みも可能」
+                </p>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                  人気ストリーマー、VTuber、プロeスポーツチームとのコラボモデルが非常に豊富で、推しの限定PCが欲しい人に大人気。全国に実店舗がたくさんあるため、<strong class="text-slate-800">何かトラブルがあった際にお店へ直接持ち込んで相談できる安心感</strong>があります。
+                </p>
+              </div>
+              <div class="pt-3 border-t border-slate-100">
+                <a href="https://www.pc-koubou.jp/pc/game_list.php" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
+                  <span>LEVEL∞公式サイトを見る</span>
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- 6. フロンティア（FRONTIER） -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col justify-between card-hover">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold whitespace-nowrap shrink-0">国内最安クラス</span>
+                  <span class="text-xs font-bold text-amber-600 whitespace-nowrap shrink-0">多少理解した人向け</span>
+                </div>
+                <h3 class="text-lg font-extrabold text-slate-900 mb-1">
+                  FRONTIER（フロンティア）
+                </h3>
+                <p class="text-xs text-amber-600 font-bold mb-3">
+                  「とにかく安く済ませるならここ！破格のセールが狙い目の超高コスパ」
+                </p>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                  毎週・毎月更新される「台数限定セール」の値引き幅が凄まじく、<strong class="text-slate-800">同スペックなら国内トップクラスの安さ</strong>を誇ります。見た目は無骨でシンプルですが、スペック表が多少読める人なら「この性能でこの値段はヤバい」と即決する超コスパ穴場です。
+                </p>
+              </div>
+              <div class="pt-3 border-t border-slate-100">
+                <a href="https://www.frontier-direct.jp/direct/e/ejGame/" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
+                  <span>フロンティア公式サイトを見る</span>
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- フッター補足バナー -->
+          <div class="p-4 bg-slate-100/90 rounded-2xl text-xs text-slate-600 leading-relaxed flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <strong class="text-slate-900">💡 最後の選び方アドバイス：</strong><br>
+              「迷ったらドスパラかマウス」「見た目とサポート重視ならSTORM」「耐久性ならTSUKUMO」「セール狙いならフロンティア」で選べば失敗ゼロです！
+            </div>
+            <a href="#intro" class="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1">
+              <span>もう一度最初から読む</span>
+              <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             用語クイック検索辞書
+             ================================================================= -->
+        <section id="glossary" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+          <div>
+            <div class="flex items-center gap-2 text-xs font-bold text-orange-600 uppercase tracking-widest mb-1">
+              <span>Quick Glossary</span>
+              <span>•</span>
+              <span>用語辞典</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+              専門用語クイック検索辞書
+            </h2>
+            <p class="text-slate-600 text-xs sm:text-sm mt-1">
+              わからない単語を入力すると、その場でやさしい解説が表示されます。
+            </p>
+          </div>
+
+          <!-- 検索インプット -->
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="glossary-search-input" placeholder="用語を検索（例: VRAM, ボトルネック, fps, SSD...）" class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all font-medium">
+          </div>
+
+          <!-- 用語一覧出力 -->
+          <div id="glossary-results" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-1"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- フッター -->
+  <footer class="bg-slate-900 text-white mt-20 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6 pb-8 border-b border-slate-800 text-xs">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center text-white">
+            <i data-lucide="cpu" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <span class="font-bold text-sm block">後悔ゼロ！ゲーミングPCパーツ本音攻略ガイド</span>
+            <span class="text-slate-400">初心者が20万ドブに捨てないための実戦マニュアル</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <a href="../../index.html" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 font-bold">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            メインページ（作品一覧）に戻る
+          </a>
+          <span class="text-slate-600">|</span>
+          <a href="#intro" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+            <i data-lucide="arrow-up" class="w-4 h-4"></i>
+            トップへ戻る
+          </a>
+        </div>
+      </div>
+
+      <div class="pt-8 text-xs text-slate-400 space-y-3">
+        <div class="p-4 bg-slate-800/80 rounded-xl border border-slate-700/80 leading-relaxed text-[11px] text-slate-400">
+          <strong class="text-slate-200 block font-bold mb-1">【免責事項・掲載情報について】</strong>
+          本サイトに掲載しているPCパーツ情報、価格相場、性能比較、回線仕様、各種比喩表現は、初心者がPC選定で失敗しないための一般的な参考情報として執筆したものです。価格や仕様は執筆時点のものであり、常に変動します。製品の購入、パーツの増設・換装、回線契約等の最終的なご判断は、必ず各メーカー・販売代理店・回線事業者の最新仕様をご確認の上、ご自身の責任において行っていただけますようお願いいたします。
+        </div>
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-2 text-slate-500 text-[11px]">
+          <p>© 2026 ゲーミングPC本音攻略バイブル | 初心者が騙されないための非営利ガイド</p>
+          <p>※本サイトは特定企業からの金銭的便宜を受けない非営利の個人検証マニュアルです。</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript -->
+  <script src="js/app.js"></script>
+</body>
+</html>
