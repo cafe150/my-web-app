@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>和風モダン家系図作成システム｜公的書類・伝統家譜対応ローカルファーストWebアプリ</title>
+  <!-- 5. フォントシステム: Noto Serif JP（明朝体） & Noto Sans JP（ゴシック体） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ========================================================================
+       3. 上部ヘッダー / ツールバー
+       ======================================================================== -->
+  <header class="app-header" role="banner">
+    <div class="header-left">
+      <div class="brand-crest" aria-hidden="true">系</div>
+      <div class="title-edit-group">
+        <label for="treeTitleInput" class="toolbar-label">表題</label>
+        <input
+          id="treeTitleInput"
+          type="text"
+          class="tree-title-input"
+          value="田中家 家系図"
+          aria-label="家系図タイトル"
+          title="クリックして家系図タイトルを編集"
+        />
+      </div>
+    </div>
+
+    <div class="header-center">
+      <!-- 系統切り替えドロップダウン（1系統〜全系統） -->
+      <div class="toolbar-group">
+        <label for="lineageModeSelect" class="toolbar-label">記録系統</label>
+        <select id="lineageModeSelect" class="toolbar-select" aria-label="記録する系統の選択">
+          <option value="1">1系統（父方/母方 直系1名字）</option>
+          <option value="2">2系統（父方・母方の2家系）</option>
+          <option value="4">4系統（祖父母4人すべてのルーツ）</option>
+          <option value="all">全系統（判明した全尊属・傍系）</option>
+        </select>
+      </div>
+
+      <!-- 様式切り替えタブ（様式A / 様式B / 様式C） -->
+      <div class="toolbar-group">
+        <span class="toolbar-label">様式</span>
+        <div class="style-tabs" role="tablist" aria-label="表示デザイン様式切り替え">
+          <button type="button" class="style-tab-btn active" data-style="A" role="tab">様式A：先祖トーナメント型</button>
+          <button type="button" class="style-tab-btn" data-style="B" role="tab">様式B：法務・直系軸型</button>
+          <button type="button" class="style-tab-btn" data-style="C" role="tab">様式C：伝統家譜型</button>
+        </div>
+      </div>
+
+      <!-- 表示倍率ズームコントローラー -->
+      <div class="toolbar-group">
+        <span class="toolbar-label">倍率</span>
+        <div class="zoom-controls" aria-label="表示倍率ズームコントローラー">
+          <button type="button" id="zoomOutBtn" class="zoom-btn" title="縮小">−</button>
+          <span id="zoomLevelDisplay" class="zoom-level-display" title="クリックで全体フィット">85%</span>
+          <button type="button" id="zoomInBtn" class="zoom-btn" title="拡大">＋</button>
+        </div>
+      </div>
+
+      <!-- 和暦 / 西暦グローバル表示切り替えスイッチ -->
+      <div class="toolbar-group">
+        <span class="toolbar-label">暦表示</span>
+        <div class="era-switch" role="group" aria-label="和暦・西暦グローバル表示切り替え">
+          <button type="button" class="era-switch-btn active" data-era-mode="wareki">和暦優先</button>
+          <button type="button" class="era-switch-btn" data-era-mode="seireki">西暦優先</button>
+          <button type="button" class="era-switch-btn" data-era-mode="both">併記</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="undo-redo-group" aria-label="編集履歴操作">
+        <button type="button" id="undoBtn" class="btn btn-sm" title="元に戻す (Ctrl+Z)" disabled>↩ 戻す</button>
+        <button type="button" id="redoBtn" class="btn btn-sm" title="やり直す (Ctrl+Y)" disabled>↪ やり直す</button>
+      </div>
+      <button type="button" id="openPeopleListBtn" class="btn btn-sm" title="全人物一覧・CSV出力・法定相続分試算">
+        人物一覧・相続
+      </button>
+      <button type="button" id="openSampleBtn" class="btn btn-sm" title="先祖・親族が入った完成見本（サンプル構図）を表示・切り替え">
+        サンプル構図
+      </button>
+      <button type="button" id="openProjectsModalBtn" class="btn btn-sm" title="複数の家系図プロジェクトを管理・切り替え">
+        家系図管理
+      </button>
+      <button type="button" id="openWizardBtn" class="btn btn-sm" title="3ステップの新規作成・初期設定ウィザードを開く">
+        新規作成
+      </button>
+      <button type="button" id="openTutorialBtn" class="btn btn-sm" title="使い方ガイドと画面チュートリアルを表示">
+        ？ チュートリアル
+      </button>
+      <button type="button" id="openExportModalBtn" class="btn btn-sm btn-primary" title="PDF・PNG・SVG・JSON保存とエクスポート">
+        保存・出力
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       メインワークスペース（左サイドバー + メインキャンバス + 右詳細パネル）
+       ======================================================================== -->
+  <div class="app-workspace">
+
+    <!-- 左サイドバー（人物検索 + 世代ジャンプナビゲーション） -->
+    <aside class="generation-sidebar" aria-label="世代ジャンプナビゲーション">
+      <div class="sidebar-search-box">
+        <label for="personSearchInput" class="sidebar-search-label">人物検索・ジャンプ</label>
+        <input
+          type="search"
+          id="personSearchInput"
+          class="form-input sidebar-search-input"
+          placeholder="氏名・かな・旧姓・旧国・戒名"
+        />
+        <div id="personSearchResults" class="sidebar-search-results hidden"></div>
+      </div>
+
+      <div class="sidebar-section-header">
+        <div class="sidebar-section-title">
+          <span>世代ジャンプ</span>
+          <span style="font-size:11px;color:var(--accent-indigo);">連動ハイライト</span>
+        </div>
+        <p class="sidebar-section-sub">クリックで該当世代へスムーズ移動</p>
+      </div>
+
+      <div id="generationList" class="generation-list">
+        <!-- JSで動的に世代ボタン（「1世（本人）」「2世（父母）」…）を生成 -->
+      </div>
+    </aside>
+
+    <!-- メインキャンバス -->
+    <main id="canvasViewport" class="canvas-viewport" aria-label="インタラクティブ家系図キャンバス">
+      <div id="canvasStage" class="canvas-stage">
+        <!-- SVG接続線レイヤーおよび人物ノードレイヤーが描画される -->
+      </div>
+
+      <!-- 左下インジケーター（添付画像1の「1系統」表記および現在の様式名） -->
+      <div class="canvas-overlay-badge">
+        <div id="lineageWatermark" class="lineage-watermark">1系統</div>
+        <div id="styleWatermarkSub" class="style-watermark-sub">様式A：先祖トーナメント型</div>
+      </div>
+
+      <!-- 右下凡例 -->
+      <div id="canvasLegendBox" class="canvas-legend-box"></div>
+    </main>
+
+    <!-- 詳細編集スライドパネル（ノード選択時に右側からスライドイン） -->
+    <aside id="detailDrawer" class="detail-drawer" aria-label="人物詳細編集パネル">
+      <div class="drawer-header">
+        <div class="drawer-title-group">
+          <span id="drawerRoleSubtitle" class="drawer-subtitle">本人（0親等）</span>
+          <h2 id="drawerPersonTitle" class="drawer-title">本人</h2>
+        </div>
+        <button type="button" id="closeDrawerBtn" class="drawer-close-btn" title="パネルを閉じる">×</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- 基本人物情報 -->
+        <section class="form-section">
+          <h3 class="form-section-title">
+            <span>基本氏名・続柄情報</span>
+            <label style="font-family:var(--font-sans);font-size:11px;font-weight:600;color:var(--highlight-crimson);display:flex;align-items:center;gap:4px;cursor:pointer;">
+              <input type="checkbox" id="editDirectLine" /> 直系ハイライト（朱線強調）
+            </label>
+          </h3>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="editFamilyName">姓（名字）</label>
+              <input type="text" id="editFamilyName" class="form-input" placeholder="例：山田" />
+            </div>
+            <div class="form-field">
+              <label for="editGivenName">名（名前）</label>
+              <input type="text" id="editGivenName" class="form-input" placeholder="例：太郎" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="editFamilyKana">せい（ふりがな）</label>
+              <input type="text" id="editFamilyKana" class="form-input" placeholder="例：やまだ" />
+            </div>
+            <div class="form-field">
+              <label for="editGivenKana">めい（ふりがな）</label>
+              <input type="text" id="editGivenKana" class="form-input" placeholder="例：たろう" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="editMaidenName">旧姓（様式C等で括弧表記）</label>
+              <input type="text" id="editMaidenName" class="form-input" placeholder="例：佐藤" />
+            </div>
+            <div class="form-field">
+              <label for="editGender">性別（様式C色分け連動）</label>
+              <select id="editGender" class="form-select">
+                <option value="M">男性（夫・水色）</option>
+                <option value="F">女性（妻・桃色）</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="editRoleLabel">親族呼称・続柄ラベル</label>
+            <input type="text" id="editRoleLabel" class="form-input" placeholder="例：本人 / 父 / 祖父 / ①高祖父" />
+          </div>
+
+          <button type="button" id="setAsRootBtn" class="btn btn-sm" style="width:100%;border-color:var(--accent-indigo);color:var(--accent-indigo);" title="この人物を基準として世代・親等・続柄呼称を再計算します">
+            この人物を起点（本人 / 被相続人）に切り替える
+          </button>
+        </section>
+
+        <!-- 4.2 和暦・西暦の相互変換および年齢・享年自動算出 -->
+        <section class="form-section">
+          <h3 class="form-section-title">
+            <span>生年月日・没年月日（和暦/西暦相互自動変換）</span>
+          </h3>
+
+          <div id="ageSummaryBanner" class="age-summary-banner">
+            生年月日未入力
+          </div>
+
+          <!-- 生年月日 -->
+          <div class="date-converter-box">
+            <label style="font-size:12px;font-weight:700;">生年月日（改元年境界日を月日単位で自動判定）</label>
+            <div class="era-inline-row">
+              <select id="birthEraSelect" class="form-select" aria-label="生年月日の元号">
+                <option value="reiwa">令和</option>
+                <option value="heisei">平成</option>
+                <option value="showa" selected>昭和</option>
+                <option value="taisho">大正</option>
+                <option value="meiji">明治</option>
+                <option value="keio">慶応</option>
+                <option value="genji">元治</option>
+                <option value="bunkyu">文久</option>
+                <option value="manen">万延</option>
+                <option value="ansei">安政</option>
+                <option value="kaei">嘉永</option>
+                <option value="koka">弘化</option>
+                <option value="tempo">天保</option>
+                <option value="bunsei">文政</option>
+                <option value="bunka">文化</option>
+              </select>
+              <input type="number" id="birthEraYear" class="form-input" placeholder="元号年" min="1" max="99" title="和暦の年（1＝元年）" />
+              <input type="number" id="birthMonth" class="form-input" placeholder="月" min="1" max="12" />
+              <input type="number" id="birthDay" class="form-input" placeholder="日" min="1" max="31" />
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;font-weight:600;white-space:nowrap;">西暦年(直接入力可)：</span>
+              <input type="number" id="birthGregYear" class="form-input" placeholder="例：1985" min="1500" max="2100" />
+            </div>
+            <div id="birthDatePreview" class="converted-date-preview">
+              未入力（西暦または元号年のどちらからでも自動変換されます）
+            </div>
+            <div id="birthDateWarning" class="date-warning-banner hidden"></div>
+          </div>
+
+          <!-- 故人チェック & 没年月日 -->
+          <div class="date-converter-box">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <label style="font-size:12px;font-weight:700;">没年月日（故人の場合・享年/数え年を自動演算）</label>
+              <label style="font-size:12px;font-weight:700;color:var(--highlight-crimson);cursor:pointer;display:flex;align-items:center;gap:4px;">
+                <input type="checkbox" id="editIsDeceased" /> 故人として記録
+              </label>
+            </div>
+            <div class="era-inline-row">
+              <select id="deathEraSelect" class="form-select" aria-label="没年月日の元号">
+                <option value="reiwa" selected>令和</option>
+                <option value="heisei">平成</option>
+                <option value="showa">昭和</option>
+                <option value="taisho">大正</option>
+                <option value="meiji">明治</option>
+                <option value="keio">慶応</option>
+                <option value="genji">元治</option>
+                <option value="bunkyu">文久</option>
+                <option value="manen">万延</option>
+                <option value="ansei">安政</option>
+                <option value="kaei">嘉永</option>
+                <option value="koka">弘化</option>
+                <option value="tempo">天保</option>
+                <option value="bunsei">文政</option>
+                <option value="bunka">文化</option>
+              </select>
+              <input type="number" id="deathEraYear" class="form-input" placeholder="元号年" min="1" max="99" />
+              <input type="number" id="deathMonth" class="form-input" placeholder="月" min="1" max="12" />
+              <input type="number" id="deathDay" class="form-input" placeholder="日" min="1" max="31" />
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;font-weight:600;white-space:nowrap;">西暦年(直接入力可)：</span>
+              <input type="number" id="deathGregYear" class="form-input" placeholder="例：2018" min="1500" max="2100" />
+            </div>
+            <div id="deathDatePreview" class="converted-date-preview">
+              未入力
+            </div>
+            <div id="deathDateWarning" class="date-warning-banner hidden"></div>
+          </div>
+        </section>
+
+        <!-- 4.1 出身地選択（48都道府県・地方別タブ＋タイル選択＋旧国名サジェスト検索） -->
+        <section class="form-section">
+          <h3 class="form-section-title">
+            <span>出身地・本籍地選択（地方別タブUI）</span>
+            <span id="selectedPrefBadge" style="background:var(--accent-indigo);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">未設定</span>
+          </h3>
+
+          <div class="kuni-search-box">
+            <label for="kuniSearchInput" style="font-size:11px;font-weight:600;color:var(--ink-muted);">
+              旧国名・都道府県サジェスト検索（例：武蔵、山城、薩摩、尾張、信濃）
+            </label>
+            <input
+              type="text"
+              id="kuniSearchInput"
+              class="form-input"
+              placeholder="旧国名や都道府県名を入力（例：武蔵、山城、薩摩）"
+            />
+            <div id="kuniSuggestList" class="kuni-suggest-list"></div>
+          </div>
+
+          <div class="form-field">
+            <label for="editOriginKuni">出身旧国名（令制国）</label>
+            <input type="text" id="editOriginKuni" class="form-input" placeholder="例：武蔵国（サジェスト選択で自動入力）" />
+          </div>
+
+          <!-- 7地方区分タブ -->
+          <div id="regionTabsContainer" class="region-tabs" role="tablist"></div>
+
+          <!-- 都道府県タイル（1タップ確定） -->
+          <div id="prefectureTilesGrid" class="prefecture-tiles"></div>
+        </section>
+
+        <!-- 法務・相続実務情報（様式B対応） -->
+        <section class="form-section">
+          <h3 class="form-section-title">法務・相続情報（様式B連動）</h3>
+          <div class="form-field">
+            <label for="editInheritanceStatus">相続ステータス</label>
+            <select id="editInheritanceStatus" class="form-select">
+              <option value="none">指定なし</option>
+              <option value="decedent">被相続人</option>
+              <option value="heir">法定相続人</option>
+              <option value="divided">遺産分割済</option>
+              <option value="renounced">相続放棄</option>
+              <option value="successive">数次相続</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="editHonsekiAddress">本籍地・最後の住所（相続関係説明図用）</label>
+            <input type="text" id="editHonsekiAddress" class="form-input" placeholder="例：東京都千代田区〇〇1-2-3" />
+          </div>
+        </section>
+
+        <!-- 伝統家譜・供養情報（様式C対応） -->
+        <section class="form-section">
+          <h3 class="form-section-title">供養・伝統家譜情報（戒名・法要・家紋）</h3>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="editBuddhistName">戒名・法名</label>
+              <input type="text" id="editBuddhistName" class="form-input" placeholder="例：釈○○信士" />
+            </div>
+            <div class="form-field">
+              <label for="editTombLocation">墓所・菩提寺</label>
+              <input type="text" id="editTombLocation" class="form-input" placeholder="例：〇〇寺墓地" />
+            </div>
+          </div>
+
+          <div id="memorialScheduleBox" class="memorial-schedule-box hidden">
+            <div style="font-size:11px;font-weight:700;margin-bottom:4px;color:var(--accent-indigo);">年忌法要スケジュール（自動算出）</div>
+            <div id="memorialScheduleList" class="memorial-schedule-list"></div>
+          </div>
+
+          <div class="form-row" style="border-top:1px dashed var(--ink-border);padding-top:10px;margin-top:4px;">
+            <div class="form-field">
+              <label for="editFamilyCrest">家紋（様式C表題に表示）</label>
+              <select id="editFamilyCrest" class="form-select"></select>
+            </div>
+            <div class="form-field">
+              <label for="editFamilyMotto">家訓（様式C表題横）</label>
+              <input type="text" id="editFamilyMotto" class="form-input" placeholder="例：和をもって尊しとなす" />
+            </div>
+          </div>
+        </section>
+
+        <!-- 備考・法務メモ -->
+        <section class="form-section">
+          <h3 class="form-section-title">備考・戸籍メモ</h3>
+          <div class="form-field">
+            <textarea
+              id="editNotes"
+              rows="3"
+              class="form-textarea"
+              placeholder="戸籍詳細、経歴・逸話、相続関係メモなどを記録"
+            ></textarea>
+          </div>
+        </section>
+      </div>
+
+      <div class="drawer-footer">
+        <button type="button" id="deletePersonBtn" class="btn btn-danger-outline" title="誤って追加・入力した人物データを削除または初期化します">
+          この人物を削除
+        </button>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:11px;color:var(--ink-muted);">自動保存中</span>
+          <button type="button" class="btn btn-primary" onclick="document.getElementById('detailDrawer').classList.add('closed')">
+            編集完了
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- 各人物ノード下部の「＋」アイコンから開く次世代・親族スロット即時追加ポップオーバー -->
+  <div id="quickAddPopover" class="quick-add-popover hidden" role="menu">
+    <div id="quickAddTargetName" class="quick-add-header">親族スロットを追加</div>
+    <button type="button" class="quick-add-item" data-rel="father"><span>＋ 父（尊属）を追加・編集</span><span>↑</span></button>
+    <button type="button" class="quick-add-item" data-rel="mother"><span>＋ 母（尊属）を追加・編集</span><span>↑</span></button>
+    <button type="button" class="quick-add-item" data-rel="spouse"><span>＋ 配偶者を追加・編集</span><span>↔</span></button>
+    <button type="button" class="quick-add-item" data-rel="brother"><span>＋ 兄弟（兄・弟）を追加</span><span>⇄</span></button>
+    <button type="button" class="quick-add-item" data-rel="sister"><span>＋ 姉妹（姉・妹）を追加</span><span>⇄</span></button>
+    <button type="button" class="quick-add-item" data-rel="son"><span>＋ 息子（次世代）を追加</span><span>↓</span></button>
+    <button type="button" class="quick-add-item" data-rel="daughter"><span>＋ 娘（次世代）を追加</span><span>↓</span></button>
+    <button type="button" class="quick-add-item" data-rel="edit" style="border-top:1px solid var(--ink-border);margin-top:4px;">
+      <span>詳細パネルで人物情報を編集</span><span>✎</span>
+    </button>
+  </div>
+
+  <!-- ========================================================================
+       2. 新規作成ウィザード（初期設定3ステップフロー）
+       ======================================================================== -->
+  <div id="wizardModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="wizardModalTitle">
+    <div class="wizard-card">
+      <div class="wizard-header">
+        <div>
+          <h2 id="wizardModalTitle" class="wizard-title">家系図 新規作成ウィザード（初期設定）</h2>
+          <p style="font-size:12px;color:var(--ink-muted);">3つのステップで目的のフォーマット・系統の家系図を開始します</p>
+        </div>
+        <div class="wizard-steps-indicator">
+          <span class="step-pill active" data-step="1">1. 系統の選択</span>
+          <span class="step-pill" data-step="2">2. 様式の選択</span>
+          <span class="step-pill" data-step="3">3. 起点人物入力</span>
+          <button type="button" id="closeWizardBtn" class="drawer-close-btn" title="閉じる">×</button>
+        </div>
+      </div>
+
+      <div class="wizard-body">
+        <!-- ステップ1：記録する「系統」の選択 -->
+        <div class="wizard-step-pane" data-step-pane="1">
+          <h3 class="wizard-step-heading">ステップ1：記録する「系統」の選択</h3>
+          <p class="wizard-step-lead">※選択した系統は、作成後も上部ツールバーから自由に変更・拡張が可能です。</p>
+
+          <div class="selection-grid-2x2">
+            <div class="choice-card selected" data-wizard-lineage="1">
+              <div class="choice-title">1系統</div>
+              <div class="choice-target">対象範囲：父方（または母方）の直系1名字のみ</div>
+              <div class="choice-desc">特定の本家ルーツ調査・単独家系調査に特化。直系軸を鮮やかな朱色でハイライトします。</div>
+            </div>
+
+            <div class="choice-card" data-wizard-lineage="2">
+              <div class="choice-title">2系統</div>
+              <div class="choice-target">対象範囲：父方・母方の2家系</div>
+              <div class="choice-desc">両親の家系をバランスよく記録。父方・母方双方のルーツを比較しながら整理できます。</div>
+            </div>
+
+            <div class="choice-card" data-wizard-lineage="4">
+              <span class="choice-badge">標準推奨モード</span>
+              <div class="choice-title">4系統</div>
+              <div class="choice-target">対象範囲：祖父母4人すべてのルーツ</div>
+              <div class="choice-desc">網羅的な先祖調査（標準推奨モード）。父方祖父母・母方祖父母の4名字を体系的に辿ります。</div>
+            </div>
+
+            <div class="choice-card" data-wizard-lineage="all">
+              <div class="choice-title">全系統</div>
+              <div class="choice-target">対象範囲：判明したすべての尊属・傍系</div>
+              <div class="choice-desc">親族・兄弟・配偶者・おい・めい・いとこ等を含めた全記録。法務説明図や大家族記録に最適です。</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ステップ2：表示デザイン様式の選択 -->
+        <div class="wizard-step-pane hidden" data-step-pane="2">
+          <h3 class="wizard-step-heading">ステップ2：表示デザイン様式の選択</h3>
+          <p class="wizard-step-lead">用途（先祖遡り調査・法務局/相続関係説明・伝統的な夫婦並列家譜）に合わせて様式を選択してください。</p>
+
+          <div class="selection-grid-3col">
+            <div class="choice-card selected" data-wizard-style="A">
+              <div class="style-mini-preview">
+                <div style="display:flex;gap:6px;align-items:flex-end;">
+                  <span style="width:16px;height:42px;background:#594E4A;border-radius:3px;display:inline-block;"></span>
+                  <span style="width:16px;height:56px;background:#594E4A;border-radius:3px;display:inline-block;"></span>
+                  <span style="width:18px;height:72px;background:#b3000d;border-radius:3px;display:inline-block;border:2px solid #B22D25;"></span>
+                </div>
+              </div>
+              <div class="choice-title">様式A：先祖トーナメント型</div>
+              <div class="choice-target">先祖遡りツリー</div>
+              <div class="choice-desc">起点となる本人を下部に配置し、上へ父母・祖父母・曽祖父母・高祖父母へと倍々で枝分かれする構成。指定した直系ラインを太い朱線でハイライト表示します。</div>
+            </div>
+
+            <div class="choice-card" data-wizard-style="B">
+              <div class="style-mini-preview">
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span style="width:18px;height:36px;background:#fff;border:1.5px solid #1C2024;display:inline-block;"></span>
+                  <span style="width:32px;height:76px;background:#D6E4F0;border:1.5px dashed #4653a2;display:flex;align-items:center;justify-content:center;">
+                    <span style="width:18px;height:32px;background:#FFFF00;border:1.5px solid #1C2024;display:inline-block;"></span>
+                  </span>
+                  <span style="width:18px;height:36px;background:#fff;border:1.5px solid #1C2024;display:inline-block;"></span>
+                </div>
+              </div>
+              <div class="choice-title">様式B：法務・直系軸型</div>
+              <div class="choice-target">親族呼称・相続関係説明図スタイル</div>
+              <div class="choice-desc">画面中央に「本人〜直系先祖／直系子孫」を通す縦一直線の強調軸（青帯）を配置。左右に傍系を展開し、正式な親族呼称（ふりがな）や親等を明記します。</div>
+            </div>
+
+            <div class="choice-card" data-wizard-style="C">
+              <div class="style-mini-preview">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+                  <span style="padding:2px 10px;background:#FFE07D;border:2px solid #1C2024;font-size:10px;font-weight:700;">〇〇家 家系図</span>
+                  <div style="display:flex;gap:8px;">
+                    <span style="width:16px;height:42px;background:#B8D4E8;border:1.5px solid #1C2024;display:inline-block;"></span>
+                    <span style="width:16px;height:42px;background:#F9C2E6;border:1.5px solid #1C2024;display:inline-block;"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="choice-title">様式C：伝統家譜型</div>
+              <div class="choice-target">夫婦並列・点線世代区切りスタイル</div>
+              <div class="choice-desc">最上部に「〇〇家 家系図」の表題を冠し、最古の先祖から下方へ子孫を展開。夫婦を「夫（水色）＋妻（桃色・旧姓）」で横並びに配置し、世代ごとに点線ガイドを敷きます。</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ステップ3：起点人物の入力 -->
+        <div class="wizard-step-pane hidden" data-step-pane="3">
+          <h3 class="wizard-step-heading">ステップ3：起点人物（本人）の入力</h3>
+          <p class="wizard-step-lead">起点となるご本人の基本情報を入力してください。完了後、即座に系図編集画面へ移行します。</p>
+
+          <div class="form-section" style="max-width:520px;margin:0 auto;">
+            <div class="form-field">
+              <label for="wizFullName">氏名（姓と名の間にスペース・任意）</label>
+              <input type="text" id="wizFullName" class="form-input" value="" placeholder="例：山田 太郎" />
+            </div>
+
+            <div class="form-field">
+              <label for="wizFullKana">ふりがな（任意）</label>
+              <input type="text" id="wizFullKana" class="form-input" value="" placeholder="例：やまだ たろう" />
+            </div>
+
+            <div class="form-field">
+              <label for="wizBirthDate">生年月日（任意）</label>
+              <input type="date" id="wizBirthDate" class="form-input" value="" />
+              <div id="wizBirthPreview" class="converted-date-preview" style="margin-top:4px;">
+                和暦変換：生年月日を入力すると自動表示されます
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wizard-footer">
+        <button type="button" id="wizardPrevBtn" class="btn" style="visibility:hidden;">← 前のステップへ戻る</button>
+        <button type="button" id="wizardNextBtn" class="btn btn-crimson">次のステップへ進む →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       6. 出力・エクスポート & バックアップモーダル
+       ======================================================================== -->
+  <div id="exportModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+    <div class="wizard-card" style="max-width:640px;">
+      <div class="wizard-header">
+        <div>
+          <h2 id="exportModalTitle" class="wizard-title">公用出力・画像保存・データバックアップ</h2>
+          <p style="font-size:12px;color:var(--ink-muted);">行政提出対応PDF印刷、高解像度PNG/SVG出力、JSONデータの書き出し・読み込み</p>
+        </div>
+        <button type="button" id="closeExportModalBtn" class="drawer-close-btn">×</button>
+      </div>
+
+      <div class="wizard-body" style="display:flex;flex-direction:column;gap:16px;">
+        <!-- 公用・行政提出対応PDF -->
+        <div class="form-section">
+          <h3 class="form-section-title">1. 公用・行政提出対応PDF出力（印刷フォーマット）</h3>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="pdfPaperSizeSelect">用紙サイズ</label>
+              <select id="pdfPaperSizeSelect" class="form-select">
+                <option value="A4">A4サイズ最適化</option>
+                <option value="A3">A3サイズ最適化（広域系図推奨）</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="pdfColorModeSelect">カラーモード</label>
+              <select id="pdfColorModeSelect" class="form-select">
+                <option value="color">カラー出力（朱線・青帯・夫婦色分け保持）</option>
+                <option value="mono">モノクロ出力（公的書類・高コントラスト墨一色）</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" id="execPdfExportBtn" class="btn btn-primary" style="width:100%;">
+            PDF印刷・保存ダイアログを起動する
+          </button>
+        </div>
+
+        <!-- 画像出力（PNG / SVG） -->
+        <div class="form-section">
+          <h3 class="form-section-title">2. 高解像度画像出力（PNG / ベクターSVG）</h3>
+          <div class="form-row">
+            <button type="button" id="execPngExportBtn" class="btn">PNG画像（高解像度ラスタ）を保存</button>
+            <button type="button" id="execSvgExportBtn" class="btn">SVG画像（ベクター形式）を保存</button>
+          </div>
+        </div>
+
+        <!-- データバックアップ（JSONエクスポート・インポート） -->
+        <div class="form-section">
+          <h3 class="form-section-title">3. ローカルデータバックアップ（JSON形式）</h3>
+          <div class="form-row">
+            <button type="button" id="execJsonExportBtn" class="btn">JSONファイルを書き出し（エクスポート）</button>
+            <label class="btn" style="cursor:pointer;">
+              <span>JSONファイルを読み込み（インポート）</span>
+              <input type="file" id="jsonImportFileInput" accept=".json,application/json" style="display:none;" />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 複数家系図プロジェクト管理モーダル -->
+  <div id="projectsModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="projectsModalTitle">
+    <div class="wizard-card" style="max-width:700px;">
+      <div class="wizard-header">
+        <div>
+          <h2 id="projectsModalTitle" class="wizard-title">家系図プロジェクト管理（複数保存・切り替え）</h2>
+          <p style="font-size:12px;color:var(--ink-muted);">父方・母方・案件別など複数の家系図をブラウザ内に安全に保存・切り替えできます</p>
+        </div>
+        <button type="button" id="closeProjectsModalBtn" class="drawer-close-btn">×</button>
+      </div>
+      <div class="wizard-body" style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:12px;color:var(--ink-muted);">保存済み家系図一覧（ブラウザ内保存）</span>
+          <div style="display:flex;gap:8px;">
+            <button type="button" id="projectsSampleBtn" class="btn btn-sm">サンプル構図を見る</button>
+            <button type="button" id="projectsNewWizardBtn" class="btn btn-sm btn-primary">＋ 新規家系図を作成</button>
+          </div>
+        </div>
+        <div id="projectsListContainer" class="projects-list-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 人物一覧 & 法定相続分ガイドモーダル -->
+  <div id="peopleListModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="peopleListModalTitle">
+    <div class="wizard-card" style="max-width:1020px;">
+      <div class="wizard-header">
+        <div>
+          <h2 id="peopleListModalTitle" class="wizard-title">人物一覧・法定相続分試算ガイド</h2>
+          <p style="font-size:12px;color:var(--ink-muted);">全人物データの確認・CSV書き出し、および起点人物を被相続人とした場合の民法上の法定相続分を表示します</p>
+        </div>
+        <button type="button" id="closePeopleListModalBtn" class="drawer-close-btn">×</button>
+      </div>
+      <div class="wizard-body" style="display:flex;flex-direction:column;gap:16px;">
+        <!-- 法定相続分試算ガイド -->
+        <div id="legalInheritanceBox" class="form-section" style="background:var(--bg-washi);">
+          <h3 class="form-section-title">
+            <span>法定相続分 試算ガイド（民法第900条準拠・参考表示）</span>
+            <span id="inheritanceRankBadge" style="font-family:var(--font-sans);font-size:11px;background:var(--accent-indigo);color:#fff;padding:2px 8px;border-radius:10px;"></span>
+          </h3>
+          <div id="inheritanceGuideContent" style="font-size:13px;"></div>
+        </div>
+
+        <!-- 人物一覧テーブル -->
+        <div class="form-section">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+            <input type="search" id="peopleTableFilterInput" class="form-input" style="max-width:300px;" placeholder="一覧を絞り込み（氏名・続柄・出身・戒名）" />
+            <button type="button" id="execCsvExportBtn" class="btn btn-sm">CSVファイルを書き出し（Excel対応）</button>
+          </div>
+          <div class="people-table-wrapper">
+            <table class="people-table">
+              <thead>
+                <tr>
+                  <th>世代</th>
+                  <th>続柄（親等）</th>
+                  <th>氏名</th>
+                  <th>生年月日</th>
+                  <th>年齢 / 享年</th>
+                  <th>出身地 / 旧国</th>
+                  <th>相続区分</th>
+                  <th>戒名 / 墓所</th>
+                </tr>
+              </thead>
+              <tbody id="peopleTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- チュートリアル・使い方ガイドモーダル -->
+  <div id="tutorialModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialModalTitle">
+    <div class="wizard-card" style="max-width:780px;">
+      <div class="wizard-header">
+        <div>
+          <h2 id="tutorialModalTitle" class="wizard-title">使い方・操作チュートリアル</h2>
+          <p style="font-size:12px;color:var(--ink-muted);">基本の編集手順から3様式の使い分け、和暦変換・相続試算・出力までをご案内します</p>
+        </div>
+        <button type="button" id="closeTutorialModalBtn" class="drawer-close-btn">×</button>
+      </div>
+      <div class="wizard-body" style="display:flex;flex-direction:column;gap:16px;">
+        <div class="tutorial-hero-banner">
+          <div>
+            <div style="font-family:var(--font-serif);font-size:15px;font-weight:700;margin-bottom:4px;">画面を見ながら順番に体験する（全7ステップ）</div>
+            <div style="font-size:12px;color:var(--ink-muted);">実際のボタンや編集パネルを順番にハイライトして操作方法をガイドします。</div>
+          </div>
+          <button type="button" id="startInteractiveTourBtn" class="btn btn-crimson">▶ ガイドツアーを開始</button>
+        </div>
+
+        <div class="tutorial-grid">
+          <div class="tutorial-card">
+            <div class="tutorial-card-head"><span class="tutorial-step-num">1</span>親族の追加と詳細編集</div>
+            <p class="tutorial-card-desc">新規作成時は「本人」1名から始まります。人物カード右上の<strong>「＋」</strong>ボタンから父母・配偶者・兄弟・子を追加し、カードをクリックして右パネルで氏名や生年月日を入力できます。</p>
+          </div>
+          <div class="tutorial-card">
+            <div class="tutorial-card-head"><span class="tutorial-step-num">2</span>3つの表示様式＆サンプル構図</div>
+            <p class="tutorial-card-desc">上部のタブから<strong>様式A（トーナメント）</strong>・<strong>様式B（法務直系軸）</strong>・<strong>様式C（伝統家譜）</strong>を切り替えられます。完成イメージは<strong>「サンプル構図」</strong>からいつでも確認できます。</p>
+          </div>
+          <div class="tutorial-card">
+            <div class="tutorial-card-head"><span class="tutorial-step-num">3</span>和暦自動変換・旧国検索・法要計算</div>
+            <p class="tutorial-card-desc">西暦・和暦（文化〜令和の改元日境界対応）の双方向変換や、享年（数え年）・年忌法要スケジュール自動算出、旧国名（武蔵・尾張・薩摩など）からの出身地検索に対応しています。</p>
+          </div>
+          <div class="tutorial-card">
+            <div class="tutorial-card-head"><span class="tutorial-step-num">4</span>相続試算・複数保存・出力</div>
+            <p class="tutorial-card-desc"><strong>「人物一覧・相続」</strong>で検索・CSV出力・民法上の法定相続分試算ができます。編集内容は自動保存され、<strong>「保存・出力」</strong>からPDF・PNG・SVG・JSONを出力可能です。</p>
+          </div>
+        </div>
+
+        <div class="form-section" style="padding:12px 14px;">
+          <h3 class="form-section-title" style="margin-bottom:6px;">便利な操作・ショートカット</h3>
+          <div class="tutorial-shortcut-list">
+            <span><strong>ドラッグ</strong>：キャンバス移動</span>
+            <span><strong>ホイール / ＋−</strong>：拡大・縮小</span>
+            <span><strong>Ctrl + Z</strong>：元に戻す</span>
+            <span><strong>Ctrl + Y</strong>：やり直す</span>
+            <span><strong>Esc</strong>：ウィンドウを閉じる</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- インタラクティブ・チュートリアル スポットライト & ポップオーバー -->
+  <div id="tutorialOverlay" class="tutorial-overlay hidden" aria-hidden="true">
+    <div id="tutorialHighlightRing" class="tutorial-highlight-ring"></div>
+  </div>
+  <div id="tutorialPopover" class="tutorial-popover hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialStepTitle">
+    <div class="tutorial-popover-header">
+      <span id="tutorialStepBadge" class="tutorial-step-badge">1 / 7</span>
+      <button type="button" id="tutorialCloseTourBtn" class="drawer-close-btn" style="width:24px;height:24px;font-size:15px;" title="チュートリアルを終了">×</button>
+    </div>
+    <div class="tutorial-progress-track">
+      <div id="tutorialProgressFill" class="tutorial-progress-fill"></div>
+    </div>
+    <h3 id="tutorialStepTitle" class="tutorial-popover-title">タイトル</h3>
+    <p id="tutorialStepBody" class="tutorial-popover-body">説明文</p>
+    <div class="tutorial-popover-footer">
+      <button type="button" id="tutorialPrevBtn" class="btn btn-sm">← 前へ</button>
+      <div style="display:flex;gap:6px;">
+        <button type="button" id="tutorialSkipBtn" class="btn btn-sm">終了</button>
+        <button type="button" id="tutorialNextBtn" class="btn btn-sm btn-crimson">次へ →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 汎用確認ダイアログモーダル -->
+  <div id="confirmModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle" style="z-index:260;">
+    <div class="wizard-card" style="max-width:440px;">
+      <div class="wizard-header">
+        <h2 id="confirmModalTitle" class="wizard-title" style="font-size:17px;">操作の確認</h2>
+        <button type="button" id="confirmCancelXBtn" class="drawer-close-btn">×</button>
+      </div>
+      <div class="wizard-body" style="padding:18px 22px;">
+        <p id="confirmModalMessage" style="font-size:14px;line-height:1.6;"></p>
+      </div>
+      <div class="wizard-footer" style="justify-content:flex-end;gap:10px;">
+        <button type="button" id="confirmCancelBtn" class="btn">キャンセル</button>
+        <button type="button" id="confirmOkBtn" class="btn btn-crimson">実行する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- トースト通知 -->
+  <div id="toastNotification" class="toast-notification hidden" role="status" aria-live="polite"></div>
+
+  <!-- アプリケーションスクリプト群 -->
+  <script src="js/data-calendar.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
