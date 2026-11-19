@@ -1,0 +1,2577 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>集合の巻 〜ベン図・カルノー表・3集合・最大最小〜</title>
+
+    <!-- Tailwind CSS & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700;800&display=swap");
+      body {
+        font-family: "Noto Sans JP", sans-serif;
+      }
+      .font-mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+      /* 蛍光ペン風マーカー */
+      .marker-yellow {
+        background: #fef08a;
+        padding: 0 4px;
+        border-radius: 2px;
+        font-weight: 800;
+        color: #1e293b;
+      }
+      .marker-red {
+        color: #dc2626;
+        font-weight: 800;
+      }
+      /* モバイル横スクロールバー非表示用 */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      /* スムーズスクロール & 固定ヘッダー分の余白確保（見切れ防止） */
+      html {
+        scroll-behavior: smooth;
+      }
+      section[id] {
+        scroll-margin-top: 4.5rem;
+      }
+      @media (min-width: 640px) {
+        section[id] {
+          scroll-margin-top: 5.25rem;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between"
+  >
+    <!-- =========================================================
+       ヘッダー（スマホ対応・横スワイプナビ）
+       ========================================================= -->
+    <header
+      class="bg-gradient-to-r from-blue-600 via-sky-600 to-blue-700 text-white shadow-md sticky top-0 z-50"
+    >
+      <div
+        class="max-w-5xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-4"
+      >
+        <!-- タイトルとポータルへのリンク -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5 sm:gap-3">
+            <a
+              href="index.html"
+              class="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition flex items-center gap-1.5 shrink-0 border border-white/20"
+              title="ポータルへ戻る"
+            >
+              <i class="fa-solid fa-house"></i>
+              <span class="hidden sm:inline">ポータルへ</span>
+            </a>
+            <div>
+              <div class="flex items-center gap-2">
+                <span
+                  class="bg-yellow-400 text-slate-900 font-black text-[10px] px-2 py-0.5 rounded"
+                  >非言語</span
+                >
+                <span class="text-yellow-200 text-xs">
+                  <i class="fa-solid fa-star"></i
+                  ><i class="fa-solid fa-star"></i
+                  ><i class="fa-solid fa-star"></i>
+                  <span class="text-[10px] text-white/80 ml-0.5"
+                    >頻出度: 超重要</span
+                  >
+                </span>
+              </div>
+              <h1
+                class="font-black text-base sm:text-lg tracking-tight text-white leading-tight"
+              >
+                <span>集合の巻</span>
+                <span
+                  class="text-xs font-normal text-sky-100 whitespace-nowrap block sm:inline sm:ml-1.5"
+                  >〜ベン図・カルノー表・3集合・最大最小〜</span
+                >
+              </h1>
+            </div>
+          </div>
+
+          <!-- モバイル用ショートカット（クイズへ直行） -->
+          <a
+            href="#quiz"
+            class="sm:hidden text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 py-1.5 rounded-lg transition shadow shrink-0 flex items-center gap-1"
+          >
+            <i class="fa-solid fa-pen-to-square"></i> 実戦15問
+          </a>
+        </div>
+
+        <!-- セクション移動ナビゲーション（モバイル横スワイプ対応） -->
+        <nav
+          class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0 w-full sm:w-auto text-xs font-bold"
+        >
+          <a
+            href="index.html"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/10 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center flex items-center gap-1"
+          >
+            <i class="fa-solid fa-house text-[10px] text-yellow-300"></i>
+            <span>単元一覧</span>
+          </a>
+          <a
+            href="#formula"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center"
+          >
+            <span
+              class="text-[9px] sm:text-[10px] text-yellow-300 block leading-tight font-extrabold"
+              >まずはここから</span
+            >3大原則
+          </a>
+          <a
+            href="#concept"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center"
+          >
+            <span
+              class="text-[9px] sm:text-[10px] text-emerald-300 block leading-tight font-extrabold"
+              >図解＆本質</span
+            >考え方
+          </a>
+          <a
+            href="#unit-cheat-sheet"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition shadow-sm text-center"
+          >
+            <span
+              class="text-[9px] sm:text-[10px] text-red-600 block leading-tight font-black"
+              >ズバリ！</span
+            >即答のコツ
+          </a>
+          <a
+            href="#simulator"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center"
+          >
+            <span
+              class="text-[9px] sm:text-[10px] text-sky-200 block leading-tight font-extrabold"
+              >動く実験</span
+            >シミュレーター
+          </a>
+          <a
+            href="#patterns"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center"
+          >
+            <span
+              class="text-[9px] sm:text-[10px] text-cyan-200 block leading-tight font-extrabold"
+              >全5型</span
+            >解法まとめ
+          </a>
+          <a
+            href="#quiz"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition shadow-sm text-center hidden sm:flex items-center gap-1"
+          >
+            <i class="fa-solid fa-fire text-red-600"></i>
+            <span>実戦15問</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- =========================================================
+       メインコンテンツ
+       ========================================================= -->
+    <main
+      class="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-6 sm:space-y-8 flex-1 w-full"
+    >
+      <!-- 1. 【公式・基本ルールの確認】 -->
+      <section
+        id="formula"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200"
+      >
+        <div
+          class="text-sky-700 font-bold text-xs mb-1 flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-bookmark"></i> セクション 1：公式・3大原則
+        </div>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-3">
+          集合の基本公式と二重カウント解消の3大原則
+        </h2>
+
+        <!-- メイン公式強調ボックス -->
+        <div
+          class="bg-gradient-to-br from-cyan-50 via-sky-50 to-blue-50 border-2 border-cyan-200 rounded-2xl p-4 sm:p-6 mb-4 shadow-2xs"
+        >
+          <div class="text-center space-y-3">
+            <span
+              class="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-900 bg-cyan-200/80 px-3 py-1 rounded-full"
+            >
+              <i class="fa-solid fa-sparkles text-amber-500"></i>
+              SPI最重要！二重カウント解消の根本公式
+            </span>
+
+            <!-- ビジュアルブロック式 -->
+            <div
+              class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 py-2 font-mono"
+            >
+              <div
+                class="px-3.5 py-2 rounded-xl bg-slate-900 text-white font-black text-xs sm:text-base shadow-sm whitespace-nowrap"
+              >
+                少なくとも一方 (AまたはB)
+              </div>
+              <span class="text-slate-500 font-black text-lg">＝</span>
+              <div
+                class="px-3 py-2 rounded-xl bg-sky-100 text-sky-900 border border-sky-300 font-black text-xs sm:text-base whitespace-nowrap"
+              >
+                Aの数
+              </div>
+              <span class="text-slate-600 font-black text-lg">＋</span>
+              <div
+                class="px-3 py-2 rounded-xl bg-purple-100 text-purple-900 border border-purple-300 font-black text-xs sm:text-base whitespace-nowrap"
+              >
+                Bの数
+              </div>
+              <span class="text-red-600 font-black text-lg">−</span>
+              <div
+                class="px-3 py-2 rounded-xl bg-rose-100 text-rose-900 border border-rose-300 font-black text-xs sm:text-base whitespace-nowrap"
+              >
+                両方 (重なり)
+              </div>
+            </div>
+
+            <!-- 補足式 -->
+            <div
+              class="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white border border-cyan-200 text-xs sm:text-sm font-mono font-bold text-slate-800 shadow-2xs"
+            >
+              <span class="text-cyan-800">全体</span>
+              <span>＝</span>
+              <span class="text-sky-700">少なくとも一方</span>
+              <span>＋</span>
+              <span class="text-slate-600">どちらでもない（外側）</span>
+            </div>
+
+            <p class="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              AとBをそのまま足すと、真ん中の「両方」にいる人を2回数えてしまいます。
+              <strong class="text-red-600 font-bold">重なった分を1回だけ引く</strong>
+              ことで、正確な人数が一瞬で求まります。
+            </p>
+          </div>
+        </div>
+
+        <!-- 3大原則カード -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
+          <!-- 原則1 -->
+          <div
+            class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5"
+          >
+            <div class="font-bold text-slate-800 flex items-center gap-1.5">
+              <span
+                class="w-5 h-5 rounded-full bg-cyan-600 text-white font-black text-[11px] flex items-center justify-center shrink-0"
+                >1</span
+              >
+              <span>二重カウントの法則（2集合）</span>
+            </div>
+            <div
+              class="font-mono text-cyan-800 font-bold text-xs bg-white p-2 rounded border border-slate-200"
+            >
+              n(A∪B) ＝ A ＋ B − 両方
+            </div>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              移項すれば <strong>「両方 ＝ A ＋ B − 少なくとも一方」</strong> にもなり、重なりを逆算できます。
+            </p>
+          </div>
+
+          <!-- 原則2 -->
+          <div
+            class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5"
+          >
+            <div class="font-bold text-slate-800 flex items-center gap-1.5">
+              <span
+                class="w-5 h-5 rounded-full bg-emerald-600 text-white font-black text-[11px] flex items-center justify-center shrink-0"
+                >2</span
+              >
+              <span>表整理の法則（2×2キャロット表）</span>
+            </div>
+            <div
+              class="font-mono text-emerald-700 font-bold text-xs bg-white p-2 rounded border border-slate-200"
+            >
+              縦の合計 ＝ 横の合計 ＝ 全体
+            </div>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              「〜でない」「男女別」「はい／いいえ」が絡む問題は、4マス表に書くと引き算パズルだけで解けます。
+            </p>
+          </div>
+
+          <!-- 原則3 -->
+          <div
+            class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5"
+          >
+            <div class="font-bold text-slate-800 flex items-center gap-1.5">
+              <span
+                class="w-5 h-5 rounded-full bg-purple-600 text-white font-black text-[11px] flex items-center justify-center shrink-0"
+                >3</span
+              >
+              <span>3集合・最大最小の法則</span>
+            </div>
+            <div
+              class="font-mono text-purple-700 font-bold text-xs bg-white p-2 rounded border border-slate-200"
+            >
+              3集合 ＝ A＋B＋C − (AB＋BC＋CA) ＋ 全部
+            </div>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              重なり最大は <strong>小さい方そのまま min(A, B)</strong>、最小は <strong>max(0, A＋B−全体)</strong> です。
+            </p>
+          </div>
+        </div>
+
+        <!-- 頻出用語の読み替え早見表 -->
+        <div class="mt-4 p-3.5 bg-sky-50/60 rounded-xl border border-sky-100">
+          <div
+            class="text-xs font-bold text-sky-900 mb-2 flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-table-list text-sky-600"></i>
+            <span>問題文の「日本語」を式に即変換！頻出4フレーズ早見表</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
+            <div class="bg-white p-2.5 rounded-lg border border-sky-200 shadow-2xs">
+              <div class="text-sky-800 font-bold text-[11px] mb-0.5">
+                少なくとも一方 (AまたはB)
+              </div>
+              <div class="font-mono font-bold text-slate-800">
+                A ＋ B − 両方
+              </div>
+              <div class="text-[10px] text-slate-500 mt-0.5">※「両方」を含む</div>
+            </div>
+            <div class="bg-white p-2.5 rounded-lg border border-amber-200 shadow-2xs">
+              <div class="text-amber-800 font-bold text-[11px] mb-0.5">
+                どちらか一方のみ (片方だけ)
+              </div>
+              <div class="font-mono font-bold text-slate-800">
+                (A−両方) ＋ (B−両方)
+              </div>
+              <div class="text-[10px] text-red-600 font-bold mt-0.5">
+                ※「両方」は除く！
+              </div>
+            </div>
+            <div class="bg-white p-2.5 rounded-lg border border-purple-200 shadow-2xs">
+              <div class="text-purple-800 font-bold text-[11px] mb-0.5">
+                Aだけ (AかつBでない)
+              </div>
+              <div class="font-mono font-bold text-slate-800">
+                A − 両方
+              </div>
+              <div class="text-[10px] text-slate-500 mt-0.5">三日月型の左側</div>
+            </div>
+            <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
+              <div class="text-slate-700 font-bold text-[11px] mb-0.5">
+                どちらも〜ない (外側)
+              </div>
+              <div class="font-mono font-bold text-slate-800">
+                全体 − 少なくとも一方
+              </div>
+              <div class="text-[10px] text-slate-500 mt-0.5">枠の内・円の外</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. 【考え方の本質・図解】 -->
+      <section
+        id="concept"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200"
+      >
+        <div
+          class="text-sky-700 font-bold text-xs mb-1 flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-lightbulb text-amber-500"></i> セクション
+          2：考え方の本質・図解
+        </div>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">
+          直感で納得！集合の全体像がひと目で整理できる3つの思考法
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed">
+          集合の問題は「どの領域が重複しているか」「どの順番で数字を埋めるか」が見えれば、複雑な方程式を立てなくてもパズルのように解けます。
+        </p>
+
+        <!-- 3つのステップ図解 -->
+        <div class="space-y-4">
+          <!-- ステップ1: ベン図の4領域と埋める順番 -->
+          <div
+            class="p-4 rounded-xl bg-amber-50/70 border border-amber-200 flex flex-col sm:flex-row sm:items-start gap-3"
+          >
+            <div
+              class="w-7 h-7 rounded-full bg-amber-500 text-white font-black text-xs flex items-center justify-center shrink-0"
+            >
+              1
+            </div>
+            <div class="space-y-2 flex-1">
+              <h3 class="font-bold text-slate-900 text-sm">
+                ベン図で「なぜ両方を引くのか？」と4領域を埋める鉄則の順番
+              </h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                ベン図には <strong>①Aだけ ②両方 ③Bだけ ④外側</strong> の4つの部屋しかありません。
+                必ず <strong class="text-amber-900">「真ん中（両方）➔ 左右（Aだけ・Bだけ）➔ 外側」</strong> の順で埋めると二重カウントを防げます！
+              </p>
+
+              <!-- 視覚ブロック構造図 -->
+              <div class="bg-white p-3 rounded-xl border border-amber-200 space-y-2">
+                <div class="text-[11px] font-bold text-slate-500">
+                  例：全体40人（英語25人・数学20人・両方12人）のブロック分解
+                </div>
+                <div class="grid grid-cols-4 gap-1.5 text-center font-mono text-xs">
+                  <div class="p-2 rounded-lg bg-sky-100 border border-sky-300 text-sky-900">
+                    <div class="text-[10px] font-sans font-bold">① 英語だけ</div>
+                    <div class="font-black text-sm">25−12＝13人</div>
+                  </div>
+                  <div class="p-2 rounded-lg bg-rose-100 border-2 border-rose-400 text-rose-900">
+                    <div class="text-[10px] font-sans font-bold">★ 両方(真ん中)</div>
+                    <div class="font-black text-sm">12人</div>
+                  </div>
+                  <div class="p-2 rounded-lg bg-purple-100 border border-purple-300 text-purple-900">
+                    <div class="text-[10px] font-sans font-bold">② 数学だけ</div>
+                    <div class="font-black text-sm">20−12＝8人</div>
+                  </div>
+                  <div class="p-2 rounded-lg bg-slate-100 border border-slate-300 text-slate-800">
+                    <div class="text-[10px] font-sans font-bold">③ 外側</div>
+                    <div class="font-black text-sm">40−33＝7人</div>
+                  </div>
+                </div>
+                <div class="text-[11px] font-mono text-slate-700 flex flex-wrap items-center gap-2 pt-1">
+                  <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                    <span>英語(13+12)＋数学(12+8)＝45人（12人を2回カウント）</span>
+                    <span class="text-slate-400">➔</span>
+                  </span>
+                  <span class="inline-flex items-center whitespace-nowrap">
+                    <span class="bg-amber-100 text-amber-900 font-black px-2 py-0.5 rounded border border-amber-300">
+                      45 − 12 ＝ 33人（少なくとも一方）
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ステップ2: 2×2整理表（キャロット表） -->
+          <div
+            class="p-4 rounded-xl bg-sky-50/70 border border-sky-200 flex flex-col sm:flex-row sm:items-start gap-3"
+          >
+            <div
+              class="w-7 h-7 rounded-full bg-sky-600 text-white font-black text-xs flex items-center justify-center shrink-0"
+            >
+              2
+            </div>
+            <div class="space-y-2 flex-1">
+              <h3 class="font-bold text-slate-900 text-sm">
+                2×2整理表（キャロット表）なら「〜でない・男女別」も一瞬で埋まる！
+              </h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                「Aは〇人、Bでない人は△人」のように否定や属性（男女など）が混ざる問題は、ベン図より <strong>2×2のクロス表</strong> が圧倒的にミスなく速く解けます。
+              </p>
+
+              <!-- 2x2 クロス集計表の例 -->
+              <div class="overflow-x-auto bg-white p-3 rounded-xl border border-sky-200">
+                <div class="text-[11px] font-bold text-sky-900 mb-2">
+                  例：全体100人（英語OK 60人、資格あり 50人、両方あり 35人）
+                </div>
+                <table class="w-full text-center font-mono text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-slate-100 text-slate-700">
+                      <th class="p-2 border border-slate-200 font-sans">条件分類</th>
+                      <th class="p-2 border border-slate-200 font-sans text-sky-800">資格あり</th>
+                      <th class="p-2 border border-slate-200 font-sans text-slate-600">資格なし</th>
+                      <th class="p-2 border border-slate-200 font-sans bg-slate-200/70">横計</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="p-2 border border-slate-200 font-sans font-bold text-sky-800 bg-sky-50/50">英語OK</td>
+                      <td class="p-2 border border-slate-200 font-black text-cyan-700 bg-cyan-50">35</td>
+                      <td class="p-2 border border-slate-200 text-slate-700">60−35＝<strong>25</strong></td>
+                      <td class="p-2 border border-slate-200 font-bold bg-slate-50">60</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2 border border-slate-200 font-sans font-bold text-slate-600 bg-slate-50">英語NG</td>
+                      <td class="p-2 border border-slate-200 text-slate-700">50−35＝<strong>15</strong></td>
+                      <td class="p-2 border border-slate-200 font-black text-rose-700 bg-rose-50">40−15＝<strong>25</strong></td>
+                      <td class="p-2 border border-slate-200 font-bold bg-slate-50">100−60＝40</td>
+                    </tr>
+                    <tr class="bg-slate-100 font-bold">
+                      <td class="p-2 border border-slate-200 font-sans">縦計</td>
+                      <td class="p-2 border border-slate-200">50</td>
+                      <td class="p-2 border border-slate-200">100−50＝50</td>
+                      <td class="p-2 border border-slate-200 text-slate-900 font-black bg-yellow-100">100</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ステップ3: 最大値・最小値の帯イメージ -->
+          <div
+            class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 flex flex-col sm:flex-row sm:items-start gap-3"
+          >
+            <div
+              class="w-7 h-7 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0"
+            >
+              3
+            </div>
+            <div class="space-y-2 flex-1">
+              <h3 class="font-bold text-slate-900 text-sm">
+                最大・最小（「最も多くて」「少なくとも」）は2本の帯をスライドさせる！
+              </h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                全体の枠（100人）の中に、Aの帯（70人）とBの帯（50人）を並べるイメージを持つと、重なりの最大・最小が暗算3秒で分かります。
+              </p>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+                <!-- 最大パターン -->
+                <div class="p-3 bg-white rounded-xl border border-emerald-200 space-y-2">
+                  <div class="font-sans font-bold text-emerald-800 flex items-center justify-between">
+                    <span>【最大】完全に中に入れる</span>
+                    <span class="bg-emerald-100 px-2 py-0.5 rounded text-[11px] font-mono">50人</span>
+                  </div>
+                  <div class="w-full h-8 bg-slate-200 rounded-lg relative overflow-hidden p-1">
+                    <div class="h-full w-[70%] bg-sky-500/80 rounded flex items-center pl-2 text-[10px] text-white font-bold">A(70)</div>
+                    <div class="h-4 w-[50%] bg-purple-600/90 rounded absolute top-2 left-1 flex items-center justify-center text-[10px] text-white font-black border border-white">B(50)がすっぽり</div>
+                  </div>
+                  <div class="text-[11px] text-slate-600 font-sans">
+                    小さい方の集合がすべて大きい方に含まれるとき ＝ <strong class="text-emerald-700 font-mono">min(70, 50) ＝ 50人</strong>
+                  </div>
+                </div>
+
+                <!-- 最小パターン -->
+                <div class="p-3 bg-white rounded-xl border border-rose-200 space-y-2">
+                  <div class="font-sans font-bold text-rose-800 flex items-center justify-between">
+                    <span>【最小】両端に引き離す</span>
+                    <span class="bg-rose-100 px-2 py-0.5 rounded text-[11px] font-mono">20人</span>
+                  </div>
+                  <div class="w-full h-8 bg-slate-200 rounded-lg relative overflow-hidden">
+                    <div class="h-full w-[70%] bg-sky-500/75 absolute left-0 top-0 flex items-center pl-2 text-[10px] text-white font-bold">A(70)</div>
+                    <div class="h-full w-[50%] bg-purple-600/75 absolute right-0 top-0 flex items-center justify-end pr-2 text-[10px] text-white font-bold">B(50)</div>
+                    <div class="h-full w-[20%] bg-rose-600/95 absolute left-[50%] top-0 flex items-center justify-center text-[10px] text-white font-black border-x border-white">20</div>
+                  </div>
+                  <div class="text-[11px] text-slate-600 font-sans">
+                    端と端に寄せてはみ出した分 ＝ <strong class="text-rose-700 font-mono">70 ＋ 50 − 100 ＝ 20人</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. 【ズバリ！ 集合のコツ（即答テンプレート）】 -->
+      <section
+        id="unit-cheat-sheet"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-6 shadow-sm relative overflow-hidden"
+      >
+        <div
+          class="text-amber-800 font-bold text-xs mb-1 flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-bolt text-amber-500"></i> セクション 3：ズバリ！
+          【暗算＆即答のコツ】
+        </div>
+        <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-2">
+          SPI本番で迷わず1分以内に解くための3大時短テクニック
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed mb-4">
+          集合の問題は「どの図で解くか」「どの数字が不要か」を最初の5秒で見抜くだけで、計算量が一気に半分以下になります。
+        </p>
+
+        <!-- 3大テクニックカード -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
+          <!-- コツ1 -->
+          <div
+            class="p-3.5 bg-white rounded-xl border border-amber-200 shadow-2xs space-y-2"
+          >
+            <span
+              class="font-bold text-amber-900 flex items-center gap-1.5"
+            >
+              <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
+              コツ①：「ベン図」vs「2×2表」を3秒で使い分ける！
+            </span>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              全部ベン図で解こうとせず、問題タイプでツールを即決します。
+            </p>
+            <div
+              class="p-2.5 bg-amber-50 rounded-lg border border-amber-200 text-amber-950 text-[11px] space-y-1.5"
+            >
+              <div>
+                <strong class="text-sky-800">⭕ ベン図向き：</strong>3つの集合、単純な「両方」「少なくとも一方」「どちらでもない」
+              </div>
+              <div>
+                <strong class="text-emerald-800">📊 2×2表向き：</strong>「〜でない（不満足・不合格）」「男女別×賛否」「はい／いいえ」
+              </div>
+            </div>
+          </div>
+
+          <!-- コツ2 -->
+          <div
+            class="p-3.5 bg-white rounded-xl border border-amber-200 shadow-2xs space-y-2"
+          >
+            <span
+              class="font-bold text-sky-900 flex items-center gap-1.5"
+            >
+              <i class="fa-solid fa-layer-group text-sky-600"></i>
+              コツ②：3集合「ちょうど2つだけ」＆ダミー無視の法則
+            </span>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              「AとB両方」には「3つ全部」が混ざっています！また「Cだけ」が分かる問題ではCの総数はダミーです。
+            </p>
+            <div
+              class="p-2.5 bg-sky-50 rounded-lg border border-sky-200 font-mono text-sky-950 text-[11px] space-y-1"
+            >
+              <div class="font-bold text-sky-900">【3集合の超速公式】</div>
+              <div>ちょうど2つ ＝ (AB＋BC＋CA) − 3×全部</div>
+              <div class="font-bold text-sky-700">
+                ➔「AまたはB」＝ 全体 − (外側 ＋ Cだけ)
+              </div>
+            </div>
+          </div>
+
+          <!-- コツ3 -->
+          <div
+            class="p-3.5 bg-white rounded-xl border border-amber-200 shadow-2xs space-y-2"
+          >
+            <span
+              class="font-bold text-emerald-900 flex items-center gap-1.5"
+            >
+              <i class="fa-solid fa-percent text-emerald-600"></i>
+              コツ③：「割合(％)」は全体100%、「倍数」は x と kx！
+            </span>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              ％が並んだらまず <strong>％のまま両方(％)を出し</strong>、最後に実人数で割って全体を出します。
+            </p>
+            <div
+              class="p-2.5 bg-emerald-50 rounded-lg border border-emerald-200 font-mono text-emerald-950 text-[11px] space-y-1"
+            >
+              <div class="font-bold text-emerald-900">【倍数パターンの一発式】</div>
+              <div>外側が両方の3倍（両方=x, 外側=3x）</div>
+              <div class="font-bold text-emerald-700">
+                ➔ A ＋ B − x ＋ 3x ＝ 全体（すぐ2xになる！）
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ひっかけ注意比較カード -->
+        <div
+          class="mt-4 p-3.5 bg-white rounded-xl border border-rose-300 shadow-2xs"
+        >
+          <div class="flex items-center gap-2 mb-2">
+            <span
+              class="px-2 py-0.5 rounded bg-rose-600 text-white font-black text-[10px]"
+              >超重要ひっかけ注意</span
+            >
+            <h4 class="font-bold text-slate-800 text-xs sm:text-sm">
+              「少なくとも一方」と「どちらか一方だけ」を絶対に混同しない！
+            </h4>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-mono">
+            <div class="p-2.5 bg-sky-50/70 rounded-lg border border-sky-200">
+              <div class="font-sans font-bold text-sky-900 mb-0.5">
+                ✅ 少なくとも一方（AまたはB）
+              </div>
+              <div class="text-slate-700">
+                真ん中（両方12人）を <strong class="text-sky-700">1回だけ数える</strong>
+              </div>
+              <div class="font-black text-sky-800 mt-1">
+                例(A25, B20, 両方12) ➔ 25 ＋ 20 − 12 ＝ 33人
+              </div>
+            </div>
+            <div class="p-2.5 bg-rose-50/70 rounded-lg border border-rose-200">
+              <div class="font-sans font-bold text-rose-900 mb-0.5">
+                ⚡ どちらか一方だけ（片方のみ）
+              </div>
+              <div class="text-slate-700">
+                真ん中（両方12人）を <strong class="text-red-600">丸ごと除外（2回引く）</strong>
+              </div>
+              <div class="font-black text-red-700 mt-1">
+                例(A25, B20, 両方12) ➔ (25−12) ＋ (20−12) ＝ 21人
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. 【動くシミュレーター（2集合ベン図＆キャロット表 / 3集合包除原理）】 -->
+      <section
+        id="simulator"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200"
+      >
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2 mb-4"
+        >
+          <div>
+            <span
+              class="text-xs font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 flex items-center gap-1.5 w-fit"
+            >
+              <i class="fa-solid fa-sliders text-sky-600"></i> セクション
+              4：シミュレーター
+            </span>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 mt-1">
+              集合・ベン図＆整理表 インタラクティブ実験室
+            </h2>
+          </div>
+
+          <!-- モード切り替えタブ -->
+          <div
+            class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold"
+          >
+            <button
+              id="tab-sim-venn2"
+              onclick="switchSimMode('venn2')"
+              class="px-3 py-1.5 rounded-lg bg-white shadow-xs text-cyan-700 font-black transition"
+            >
+              <i class="fa-solid fa-circle-half-stroke"></i> ① 2集合ベン図＆表
+            </button>
+            <button
+              id="tab-sim-venn3"
+              onclick="switchSimMode('venn3')"
+              class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition"
+            >
+              <i class="fa-solid fa-circle-nodes"></i> ② 3集合＆包除原理
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= ① 2集合ベン図＆キャロット表 ================= -->
+        <div id="sim-section-venn2" class="space-y-4">
+          <div
+            class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+          >
+            <div>
+              <strong>【2集合ベン図・整理表 リアルタイム連動】</strong>
+              人数や重なりを動かして、ベン図・2×2表・最大最小の範囲を同時に体感できます。
+            </div>
+            <div
+              id="set2-range-badge"
+              class="px-2.5 py-1 rounded bg-cyan-600 text-white font-mono font-bold text-[11px] shrink-0 w-fit"
+            >
+              重なりの可能範囲：最小 10人 〜 最大 50人
+            </div>
+          </div>
+
+          <!-- スライダー＆クイック操作エリア -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+              <div>
+                <div class="flex justify-between font-bold mb-1">
+                  <span class="text-slate-700">全体人数 U:</span>
+                  <span class="font-mono text-slate-900 font-black"><span id="val-set-u">100</span> 人</span>
+                </div>
+                <input
+                  type="range"
+                  id="slider-set-u"
+                  min="20"
+                  max="200"
+                  step="5"
+                  value="100"
+                  oninput="onSet2Input('u')"
+                  class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-700"
+                />
+              </div>
+              <div>
+                <div class="flex justify-between font-bold mb-1">
+                  <span class="text-sky-700">集合 A:</span>
+                  <span class="font-mono text-sky-700 font-black"><span id="val-set-a">60</span> 人</span>
+                </div>
+                <input
+                  type="range"
+                  id="slider-set-a"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="60"
+                  oninput="onSet2Input('a')"
+                  class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600"
+                />
+              </div>
+              <div>
+                <div class="flex justify-between font-bold mb-1">
+                  <span class="text-purple-700">集合 B:</span>
+                  <span class="font-mono text-purple-700 font-black"><span id="val-set-b">50</span> 人</span>
+                </div>
+                <input
+                  type="range"
+                  id="slider-set-b"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="50"
+                  oninput="onSet2Input('b')"
+                  class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                />
+              </div>
+              <div>
+                <div class="flex justify-between font-bold mb-1">
+                  <span class="text-rose-700">両方 (A∩B):</span>
+                  <span class="font-mono text-rose-700 font-black"><span id="val-set-ab">25</span> 人</span>
+                </div>
+                <input
+                  type="range"
+                  id="slider-set-ab"
+                  min="10"
+                  max="50"
+                  step="1"
+                  value="25"
+                  oninput="onSet2Input('ab')"
+                  class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-rose-600"
+                />
+              </div>
+            </div>
+
+            <!-- クイックボタン & ハイライト切り替え -->
+            <div class="pt-2 border-t border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-2 text-[11px]">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="font-bold text-slate-500 mr-1">スライド実験:</span>
+                <button
+                  onclick="set2Snap('min')"
+                  class="px-2.5 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold border border-rose-200 transition"
+                >
+                  ↔ 最小に引き離す
+                </button>
+                <button
+                  onclick="set2Snap('max')"
+                  class="px-2.5 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold border border-emerald-200 transition"
+                >
+                  ◎ 最大に重ねる
+                </button>
+                <button
+                  onclick="set2Snap('reset')"
+                  class="px-2.5 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold transition"
+                >
+                  ↺ リセット
+                </button>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-1">
+                <span class="font-bold text-slate-500 mr-1">注目領域:</span>
+                <button id="hl2-all" onclick="set2Highlight('all')" class="hl2-btn px-2 py-1 rounded-lg bg-slate-800 text-white font-bold transition">標準</button>
+                <button id="hl2-union" onclick="set2Highlight('union')" class="hl2-btn px-2 py-1 rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 font-bold transition">少なくとも一方</button>
+                <button id="hl2-both" onclick="set2Highlight('both')" class="hl2-btn px-2 py-1 rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 font-bold transition">両方</button>
+                <button id="hl2-xor" onclick="set2Highlight('xor')" class="hl2-btn px-2 py-1 rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 font-bold transition">一方だけ</button>
+                <button id="hl2-neither" onclick="set2Highlight('neither')" class="hl2-btn px-2 py-1 rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 font-bold transition">外側</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 描画エリア（左：SVGベン図 / 右：2×2整理表＆計算式） -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+            <!-- 左: インライン SVG 2集合ベン図 -->
+            <div class="md:col-span-6 bg-slate-900 rounded-2xl p-3 sm:p-4 border border-slate-800 shadow-inner flex flex-col justify-between">
+              <div class="text-[11px] text-slate-400 font-bold mb-1 flex items-center justify-between">
+                <span><i class="fa-solid fa-diagram-venn text-cyan-400"></i> 2集合ベン図（面積・距離連動）</span>
+                <span class="font-mono text-cyan-300" id="venn2-u-top">全体 U = 100</span>
+              </div>
+
+              <svg id="venn2-svg" viewBox="0 0 420 250" class="w-full h-auto max-h-[250px] select-none">
+                <defs>
+                  <clipPath id="clip2-a">
+                    <circle id="clip2-circle-a" cx="165" cy="128" r="76" />
+                  </clipPath>
+                  <clipPath id="clip2-b">
+                    <circle id="clip2-circle-b" cx="255" cy="128" r="76" />
+                  </clipPath>
+                </defs>
+
+                <!-- 全体枠 U -->
+                <rect
+                  id="venn2-outer-rect"
+                  x="10"
+                  y="10"
+                  width="400"
+                  height="230"
+                  rx="16"
+                  fill="#0f172a"
+                  stroke="#334155"
+                  stroke-width="2"
+                />
+
+                <!-- 外側の補助シェーディング（neither選択時に強調） -->
+                <rect
+                  id="venn2-neither-bg"
+                  x="12"
+                  y="12"
+                  width="396"
+                  height="226"
+                  rx="14"
+                  fill="#f59e0b"
+                  fill-opacity="0"
+                />
+
+                <!-- 集合A円 -->
+                <circle
+                  id="venn2-circle-a"
+                  cx="165"
+                  cy="128"
+                  r="76"
+                  fill="#0ea5e9"
+                  fill-opacity="0.32"
+                  stroke="#38bdf8"
+                  stroke-width="2.5"
+                />
+
+                <!-- 集合B円 -->
+                <circle
+                  id="venn2-circle-b"
+                  cx="255"
+                  cy="128"
+                  r="76"
+                  fill="#a855f7"
+                  fill-opacity="0.32"
+                  stroke="#c084fc"
+                  stroke-width="2.5"
+                />
+
+                <!-- 交差レンズ領域（A∩B） -->
+                <circle
+                  id="venn2-both-lens"
+                  cx="255"
+                  cy="128"
+                  r="76"
+                  clip-path="url(#clip2-a)"
+                  fill="#f43f5e"
+                  fill-opacity="0.35"
+                />
+
+                <!-- 集合名ラベル -->
+                <text id="venn2-label-a" x="125" y="42" text-anchor="middle" fill="#7dd3fc" font-size="13" font-weight="800">A (60)</text>
+                <text id="venn2-label-b" x="295" y="42" text-anchor="middle" fill="#d8b4fe" font-size="13" font-weight="800">B (50)</text>
+
+                <!-- 4領域の数値バッジ -->
+                <g id="venn2-grp-aonly">
+                  <text id="venn2-txt-aonly" x="125" y="126" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="900" class="font-mono">35</text>
+                  <text x="125" y="144" text-anchor="middle" fill="#bae6fd" font-size="10" font-weight="700">Aだけ</text>
+                </g>
+
+                <g id="venn2-grp-both">
+                  <text id="venn2-txt-both" x="210" y="126" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="900" class="font-mono">25</text>
+                  <text x="210" y="144" text-anchor="middle" fill="#fecdd3" font-size="10" font-weight="700">両方</text>
+                </g>
+
+                <g id="venn2-grp-bonly">
+                  <text id="venn2-txt-bonly" x="295" y="126" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="900" class="font-mono">25</text>
+                  <text x="295" y="144" text-anchor="middle" fill="#e9d5ff" font-size="10" font-weight="700">Bだけ</text>
+                </g>
+
+                <g id="venn2-grp-neither">
+                  <rect x="290" y="198" width="110" height="32" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1" />
+                  <text id="venn2-txt-neither" x="345" y="218" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="800" class="font-mono">外側: 15人</text>
+                </g>
+              </svg>
+            </div>
+
+            <!-- 右: 2×2 キャロット表 ＆ リアルタイム計算 -->
+            <div class="md:col-span-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-3">
+              <div>
+                <div class="text-xs font-bold text-slate-700 border-b border-slate-200 pb-2 mb-3 flex items-center justify-between">
+                  <span><i class="fa-solid fa-table-cells text-cyan-600"></i> 連動 2×2 整理表（キャロット表）</span>
+                  <span class="text-[10px] text-slate-500">縦・横の合計は必ず一致</span>
+                </div>
+
+                <table class="w-full text-center font-mono text-xs border-collapse bg-white rounded-xl overflow-hidden shadow-2xs">
+                  <thead>
+                    <tr class="bg-slate-100 text-slate-700">
+                      <th class="p-2 border border-slate-200 font-sans">A ＼ B</th>
+                      <th class="p-2 border border-slate-200 font-sans text-purple-800">B あり</th>
+                      <th class="p-2 border border-slate-200 font-sans text-slate-600">B なし</th>
+                      <th class="p-2 border border-slate-200 font-sans bg-slate-200/70">合計</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="p-2 border border-slate-200 font-sans font-bold text-sky-800 bg-sky-50/50">A あり</td>
+                      <td id="carroll-ab" class="p-2.5 border border-slate-200 font-black text-base transition">25</td>
+                      <td id="carroll-anotb" class="p-2.5 border border-slate-200 font-black text-base transition">35</td>
+                      <td id="carroll-a-total" class="p-2 border border-slate-200 font-bold bg-slate-50">60</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2 border border-slate-200 font-sans font-bold text-slate-600 bg-slate-50">A なし</td>
+                      <td id="carroll-notab" class="p-2.5 border border-slate-200 font-black text-base transition">25</td>
+                      <td id="carroll-notanotb" class="p-2.5 border border-slate-200 font-black text-base transition">15</td>
+                      <td id="carroll-nota-total" class="p-2 border border-slate-200 font-bold bg-slate-50">40</td>
+                    </tr>
+                    <tr class="bg-slate-100 font-bold">
+                      <td class="p-2 border border-slate-200 font-sans">合計</td>
+                      <td id="carroll-b-total" class="p-2 border border-slate-200">50</td>
+                      <td id="carroll-notb-total" class="p-2 border border-slate-200">50</td>
+                      <td id="carroll-u-total" class="p-2 border border-slate-200 font-black text-slate-900 bg-yellow-100">100</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- 計算結果パネル -->
+              <div class="p-3 bg-white rounded-xl border border-cyan-200 space-y-1.5 shadow-2xs font-mono">
+                <div id="venn2-formula-title" class="text-[11px] font-sans font-bold text-cyan-800">
+                  公式：少なくとも一方 (AまたはB) ＝ A ＋ B − 両方
+                </div>
+                <div id="venn2-formula-expr" class="text-xs text-slate-700">
+                  60 ＋ 50 − 25 ＝ 85人
+                </div>
+                <div class="flex items-baseline justify-between pt-1.5 border-t border-slate-100">
+                  <span class="text-xs font-sans font-bold text-slate-600">算出結果：</span>
+                  <span id="venn2-formula-result" class="text-base sm:text-lg font-black text-cyan-700">
+                    85人 (85.0%)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= ② 3集合ベン図＆包除原理 ================= -->
+        <div id="sim-section-venn3" class="hidden space-y-4">
+          <div
+            class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+          >
+            <div>
+              <strong>【3集合 7領域マスター実験】</strong>
+              各領域の人数を動かして、包除原理・ちょうど2つだけ・1つだけの公式の成り立ちを視覚的に確認できます。
+            </div>
+            <div class="flex flex-wrap gap-1.5 shrink-0">
+              <button onclick="presetVenn3('cafe')" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 hover:bg-sky-50 font-bold text-[11px] transition">
+                ☕ カフェ3種 (200人)
+              </button>
+              <button onclick="presetVenn3('video')" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 hover:bg-sky-50 font-bold text-[11px] transition">
+                📱 動画3種 (240人)
+              </button>
+              <button onclick="presetVenn3('sport')" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 hover:bg-sky-50 font-bold text-[11px] transition">
+                🏋️ 施設3種 (180人)
+              </button>
+            </div>
+          </div>
+
+          <!-- ハイライト選択バー -->
+          <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+            <span class="font-bold text-slate-500 mr-1">強調表示する領域:</span>
+            <button id="hl3-all" onclick="set3Highlight('all')" class="hl3-btn px-2.5 py-1 rounded-lg bg-slate-800 text-white font-bold transition">すべて表示</button>
+            <button id="hl3-only1" onclick="set3Highlight('only1')" class="hl3-btn px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold transition">1つだけ</button>
+            <button id="hl3-only2" onclick="set3Highlight('only2')" class="hl3-btn px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold transition">ちょうど2つだけ</button>
+            <button id="hl3-only3" onclick="set3Highlight('only3')" class="hl3-btn px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold transition">3つすべて</button>
+            <button id="hl3-union" onclick="set3Highlight('union')" class="hl3-btn px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold transition">少なくとも1つ(包除原理)</button>
+            <button id="hl3-outside" onclick="set3Highlight('outside')" class="hl3-btn px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold transition">どれでもない(外側)</button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+            <!-- 左: インライン SVG 3集合ベン図 -->
+            <div class="md:col-span-6 bg-slate-900 rounded-2xl p-3 sm:p-4 border border-slate-800 shadow-inner">
+              <div class="text-[11px] text-slate-400 font-bold mb-1 flex items-center justify-between">
+                <span><i class="fa-solid fa-circle-nodes text-cyan-400"></i> 3集合ベン図（7領域＋外側）</span>
+                <span class="font-mono text-cyan-300" id="venn3-u-top">全体 U = 200</span>
+              </div>
+
+              <svg viewBox="0 0 400 320" class="w-full h-auto max-h-[320px] select-none">
+                <rect id="venn3-outer-rect" x="8" y="8" width="384" height="304" rx="16" fill="#0f172a" stroke="#334155" stroke-width="2" />
+
+                <!-- 3円 -->
+                <circle cx="155" cy="122" r="84" fill="#0ea5e9" fill-opacity="0.22" stroke="#38bdf8" stroke-width="2.2" />
+                <circle cx="245" cy="122" r="84" fill="#a855f7" fill-opacity="0.22" stroke="#c084fc" stroke-width="2.2" />
+                <circle cx="200" cy="198" r="84" fill="#10b981" fill-opacity="0.22" stroke="#34d399" stroke-width="2.2" />
+
+                <!-- 円ラベル -->
+                <text x="64" y="42" fill="#7dd3fc" font-size="13" font-weight="800">集合 A</text>
+                <text x="336" y="42" text-anchor="end" fill="#d8b4fe" font-size="13" font-weight="800">集合 B</text>
+                <text x="200" y="302" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="800">集合 C</text>
+
+                <!-- 7領域ピルバッジ -->
+                <g id="v3-badge-a">
+                  <rect x="92" y="88" width="44" height="26" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                  <text id="v3-txt-a" x="114" y="106" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="900" class="font-mono">60</text>
+                </g>
+                <g id="v3-badge-b">
+                  <rect x="264" y="88" width="44" height="26" rx="8" fill="#1e293b" stroke="#c084fc" stroke-width="1.5" />
+                  <text id="v3-txt-b" x="286" y="106" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="900" class="font-mono">35</text>
+                </g>
+                <g id="v3-badge-c">
+                  <rect x="178" y="232" width="44" height="26" rx="8" fill="#1e293b" stroke="#34d399" stroke-width="1.5" />
+                  <text id="v3-txt-c" x="200" y="250" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="900" class="font-mono">25</text>
+                </g>
+
+                <g id="v3-badge-ab">
+                  <rect x="178" y="80" width="44" height="26" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5" />
+                  <text id="v3-txt-ab" x="200" y="98" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="900" class="font-mono">20</text>
+                </g>
+                <g id="v3-badge-ca">
+                  <rect x="126" y="164" width="44" height="26" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5" />
+                  <text id="v3-txt-ca" x="148" y="182" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="900" class="font-mono">15</text>
+                </g>
+                <g id="v3-badge-bc">
+                  <rect x="230" y="164" width="44" height="26" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5" />
+                  <text id="v3-txt-bc" x="252" y="182" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="900" class="font-mono">10</text>
+                </g>
+
+                <g id="v3-badge-abc">
+                  <rect x="178" y="138" width="44" height="28" rx="9" fill="#be123c" stroke="#fda4af" stroke-width="2" />
+                  <text id="v3-txt-abc" x="200" y="157" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="900" class="font-mono">10</text>
+                </g>
+
+                <g id="v3-badge-outside">
+                  <rect x="292" y="274" width="90" height="28" rx="8" fill="#1e293b" stroke="#64748b" stroke-width="1.5" />
+                  <text id="v3-txt-outside" x="337" y="293" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="800" class="font-mono">外側: 25</text>
+                </g>
+              </svg>
+            </div>
+
+            <!-- 右: 7領域スライダー＋公式換算表示 -->
+            <div class="md:col-span-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
+              <div class="font-bold text-slate-700 border-b border-slate-200 pb-2 flex items-center justify-between">
+                <span><i class="fa-solid fa-sliders text-cyan-600"></i> 領域ごとの人数調整</span>
+                <span class="text-[10px] text-slate-500">各領域≧0で整合性100%維持</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-x-3 gap-y-2">
+                <div>
+                  <div class="flex justify-between font-bold">
+                    <span class="text-rose-700">3つ全部 (ABC):</span>
+                    <span class="font-mono" id="val-v3-abc">10</span>
+                  </div>
+                  <input type="range" id="s3-abc" min="0" max="40" value="10" oninput="updateVenn3Sim()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-rose-600" />
+                </div>
+                <div>
+                  <div class="flex justify-between font-bold">
+                    <span class="text-slate-700">全体 U:</span>
+                    <span class="font-mono" id="val-v3-u">200</span>
+                  </div>
+                  <input type="range" id="s3-u" min="50" max="400" step="5" value="200" oninput="updateVenn3Sim()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-700" />
+                </div>
+                <div>
+                  <div class="flex justify-between font-bold">
+                    <span class="text-slate-700">ABのみ:</span>
+                    <span class="font-mono" id="val-v3-ab">20</span>
+                  </div>
+                  <input type="range" id="s3-ab" min="0" max="60" value="20" oninput="updateVenn3Sim()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cyan-600" />
+                </div>
+                <div>
+                  <div class="flex justify-between font-bold">
+                    <span class="text-slate-700">BCのみ:</span>
+                    <span class="font-mono" id="val-v3-bc">10</span>
+                  </div>
+                  <input type="range" id="s3-bc" min="0" max="60" value="10" oninput="updateVenn3Sim()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cyan-600" />
+                </div>
+                <div>
+                  <div class="flex justify-between font-bold">
+                    <span class="text-slate-700">CAのみ:</span>
+                    <span class="font-mono" id="val-v3-ca">15</span>
+                  </div>
+                  <input type="range" id="s3-ca" min="0" max="60" value="15" oninput="updateVenn3Sim()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cyan-600" />
+                </div>
+                <div>
+                  <div class="flex justify-between font-bold">
+                    <span class="text-sky-700">Aのみ:</span>
+                    <span class="font-mono" id="val-v3-a">60</span>
+                  </div>
+                  <input type="range" id="s3-a" min="0" max="100" value="60" oninput="updateVenn3Sim()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600" />
+                </div>
+                <div>
+                  <div class="flex justify-between font-bold">
+                    <span class="text-purple-700">Bのみ:</span>
+                    <span class="font-mono" id="val-v3-b">35</span>
+                  </div>
+                  <input type="range" id="s3-b" min="0" max="100" value="35" oninput="updateVenn3Sim()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600" />
+                </div>
+                <div>
+                  <div class="flex justify-between font-bold">
+                    <span class="text-emerald-700">Cのみ:</span>
+                    <span class="font-mono" id="val-v3-c">25</span>
+                  </div>
+                  <input type="range" id="s3-c" min="0" max="100" value="25" oninput="updateVenn3Sim()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" />
+                </div>
+              </div>
+
+              <!-- 問題文スペック換算 -->
+              <div class="p-2.5 bg-white rounded-xl border border-slate-200 font-mono text-[11px] space-y-1">
+                <div class="font-sans font-bold text-slate-600">問題文の条件データに換算すると：</div>
+                <div id="v3-summary-line1" class="text-slate-800 font-bold">
+                  A=105, B=75, C=60
+                </div>
+                <div id="v3-summary-line2" class="text-slate-600">
+                  A∩B=30, B∩C=20, C∩A=25, 全部=10
+                </div>
+              </div>
+
+              <!-- 選択中ハイライトの計算式 -->
+              <div class="p-3 bg-white rounded-xl border border-cyan-200 font-mono space-y-1 shadow-2xs">
+                <div id="v3-formula-title" class="text-[11px] font-sans font-bold text-cyan-800">
+                  包除原理：少なくとも1つ (A∪B∪C)
+                </div>
+                <div id="v3-formula-expr" class="text-[11px] text-slate-700 leading-relaxed">
+                  (105+75+60) − (30+20+25) ＋ 10 ＝ 175人
+                </div>
+                <div class="flex items-baseline justify-between pt-1 border-t border-slate-100">
+                  <span class="text-xs font-sans font-bold text-slate-600">該当人数：</span>
+                  <span id="v3-formula-result" class="text-base font-black text-cyan-700">175人</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. 【パターン整理・出題全5型完全攻略】 -->
+      <section
+        id="patterns"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200"
+      >
+        <div
+          class="text-sky-700 font-bold text-xs mb-1 flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-list-check"></i> セクション
+          5：まとめ（出題全5型完全攻略）
+        </div>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-3">
+          SPI集合 出題全5パターンの立式と速解ステップ
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm">
+          <!-- パターン 1 -->
+          <div
+            class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs space-y-2"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-6 h-6 rounded-lg bg-cyan-600 text-white font-bold text-xs flex items-center justify-center shrink-0"
+                  >1</span
+                >
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                  2集合の基本型（和集合・外側・逆算）
+                </h3>
+              </div>
+              <span
+                class="text-[11px] font-bold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200 w-fit"
+                >基本・最頻出</span
+              >
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              「少なくとも一方」「どちらも〜ない」「両方」「どちらか一方だけ」を求める王道パターン。真ん中から埋めれば絶対ミスしません。
+            </p>
+            <div
+              class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5"
+            >
+              <div
+                class="text-xs font-bold text-cyan-800 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-bolt text-yellow-500"></i>
+                計算例：全体50・A30・B25・外側5で「両方」
+              </div>
+              <div
+                class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed"
+              >
+                <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                  <span>一方＝50−5＝45 ➔ 両方＝30＋25−45</span>
+                  <span class="text-slate-400 font-normal">➔</span>
+                </span>
+                <span class="inline-flex items-center whitespace-nowrap">
+                  <span
+                    class="bg-cyan-50 text-cyan-800 font-black px-2 py-0.5 rounded border border-cyan-200 text-sm sm:text-lg"
+                    >10人！</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- パターン 2 -->
+          <div
+            class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs space-y-2"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0"
+                  >2</span
+                >
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                  2×2整理表型（〜でない・男女別・表読取）
+                </h3>
+              </div>
+              <span
+                class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 w-fit"
+                >時短・正確</span
+              >
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              「満足／不満足」「はい／いいえ」「男／女」の2軸クロス問題。ベン図ではなく4マス表を描き、縦・横の引き算で埋めます。
+            </p>
+            <div
+              class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5"
+            >
+              <div
+                class="text-xs font-bold text-emerald-700 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-bolt text-yellow-500"></i>
+                計算例：接客満足185のうち両方満足140
+              </div>
+              <div
+                class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed"
+              >
+                <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                  <span>接客満足かつ配送不満足＝185−140</span>
+                  <span class="text-slate-400 font-normal">➔</span>
+                </span>
+                <span class="inline-flex items-center whitespace-nowrap">
+                  <span
+                    class="bg-emerald-50 text-emerald-700 font-black px-2 py-0.5 rounded border border-emerald-200 text-sm sm:text-lg"
+                    >45人！</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- パターン 3 -->
+          <div
+            class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs space-y-2"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-6 h-6 rounded-lg bg-purple-600 text-white font-bold text-xs flex items-center justify-center shrink-0"
+                  >3</span
+                >
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                  割合（％）・比・倍数条件型
+                </h3>
+              </div>
+              <span
+                class="text-[11px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200 w-fit"
+                >テストセンター頻出</span
+              >
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              ％が出たら全体100%で重なり(％)を計算してから実人数で逆算。倍数は「両方=x、外側=kx」として和の式で一撃です。
+            </p>
+            <div
+              class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5"
+            >
+              <div
+                class="text-xs font-bold text-purple-700 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-bolt text-yellow-500"></i>
+                計算例：A62%・B44%・外側18%・両方48人
+              </div>
+              <div
+                class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed"
+              >
+                <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                  <span>両方＝62＋44−(100−18)＝24%</span>
+                  <span class="text-slate-400 font-normal">➔</span>
+                </span>
+                <span class="inline-flex items-center whitespace-nowrap">
+                  <span
+                    class="bg-purple-50 text-purple-700 font-black px-2 py-0.5 rounded border border-purple-200 text-sm sm:text-lg"
+                    >48 ÷ 0.24 ＝ 200人！</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- パターン 4 -->
+          <div
+            class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs space-y-2"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-6 h-6 rounded-lg bg-rose-600 text-white font-bold text-xs flex items-center justify-center shrink-0"
+                  >4</span
+                >
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                  最大値・最小値型（少なくとも／最も多くて）
+                </h3>
+              </div>
+              <span
+                class="text-[11px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 w-fit"
+                >差がつく重要型</span
+              >
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              「最も多くて＝小さい方をすっぽり入れる」「少なくとも＝両端に離してはみ出た分（A＋B−全体）」の2択で即答できます。
+            </p>
+            <div
+              class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5"
+            >
+              <div
+                class="text-xs font-bold text-rose-700 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-bolt text-yellow-500"></i>
+                計算例：全体120・男88・会員80で「非会員の男は最小？」
+              </div>
+              <div
+                class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed"
+              >
+                <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                  <span>非会員(40)から女(32)を最大化して引く</span>
+                  <span class="text-slate-400 font-normal">➔</span>
+                </span>
+                <span class="inline-flex items-center whitespace-nowrap">
+                  <span
+                    class="bg-rose-50 text-red-600 font-black px-2 py-0.5 rounded border border-rose-200 text-sm sm:text-lg"
+                    >40 − 32 ＝ 8人！</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- パターン 5 -->
+          <div
+            class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs space-y-2 md:col-span-2"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-6 h-6 rounded-lg bg-amber-600 text-white font-bold text-xs flex items-center justify-center shrink-0"
+                  >5</span
+                >
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                  3集合の応用型（包除原理・1つだけ・ちょうど2つだけ・複数選択表）
+                </h3>
+              </div>
+              <span
+                class="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 w-fit"
+                >上級・攻略のカギ</span
+              >
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              3集合では「2つの重なり」から「3つ全部」を引いて純粋な2重領域を出すのが鉄則。また「3つから必ず2つ選ぶ」場合は延べ票数（人数×2）の表を使います。
+            </p>
+            <div
+              class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5"
+            >
+              <div
+                class="text-xs font-bold text-amber-700 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-bolt text-yellow-500"></i> 鉄則の3公式：
+              </div>
+              <div
+                class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed"
+              >
+                <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                  <span>ちょうど2つ＝(AB＋BC＋CA)−3×全部</span>
+                  <span class="text-slate-400 font-normal">／</span>
+                </span>
+                <span class="inline-flex items-center whitespace-nowrap">
+                  <span
+                    class="bg-amber-50 text-amber-800 font-black px-2 py-0.5 rounded border border-amber-200 text-sm sm:text-lg"
+                    >少なくとも1つ＝(A＋B＋C)−(AB＋BC＋CA)＋全部！</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 要点ひとことバナー -->
+        <div
+          class="mt-4 p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl text-center shadow-sm"
+        >
+          <p class="text-xs sm:text-sm font-bold text-slate-800">
+            💡 迷ったら<span
+              class="marker-yellow text-sm sm:text-base inline-block my-0.5"
+              >「ベン図は真ん中（両方）から埋める」</span
+            >、<span
+              class="marker-yellow text-sm sm:text-base inline-block my-0.5"
+              >「〜でない・男女は2×2表」</span
+            >、<span
+              class="marker-yellow text-sm sm:text-base inline-block my-0.5"
+              >「最大は包含・最小は両端」</span
+            >の3本柱で必ず解けます！
+          </p>
+        </div>
+      </section>
+
+      <!-- 6. 【実戦練習: チャレンジ厳選15問（難易度別フィルター付き）】 -->
+      <section
+        id="quiz"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200"
+      >
+        <!-- クイズヘッダー -->
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 mb-4 gap-2"
+        >
+          <div>
+            <span
+              class="text-xs font-bold text-yellow-800 bg-yellow-100 px-2 py-0.5 rounded border border-yellow-200 flex items-center gap-1.5 w-fit"
+            >
+              <i class="fa-solid fa-fire text-red-500"></i> SPI本番完全攻略
+            </span>
+            <h2 class="text-base sm:text-xl font-bold text-slate-900 mt-0.5">
+              集合 実戦チャレンジ厳選15問
+            </h2>
+          </div>
+
+          <!-- 難易度切り替えタブ -->
+          <div
+            class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold self-start sm:self-auto overflow-x-auto no-scrollbar"
+          >
+            <button
+              id="filter-all"
+              onclick="filterQuiz('all')"
+              class="px-2.5 py-1 rounded-lg bg-white shadow-xs text-sky-700 font-black transition"
+            >
+              すべて (15)
+            </button>
+            <button
+              id="filter-easy"
+              onclick="filterQuiz('easy')"
+              class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition"
+            >
+              初級 ★☆☆ (5)
+            </button>
+            <button
+              id="filter-mid"
+              onclick="filterQuiz('mid')"
+              class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition"
+            >
+              中級 ★★☆ (5)
+            </button>
+            <button
+              id="filter-hard"
+              onclick="filterQuiz('hard')"
+              class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition"
+            >
+              上級 ★★★ (5)
+            </button>
+          </div>
+        </div>
+
+        <!-- 問題選択ミニナビゲーション（問題番号ボタン） -->
+        <div class="mb-4 pb-2 border-b border-slate-100">
+          <div
+            class="text-[11px] text-slate-500 font-bold mb-1.5 flex items-center justify-between"
+          >
+            <span>問題一覧（クリックでジャンプ）：</span>
+            <span id="quiz-progress-text" class="text-sky-700 font-mono"
+              >1 / 15問</span
+            >
+          </div>
+          <div id="quiz-num-bar" class="flex flex-wrap gap-1.5">
+            <!-- JSで動的にボタン生成 -->
+          </div>
+        </div>
+
+        <!-- クイズ表示エリア -->
+        <div id="quiz-container" class="space-y-4">
+          <!-- 問題文エリア -->
+          <div
+            class="p-4 rounded-xl bg-sky-50/50 border border-sky-100 space-y-2"
+          >
+            <div class="flex items-center justify-between">
+              <span
+                id="quiz-category"
+                class="text-[11px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded"
+                >初級 ★☆☆</span
+              >
+              <span id="quiz-diff-stars" class="text-xs text-amber-500"
+                ><i class="fa-solid fa-star"></i
+              ></span>
+            </div>
+            <p
+              id="quiz-question"
+              class="text-xs sm:text-base font-bold text-slate-800 leading-relaxed"
+            >
+              <!-- JSで動的に問題文が挿入されます -->
+            </p>
+          </div>
+
+          <!-- 選択肢ボタン（JSで動的生成） -->
+          <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- JSで動的にボタンが挿入されます -->
+          </div>
+
+          <!-- 解答・解説エリア（回答後に表示） -->
+          <div
+            id="quiz-feedback"
+            class="hidden p-4 sm:p-5 rounded-xl border transition-all space-y-3"
+          >
+            <div
+              id="quiz-result-title"
+              class="text-sm sm:text-base font-bold flex items-center gap-2"
+            ></div>
+
+            <!-- 解説エリア -->
+            <div
+              id="quiz-explanation"
+              class="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-2.5 border-t border-slate-200/60 pt-3"
+            >
+              <!-- JSで挿入 -->
+            </div>
+
+            <div
+              class="mt-4 flex items-center justify-between pt-2 border-t border-slate-200/60"
+            >
+              <button
+                onclick="prevQuiz()"
+                id="btn-prev-quiz"
+                class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-xs sm:text-sm flex items-center gap-1 shadow-xs"
+              >
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+                <span>前の問題</span>
+              </button>
+              <button
+                onclick="nextQuiz()"
+                id="btn-next-quiz"
+                class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg transition text-xs sm:text-sm flex items-center gap-1.5 shadow-sm"
+              >
+                <span>次の問題へ</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- =========================================================
+       フッター（全単元共通）
+       ========================================================= -->
+    <footer
+      class="bg-slate-900 text-slate-400 py-6 text-center text-xs mt-12 border-t border-slate-800"
+    >
+      <div class="max-w-5xl mx-auto px-4 space-y-2">
+        <div
+          class="flex items-center justify-center gap-2 text-white font-bold"
+        >
+          <a href="index.html" class="hover:text-yellow-300 transition"
+            >SPI直感攻略ナビ ポータル</a
+          >
+        </div>
+        <p class="text-slate-500 text-[11px]">© 2026 SPI直感攻略ナビ</p>
+      </div>
+    </footer>
+
+    <!-- =========================================================
+       JavaScript ロジック
+       ========================================================= -->
+    <script>
+      /* ---------------------------------------------------------
+       * クイズデータ（初級5問・中級5問・上級5問 ＝ 厳選15問）
+       * --------------------------------------------------------- */
+      const QUIZ_DATA = [
+        // === 初級 ★☆☆ (Q1〜Q5) ===
+        {
+          id: 1,
+          difficulty: "easy",
+          diffLabel: "初級 ★☆☆",
+          category: "パターン1: 2集合の基本（外側を求める）",
+          question:
+            "45人のクラスで趣味についてアンケートを取ったところ、映画鑑賞が好きな人は28人、音楽鑑賞が好きな人は24人、両方とも好きな人は13人であった。このとき、映画も音楽もどちらも好きではない人は何人か？",
+          options: ["4人", "6人", "7人", "9人"],
+          answerIndex: 1, // 6人
+          explanation: `
+          <div class="bg-cyan-50 p-2.5 rounded-lg border border-cyan-200 text-cyan-950 font-medium">
+            <strong>⚡【即答テクニック】</strong><br>
+            ・少なくとも一方が好きな人 ＝ 映画 ＋ 音楽 − 両方 ＝ 28 ＋ 24 − 13 ＝ <strong class="text-cyan-800">39人</strong><br>
+            ・どちらも好きではない人 ＝ 全体 − 少なくとも一方 ＝ 45 − 39 ＝ <strong class="text-red-600 font-black text-sm">6人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            💡 28＋24＝52 とすると「両方(13人)」を2回数えているため、必ず1回分を引いてから全体45から引きます。
+          </div>
+        `,
+        },
+        {
+          id: 2,
+          difficulty: "easy",
+          diffLabel: "初級 ★☆☆",
+          category: "パターン1: 2集合の逆算（両方を求める）",
+          question:
+            "ある部署の社員60人にオフィスソフトのスキルを確認したところ、Excelが使える人は38人、PowerPointが使える人は32人、どちらも使えない人は5人であった。このとき、ExcelとPowerPointの両方が使える人は何人か？",
+          options: ["10人", "12人", "15人", "20人"],
+          answerIndex: 2, // 15人
+          explanation: `
+          <div class="bg-cyan-50 p-2.5 rounded-lg border border-cyan-200 text-cyan-950 font-medium">
+            <strong>⚡【逆算の鉄則】</strong><br>
+            1. 少なくとも一方を使える人 ＝ 全体60 − どちらも使えない5 ＝ <strong class="text-cyan-800">55人</strong><br>
+            2. 両方使える人 ＝ (Excel38 ＋ PPT32) − 55 ＝ 70 − 55 ＝ <strong class="text-red-600 font-black text-sm">15人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            📐 検算：Excelだけ23人 ＋ 両方15人 ＋ PPTだけ17人 ＋ どちらも×5人 ＝ 60人（ぴったり一致！）
+          </div>
+        `,
+        },
+        {
+          id: 3,
+          difficulty: "easy",
+          diffLabel: "初級 ★☆☆",
+          category: "パターン1: どちらか一方だけ（片方のみ）",
+          question:
+            "大学生80人を対象に飲み物の好みを調査したところ、コーヒーが好きな人は52人、紅茶が好きな人は40人、両方とも好きな人は22人であった。このとき、コーヒーと紅茶の「どちらか一方だけ」が好きな人は合計何人か？",
+          options: ["30人", "48人", "58人", "70人"],
+          answerIndex: 1, // 48人
+          explanation: `
+          <div class="bg-cyan-50 p-2.5 rounded-lg border border-cyan-200 text-cyan-950 font-medium">
+            <strong>⚡【「一方だけ」は両方を完全に除外する！】</strong><br>
+            ・コーヒーだけが好きな人 ＝ 52 − 22 ＝ <strong class="text-cyan-800">30人</strong><br>
+            ・紅茶だけが好きな人 ＝ 40 − 22 ＝ <strong class="text-cyan-800">18人</strong><br>
+            ・どちらか一方だけ ＝ 30 ＋ 18 ＝ <strong class="text-red-600 font-black text-sm">48人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            ⚠️ ひっかけ注意：「少なくとも一方(52＋40−22＝70人)」は両方22人を含みます。「一方だけ」は70−22＝48人です！
+          </div>
+        `,
+        },
+        {
+          id: 4,
+          difficulty: "easy",
+          diffLabel: "初級 ★☆☆",
+          category: "パターン2: 2×2整理表（満足／不満足）",
+          question:
+            "来店客200人にアンケートを行った結果、品揃えに「満足」と答えた人は155人、接客に「満足」と答えた人は140人、品揃えと接客の両方に「満足」と答えた人は110人であった。このとき、接客に「満足」で、品揃えに「不満足」と答えた人は何人か？",
+          options: ["25人", "30人", "45人", "60人"],
+          answerIndex: 1, // 30人
+          explanation: `
+          <div class="bg-cyan-50 p-2.5 rounded-lg border border-cyan-200 text-cyan-950 font-medium">
+            <strong>⚡【2×2表の引き算一撃！】</strong><br>
+            ・接客に「満足」と答えた140人は、「品揃えも満足」と「品揃えは不満足」の2つに分かれます。<br>
+            ・よって、接客満足かつ品揃え不満足 ＝ 140 − 110 ＝ <strong class="text-red-600 font-black text-sm">30人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            💡 全体200や品揃え満足155を使わなくても、接客満足の行(140)の引き算だけで3秒で即答できます。
+          </div>
+        `,
+        },
+        {
+          id: 5,
+          difficulty: "easy",
+          diffLabel: "初級 ★☆☆",
+          category: "パターン2: 2×2整理表（2回のテスト）",
+          question:
+            "50人の受験者が試験を2回受けた。合格基準点に達した人は、1回目が36人、2回目が41人であり、1回目も2回目も基準点に達しなかった人は4人であった。このとき、2回とも合格基準点に達した人は何人か？",
+          options: ["27人", "31人", "33人", "35人"],
+          answerIndex: 1, // 31人
+          explanation: `
+          <div class="bg-cyan-50 p-2.5 rounded-lg border border-cyan-200 text-cyan-950 font-medium">
+            <strong>⚡【外側を引いてから足し引き】</strong><br>
+            1. 少なくとも1回は合格した人 ＝ 50 − 4 ＝ <strong class="text-cyan-800">46人</strong><br>
+            2. 2回とも合格した人 ＝ 36 ＋ 41 − 46 ＝ 77 − 46 ＝ <strong class="text-red-600 font-black text-sm">31人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            📐 2×2表で解く場合：1回目不合格は14人。そのうち両方不合格が4人なので「1回目×・2回目○」＝10人。よって両方○＝41−10＝31人！
+          </div>
+        `,
+        },
+
+        // === 中級 ★★☆ (Q6〜Q10) ===
+        {
+          id: 6,
+          difficulty: "mid",
+          diffLabel: "中級 ★★☆",
+          category: "パターン3: 倍数条件（x と 3x）",
+          question:
+            "社員120人に通勤手段を調査したところ、電車を利用する人は58人、バスを利用する人は44人であった。また、電車もバスもどちらも利用しない人は、両方を利用する人のちょうど3倍の人数いた。このとき、電車とバスの両方を利用する人は何人か？",
+          options: ["6人", "9人", "12人", "18人"],
+          answerIndex: 1, // 9人
+          explanation: `
+          <div class="bg-cyan-50 p-2.5 rounded-lg border border-cyan-200 text-cyan-950 font-medium">
+            <strong>⚡【和の公式に x と 3x を代入するだけ！】</strong><br>
+            ・両方を利用する人 ＝ x 人とおくと、どちらも利用しない人 ＝ 3x 人。<br>
+            ・全体 ＝ 電車 ＋ バス − 両方 ＋ 外側<br>
+            　120 ＝ 58 ＋ 44 − x ＋ 3x<br>
+            　120 ＝ 102 ＋ 2x ➔ 2x ＝ 18 ➔ x ＝ <strong class="text-red-600 font-black text-sm">9人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            💡 「全体 − (A＋B) ＝ 120 − 102 ＝ 18」が「外側 − 両方 ＝ (3−1)x ＝ 2x」に等しいと覚えると暗算5秒です！
+          </div>
+        `,
+        },
+        {
+          id: 7,
+          difficulty: "mid",
+          diffLabel: "中級 ★★☆",
+          category: "パターン3: 割合（％）から全体人数を逆算",
+          question:
+            "ある展示会の来場者のうち、パンフレットを受け取った人は65%、試供品を受け取った人は45%、どちらも受け取らなかった人は15%であった。また、パンフレットと試供品の両方を受け取った人が50人であったとき、来場者は全部で何人か？",
+          options: ["150人", "180人", "200人", "250人"],
+          answerIndex: 2, // 200人
+          explanation: `
+          <div class="bg-cyan-50 p-2.5 rounded-lg border border-cyan-200 text-cyan-950 font-medium">
+            <strong>⚡【まず％だけで「両方(％)」を特定する！】</strong><br>
+            1. 少なくとも一方を受け取った割合 ＝ 100% − 15% ＝ <strong class="text-cyan-800">85%</strong><br>
+            2. 両方受け取った割合 ＝ 65% ＋ 45% − 85% ＝ <strong class="text-cyan-800">25%</strong><br>
+            3. 全体の25%が50人なので、全体 ＝ 50 ÷ 0.25 ＝ <strong class="text-red-600 font-black text-sm">200人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            💡 25%は「全体の 1/4」なので、50人 × 4 ＝ 200人 と一瞬で暗算できます！
+          </div>
+        `,
+        },
+        {
+          id: 8,
+          difficulty: "mid",
+          diffLabel: "中級 ★★☆",
+          category: "パターン4: 最大値（「最も多くて何人」）",
+          question:
+            "ある企業の新入社員160人のうち、普通自動車免許を持っている人は118人、TOEIC700点以上の資格を持っている人は64人であった。このとき、普通自動車免許とTOEIC700点以上の両方を持っている人は「最も多くて」何人か？",
+          options: ["22人", "42人", "54人", "64人"],
+          answerIndex: 3, // 64人
+          explanation: `
+          <div class="bg-cyan-50 p-2.5 rounded-lg border border-cyan-200 text-cyan-950 font-medium">
+            <strong>⚡【重なりの最大値＝小さい方の人数そのまま！】</strong><br>
+            ・2つの集合の重なりが最大になるのは、人数の少ないほう（64人）全員が、多いほう（118人）の中にすっぽり含まれるときです。<br>
+            ・したがって、最大は <strong class="text-red-600 font-black text-sm">64人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            ⚠️ ちなみに「少なくとも何人（最小値）」と聞かれた場合は、118 ＋ 64 − 160 ＝ 22人 になります。問題文の聞き分けに注意！
+          </div>
+        `,
+        },
+        {
+          id: 9,
+          difficulty: "mid",
+          diffLabel: "中級 ★★☆",
+          category: "パターン4: 比 × 最小値（「少なくとも何人」）",
+          question:
+            "ある説明会の参加者90人の男性と女性の人数比は7：3である。参加者のうち、事前質問を提出した人は55人であった。このとき、事前質問を提出していない男性は「少なくとも」何人いるか？",
+          options: ["8人", "12人", "18人", "27人"],
+          answerIndex: 0, // 8人
+          explanation: `
+          <div class="bg-cyan-50 p-2.5 rounded-lg border border-cyan-200 text-cyan-950 font-medium">
+            <strong>⚡【まず男女の人数を確定 ➔ 2×2の最小値！】</strong><br>
+            1. 男性 ＝ 90 × 7/(7＋3) ＝ <strong class="text-cyan-800">63人</strong>、女性 ＝ 90 − 63 ＝ <strong class="text-cyan-800">27人</strong><br>
+            2. 質問の「未提出者」の合計 ＝ 90 − 55 ＝ <strong class="text-cyan-800">35人</strong><br>
+            3. 未提出の男性を最小にするには、女性27人全員が未提出になればよいので、<br>
+            　35 − 27 ＝ <strong class="text-red-600 font-black text-sm">8人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            💡 別解：提出者55人すべてが男性だったとしても、男性63人のうち 63 − 55 ＝ 8人 は絶対に未提出になります！
+          </div>
+        `,
+        },
+        {
+          id: 10,
+          difficulty: "mid",
+          diffLabel: "中級 ★★☆",
+          category: "パターン5: 3集合の逆算（ダミー数値を見抜く）",
+          question:
+            "学生150人を対象に、野球・サッカー・テニスの経験の有無を調査したところ、野球経験者は65人、サッカー経験者は55人、テニス経験者は40人であった。そのうち、テニスだけを経験している人は22人、いずれの競技も経験していない人は28人であった。このとき、野球またはサッカーを経験している人は合計何人か？",
+          options: ["80人", "92人", "100人", "120人"],
+          answerIndex: 2, // 100人
+          explanation: `
+          <div class="bg-cyan-50 p-2.5 rounded-lg border border-cyan-200 text-cyan-950 font-medium">
+            <strong>⚡【全体から「無関係な2エリア」を引くだけ！】</strong><br>
+            ・全体150人のうち、「野球もサッカーも経験していない人」は、<strong class="text-cyan-800">「テニスだけ(22人)」と「未経験(28人)」</strong> だけです！<br>
+            ・したがって、野球またはサッカーの経験者 ＝ 150 − (22 ＋ 28) ＝ 150 − 50 ＝ <strong class="text-red-600 font-black text-sm">100人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            💡 問題文の「野球65、サッカー55、テニス40」は、実は使わなくても解けるダミー情報！ベン図全体の領域を意識すると5秒で解けます。
+          </div>
+        `,
+        },
+
+        // === 上級 ★★★ (Q11〜Q15) ===
+        {
+          id: 11,
+          difficulty: "hard",
+          diffLabel: "上級 ★★★",
+          category: "パターン5: 3集合「ちょうど2つだけ」",
+          question:
+            "あるフィットネスクラブで、ジム、プール、サウナの3つの施設の利用状況を調査したところ、ジムとプールの両方を利用する会員は48人、プールとサウナの両方は34人、サウナとジムの両方は40人であった。また、3つの施設すべてを利用する会員は14人であった。このとき、3つの施設のうち「ちょうど2つだけ」を利用している会員は合計何人か？",
+          options: ["66人", "80人", "94人", "108人"],
+          answerIndex: 1, // 80人
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【3つ全部(14人)を3箇所から引く！】</strong><br>
+            ・「AとBの両方」には「3つすべて(14人)」も含まれています。<br>
+            　① ジムとプールだけ ＝ 48 − 14 ＝ <strong class="text-purple-700">34人</strong><br>
+            　② プールとサウナだけ ＝ 34 − 14 ＝ <strong class="text-purple-700">20人</strong><br>
+            　③ サウナとジムだけ ＝ 40 − 14 ＝ <strong class="text-purple-700">26人</strong><br>
+            ・合計 ＝ 34 ＋ 20 ＋ 26 ＝ <strong class="text-red-600 font-black text-sm">80人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            📐 時短公式：(48 ＋ 34 ＋ 40) − 3 × 14 ＝ 122 − 42 ＝ 80人！と一発で計算できます。
+          </div>
+        `,
+        },
+        {
+          id: 12,
+          difficulty: "hard",
+          diffLabel: "上級 ★★★",
+          category: "パターン5: 3集合「1種類だけ」の合計",
+          question:
+            "カフェの利用客200人に、よく飲むメニュー（A:コーヒー、B:紅茶、C:ジュース）を調査した（複数回答可）。結果はAが105人、Bが75人、Cが60人であり、AとBの両方は30人、BとCの両方は20人、CとAの両方は25人、3種類すべてを飲む人は10人であった。このとき、3種類のうち「1種類だけ」を飲む人は合計何人か？",
+          options: ["100人", "110人", "120人", "130人"],
+          answerIndex: 2, // 120人
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【純粋な2重領域を出してから各円を引き算！】</strong><br>
+            1. 「2つだけ」の領域：ABのみ＝30−10＝20、BCのみ＝20−10＝10、CAのみ＝25−10＝15<br>
+            2. 「1つだけ」の領域：<br>
+            　・Aだけ ＝ 105 − (20 ＋ 15 ＋ 10) ＝ <strong class="text-purple-700">60人</strong><br>
+            　・Bだけ ＝ 75 − (20 ＋ 10 ＋ 10) ＝ <strong class="text-purple-700">35人</strong><br>
+            　・Cだけ ＝ 60 − (15 ＋ 10 ＋ 10) ＝ <strong class="text-purple-700">25人</strong><br>
+            ・合計 ＝ 60 ＋ 35 ＋ 25 ＝ <strong class="text-red-600 font-black text-sm">120人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            💡 3集合シミュレーター（☕カフェ3種プリセット）の数値と完全一致しています！図でぜひ確かめてみてください。
+          </div>
+        `,
+        },
+        {
+          id: 13,
+          difficulty: "hard",
+          diffLabel: "上級 ★★★",
+          category: "パターン5: 3集合の包除原理（どれも〜ない）",
+          question:
+            "240人に動画配信サービスA・B・Cの契約状況を調査したところ、Aの契約者は120人、Bは100人、Cは80人であった。また、AとBの両方を契約している人は40人、BとCは30人、CとAは35人、3つすべてを契約している人は15人であった。このとき、A・B・Cのいずれも契約していない人は何人か？",
+          options: ["15人", "20人", "30人", "45人"],
+          answerIndex: 2, // 30人
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【3集合の包除原理で一発計算！】</strong><br>
+            ・少なくとも1つ契約 ＝ (A＋B＋C) − (AB＋BC＋CA) ＋ 全部<br>
+            　＝ (120 ＋ 100 ＋ 80) − (40 ＋ 30 ＋ 35) ＋ 15<br>
+            　＝ 300 − 105 ＋ 15 ＝ <strong class="text-purple-700">210人</strong><br>
+            ・いずれも未契約 ＝ 240 − 210 ＝ <strong class="text-red-600 font-black text-sm">30人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            📐 なぜ最後「＋15」？ 3つ全部の人は、A+B+Cで3回足され、AB+BC+CAで3回引かれて「0回カウント」になるため、最後に1回足し戻します！
+          </div>
+        `,
+        },
+        {
+          id: 14,
+          difficulty: "hard",
+          diffLabel: "上級 ★★★",
+          category: "パターン3×2: ％の入れ子条件（そのうち○％）",
+          question:
+            "200人にスポーツの好みを調査したところ、サッカーが好きな人は全体の60%であり、そのうちの35%は野球も好きであった。また、サッカーも野球もどちらも好きではない人は22人であった。このとき、野球が好きな人は合計何人か？",
+          options: ["80人", "92人", "100人", "108人"],
+          answerIndex: 2, // 100人
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【％を順番に人数へ直して逆算！】</strong><br>
+            1. サッカー好き ＝ 200 × 60% ＝ <strong class="text-purple-700">120人</strong><br>
+            2. 両方好き ＝ サッカー好き120人の35% ＝ 120 × 0.35 ＝ <strong class="text-purple-700">42人</strong><br>
+            3. サッカーまたは野球が好き ＝ 200 − 22 ＝ <strong class="text-purple-700">178人</strong><br>
+            4. 野球好き ＝ 178 − 120 ＋ 42 ＝ <strong class="text-red-600 font-black text-sm">100人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            ⚠️ 「全体の35%」ではなく「サッカー好きの35%」という日本語の修飾先を正確に読み取るのがカギです！
+          </div>
+        `,
+        },
+        {
+          id: 15,
+          difficulty: "hard",
+          diffLabel: "上級 ★★★",
+          category: "パターン5: 延べ選択数テーブル（必ず2つ選ぶ）",
+          question:
+            "60人の消費者に、A・B・Cの3つの商品デザイン案の中から「必ず2つ」を選んでもらうアンケートを実施した。その結果、Aを選んだ人は46人、Bを選ばなかった人は18人であった。このとき、Cを選んだ人は何人か？",
+          options: ["28人", "32人", "36人", "40人"],
+          answerIndex: 1, // 32人
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【1人2票 ➔ 延べ投票数の合計から一撃！】</strong><br>
+            1. 60人が全員2つずつ選ぶので、A・B・Cの「選んだ」合計 ＝ 60 × 2 ＝ <strong class="text-purple-700">120人（票）</strong><br>
+            2. Bを選んだ人 ＝ 全体60 − Bを選ばなかった18 ＝ <strong class="text-purple-700">42人</strong><br>
+            3. よって Cを選んだ人 ＝ 120 − (46 ＋ 42) ＝ 120 − 88 ＝ <strong class="text-red-600 font-black text-sm">32人！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            📐 ベン図を描き始めると迷宮入りする名問ですが、「延べ票数＝60×2＝120」に気づけば暗算10秒のサービス問題になります！
+          </div>
+        `,
+        },
+      ];
+
+      /* ---------------------------------------------------------
+       * クイズエンジンの内部状態管理
+       * --------------------------------------------------------- */
+      let currentFilter = "all";
+      let filteredList = [];
+      let currentQuizIndexInFilter = 0;
+      let quizAnswered = false;
+      let answeredStatus = {}; // { [quizId]: { answered: bool, isCorrect: bool } }
+
+      function filterQuiz(filterType) {
+        currentFilter = filterType;
+
+        ["all", "easy", "mid", "hard"].forEach((type) => {
+          const btn = document.getElementById(`filter-${type}`);
+          if (!btn) return;
+          if (type === filterType) {
+            btn.className =
+              "px-2.5 py-1 rounded-lg bg-white shadow-xs text-sky-700 font-black transition";
+          } else {
+            btn.className =
+              "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+          }
+        });
+
+        if (filterType === "all") {
+          filteredList = [...QUIZ_DATA];
+        } else {
+          filteredList = QUIZ_DATA.filter((q) => q.difficulty === filterType);
+        }
+
+        currentQuizIndexInFilter = 0;
+        loadQuiz(0);
+      }
+
+      function renderNumBar() {
+        const bar = document.getElementById("quiz-num-bar");
+        if (!bar) return;
+        bar.innerHTML = "";
+
+        filteredList.forEach((q, idx) => {
+          const btn = document.createElement("button");
+          const isCurrent = idx === currentQuizIndexInFilter;
+          const st = answeredStatus[q.id];
+
+          let bgClass = "bg-slate-100 text-slate-700 border-slate-200";
+          if (st && st.answered) {
+            bgClass = st.isCorrect
+              ? "bg-emerald-500 text-white border-emerald-600"
+              : "bg-rose-500 text-white border-rose-600";
+          }
+          if (isCurrent) {
+            bgClass += " ring-2 ring-sky-500 ring-offset-1 font-black";
+          }
+
+          btn.className = `w-7 h-7 rounded-lg text-xs font-bold border transition flex items-center justify-center ${bgClass}`;
+          btn.textContent = q.id;
+          btn.onclick = () => loadQuiz(idx);
+          bar.appendChild(btn);
+        });
+      }
+
+      function loadQuiz(idx) {
+        currentQuizIndexInFilter = idx;
+        quizAnswered = false;
+        const data = filteredList[idx];
+
+        document.getElementById("quiz-progress-text").textContent =
+          `${idx + 1} / ${filteredList.length}問 (第${data.id}問)`;
+        document.getElementById("quiz-category").textContent =
+          `${data.diffLabel}｜${data.category}`;
+
+        const starsEl = document.getElementById("quiz-diff-stars");
+        if (data.difficulty === "easy")
+          starsEl.innerHTML =
+            '<i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>';
+        else if (data.difficulty === "mid")
+          starsEl.innerHTML =
+            '<i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>';
+        else
+          starsEl.innerHTML =
+            '<i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>';
+
+        document.getElementById("quiz-question").innerHTML = data.question;
+
+        const optsContainer = document.getElementById("quiz-options");
+        optsContainer.innerHTML = "";
+
+        data.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.className =
+            "quiz-opt-btn p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs sm:text-sm text-left transition shadow-xs flex items-center justify-between group";
+          btn.innerHTML = `
+          <span>${optText}</span>
+          <span class="w-5 h-5 rounded-full border border-slate-300 group-hover:border-sky-500 flex items-center justify-center text-[10px] text-transparent group-hover:text-sky-500">
+            ●
+          </span>
+        `;
+          btn.onclick = () => selectOption(optIdx);
+          optsContainer.appendChild(btn);
+        });
+
+        const feedback = document.getElementById("quiz-feedback");
+        feedback.classList.add("hidden");
+
+        document.getElementById("btn-prev-quiz").disabled = idx === 0;
+        document
+          .getElementById("btn-prev-quiz")
+          .classList.toggle("opacity-50", idx === 0);
+
+        renderNumBar();
+      }
+
+      function selectOption(selectedIdx) {
+        if (quizAnswered) return;
+        quizAnswered = true;
+
+        const data = filteredList[currentQuizIndexInFilter];
+        const isCorrect = selectedIdx === data.answerIndex;
+
+        answeredStatus[data.id] = {
+          answered: true,
+          isCorrect: isCorrect,
+        };
+
+        const optButtons = document.querySelectorAll(".quiz-opt-btn");
+        optButtons.forEach((btn, idx) => {
+          btn.disabled = true;
+          btn.classList.remove("hover:bg-slate-50");
+          if (idx === data.answerIndex) {
+            btn.classList.add(
+              "bg-emerald-50",
+              "border-emerald-500",
+              "text-emerald-900",
+            );
+            btn.innerHTML = `<span>${data.options[idx]}</span> <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> 正解</span>`;
+          } else if (idx === selectedIdx && !isCorrect) {
+            btn.classList.add("bg-rose-50", "border-rose-400", "text-rose-900");
+            btn.innerHTML = `<span>${data.options[idx]}</span> <span class="text-rose-500 font-bold"><i class="fa-solid fa-circle-xmark"></i> 不正解</span>`;
+          } else {
+            btn.classList.add("opacity-40");
+          }
+        });
+
+        const feedback = document.getElementById("quiz-feedback");
+        const titleEl = document.getElementById("quiz-result-title");
+        const expEl = document.getElementById("quiz-explanation");
+
+        if (isCorrect) {
+          feedback.className =
+            "p-4 sm:p-5 rounded-xl border border-emerald-300 bg-emerald-50/70 block space-y-3";
+          titleEl.className =
+            "text-sm sm:text-base font-bold flex items-center gap-2 text-emerald-800";
+          titleEl.innerHTML =
+            '<i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i> 正解です！集合の図解・表整理を完璧に使いこなせています！';
+        } else {
+          feedback.className =
+            "p-4 sm:p-5 rounded-xl border border-rose-300 bg-rose-50/70 block space-y-3";
+          titleEl.className =
+            "text-sm sm:text-base font-bold flex items-center gap-2 text-rose-800";
+          titleEl.innerHTML =
+            '<i class="fa-solid fa-circle-xmark text-rose-500 text-lg"></i> おしい！解説でベン図・表の整理手順を確認しましょう';
+        }
+
+        expEl.innerHTML = data.explanation;
+        feedback.classList.remove("hidden");
+
+        renderNumBar();
+      }
+
+      function nextQuiz() {
+        if (currentQuizIndexInFilter < filteredList.length - 1) {
+          loadQuiz(currentQuizIndexInFilter + 1);
+        } else {
+          loadQuiz(0);
+        }
+      }
+
+      function prevQuiz() {
+        if (currentQuizIndexInFilter > 0) {
+          loadQuiz(currentQuizIndexInFilter - 1);
+        }
+      }
+
+      /* ---------------------------------------------------------
+       * シミュレーター実装（①2集合ベン図＆表 ＆ ②3集合ベン図）
+       * --------------------------------------------------------- */
+      let currentSet2Highlight = "all";
+      let currentSet3Highlight = "all";
+
+      function switchSimMode(mode) {
+        const sec2 = document.getElementById("sim-section-venn2");
+        const sec3 = document.getElementById("sim-section-venn3");
+        const tab2 = document.getElementById("tab-sim-venn2");
+        const tab3 = document.getElementById("tab-sim-venn3");
+
+        if (mode === "venn2") {
+          sec2.classList.remove("hidden");
+          sec3.classList.add("hidden");
+          tab2.className =
+            "px-3 py-1.5 rounded-lg bg-white shadow-xs text-cyan-700 font-black transition";
+          tab3.className =
+            "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
+        } else {
+          sec2.classList.add("hidden");
+          sec3.classList.remove("hidden");
+          tab2.className =
+            "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
+          tab3.className =
+            "px-3 py-1.5 rounded-lg bg-white shadow-xs text-cyan-700 font-black transition";
+          updateVenn3Sim();
+        }
+      }
+
+      // --- ① 2集合ベン図＆キャロット表 ---
+      function onSet2Input(changed) {
+        const uEl = document.getElementById("slider-set-u");
+        const aEl = document.getElementById("slider-set-a");
+        const bEl = document.getElementById("slider-set-b");
+        const abEl = document.getElementById("slider-set-ab");
+
+        let U = parseInt(uEl.value, 10);
+        aEl.max = U;
+        bEl.max = U;
+
+        let A = Math.min(parseInt(aEl.value, 10), U);
+        let B = Math.min(parseInt(bEl.value, 10), U);
+        aEl.value = A;
+        bEl.value = B;
+
+        const minAB = Math.max(0, A + B - U);
+        const maxAB = Math.min(A, B);
+        abEl.min = minAB;
+        abEl.max = maxAB;
+
+        let AB = parseInt(abEl.value, 10);
+        if (AB < minAB) AB = minAB;
+        if (AB > maxAB) AB = maxAB;
+        abEl.value = AB;
+
+        renderSet2(U, A, B, AB, minAB, maxAB);
+      }
+
+      function set2Snap(mode) {
+        const uEl = document.getElementById("slider-set-u");
+        const aEl = document.getElementById("slider-set-a");
+        const bEl = document.getElementById("slider-set-b");
+        const abEl = document.getElementById("slider-set-ab");
+
+        if (mode === "reset") {
+          uEl.value = 100;
+          aEl.max = 100;
+          bEl.max = 100;
+          aEl.value = 60;
+          bEl.value = 50;
+          abEl.min = 10;
+          abEl.max = 50;
+          abEl.value = 25;
+          set2Highlight("all");
+          onSet2Input("reset");
+          return;
+        }
+
+        const U = parseInt(uEl.value, 10);
+        const A = parseInt(aEl.value, 10);
+        const B = parseInt(bEl.value, 10);
+        const minAB = Math.max(0, A + B - U);
+        const maxAB = Math.min(A, B);
+
+        abEl.min = minAB;
+        abEl.max = maxAB;
+        abEl.value = mode === "min" ? minAB : maxAB;
+        onSet2Input("ab");
+      }
+
+      function set2Highlight(mode) {
+        currentSet2Highlight = mode;
+        document.querySelectorAll(".hl2-btn").forEach((btn) => {
+          btn.className =
+            "hl2-btn px-2 py-1 rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 font-bold transition";
+        });
+        const active = document.getElementById(`hl2-${mode}`);
+        if (active) {
+          active.className =
+            "hl2-btn px-2 py-1 rounded-lg bg-slate-800 text-white font-bold transition shadow-xs";
+        }
+        onSet2Input("hl");
+      }
+
+      function renderSet2(U, A, B, AB, minAB, maxAB) {
+        const aOnly = A - AB;
+        const bOnly = B - AB;
+        const union = A + B - AB;
+        const neither = U - union;
+        const xor = aOnly + bOnly;
+
+        document.getElementById("val-set-u").textContent = U;
+        document.getElementById("val-set-a").textContent = A;
+        document.getElementById("val-set-b").textContent = B;
+        document.getElementById("val-set-ab").textContent = AB;
+        document.getElementById("set2-range-badge").textContent =
+          `重なりの可能範囲：最小 ${minAB}人 〜 最大 ${maxAB}人`;
+
+        // キャロット表更新
+        document.getElementById("carroll-ab").textContent = AB;
+        document.getElementById("carroll-anotb").textContent = aOnly;
+        document.getElementById("carroll-a-total").textContent = A;
+        document.getElementById("carroll-notab").textContent = bOnly;
+        document.getElementById("carroll-notanotb").textContent = neither;
+        document.getElementById("carroll-nota-total").textContent = U - A;
+        document.getElementById("carroll-b-total").textContent = B;
+        document.getElementById("carroll-notb-total").textContent = U - B;
+        document.getElementById("carroll-u-total").textContent = U;
+
+        // SVG座標（ABに応じて2円の中心距離を変化）
+        const rA = 74;
+        const rB = 74;
+        let dist = 162; // 完全分離時
+        if (AB > 0) {
+          const ratio = maxAB > 0 ? AB / maxAB : 0;
+          dist = Math.round(122 - ratio * 84); // 122px〜38px
+        }
+        const cxA = Math.round(210 - dist / 2);
+        const cxB = Math.round(210 + dist / 2);
+
+        const cA = document.getElementById("venn2-circle-a");
+        const cB = document.getElementById("venn2-circle-b");
+        const clipA = document.getElementById("clip2-circle-a");
+        const clipB = document.getElementById("clip2-circle-b");
+        const lens = document.getElementById("venn2-both-lens");
+
+        [cA, clipA].forEach((el) => {
+          el.setAttribute("cx", cxA);
+          el.setAttribute("r", rA);
+        });
+        [cB, clipB, lens].forEach((el) => {
+          el.setAttribute("cx", cxB);
+          el.setAttribute("r", rB);
+        });
+
+        // ラベル位置調整
+        const lblA = document.getElementById("venn2-label-a");
+        const lblB = document.getElementById("venn2-label-b");
+        lblA.setAttribute("x", cxA - 28);
+        lblA.textContent = `A (${A})`;
+        lblB.setAttribute("x", cxB + 28);
+        lblB.textContent = `B (${B})`;
+
+        const xAOnly = cxA - (AB > 0 ? 32 : 0);
+        const xBOnly = cxB + (AB > 0 ? 32 : 0);
+        const grpA = document.getElementById("venn2-grp-aonly");
+        const grpB = document.getElementById("venn2-grp-bonly");
+        grpA.querySelectorAll("text").forEach((t) => t.setAttribute("x", xAOnly));
+        grpB.querySelectorAll("text").forEach((t) => t.setAttribute("x", xBOnly));
+
+        document.getElementById("venn2-txt-aonly").textContent = aOnly;
+        document.getElementById("venn2-txt-both").textContent = AB;
+        document.getElementById("venn2-txt-bonly").textContent = bOnly;
+        document.getElementById("venn2-txt-neither").textContent = `外側: ${neither}人`;
+        document.getElementById("venn2-u-top").textContent = `全体 U = ${U}`;
+
+        // ハイライト連動（SVG＋表＋式）
+        const cellAB = document.getElementById("carroll-ab");
+        const cellANotB = document.getElementById("carroll-anotb");
+        const cellNotAB = document.getElementById("carroll-notab");
+        const cellNeither = document.getElementById("carroll-notanotb");
+        const baseCell = "p-2.5 border border-slate-200 font-black text-base transition";
+
+        [cellAB, cellANotB, cellNotAB, cellNeither].forEach((c) => {
+          c.className = baseCell + " bg-white text-slate-800";
+        });
+
+        const neitherBg = document.getElementById("venn2-neither-bg");
+        neitherBg.setAttribute("fill-opacity", "0");
+        cA.setAttribute("fill-opacity", "0.30");
+        cB.setAttribute("fill-opacity", "0.30");
+        lens.setAttribute("fill", "#f43f5e");
+        lens.setAttribute("fill-opacity", AB > 0 ? "0.40" : "0");
+
+        const fTitle = document.getElementById("venn2-formula-title");
+        const fExpr = document.getElementById("venn2-formula-expr");
+        const fRes = document.getElementById("venn2-formula-result");
+
+        const pct = (val) => ((val / U) * 100).toFixed(1);
+
+        if (currentSet2Highlight === "union") {
+          cA.setAttribute("fill-opacity", "0.52");
+          cB.setAttribute("fill-opacity", "0.52");
+          lens.setAttribute("fill-opacity", AB > 0 ? "0.55" : "0");
+          cellAB.className = baseCell + " bg-cyan-100 text-cyan-900 ring-1 ring-inset ring-cyan-400";
+          cellANotB.className = baseCell + " bg-cyan-100 text-cyan-900 ring-1 ring-inset ring-cyan-400";
+          cellNotAB.className = baseCell + " bg-cyan-100 text-cyan-900 ring-1 ring-inset ring-cyan-400";
+          fTitle.textContent = "公式：少なくとも一方 (AまたはB) ＝ A ＋ B − 両方";
+          fExpr.textContent = `${A} ＋ ${B} − ${AB} ＝ ${union}人`;
+          fRes.textContent = `${union}人 (${pct(union)}%)`;
+        } else if (currentSet2Highlight === "both") {
+          cA.setAttribute("fill-opacity", "0.14");
+          cB.setAttribute("fill-opacity", "0.14");
+          lens.setAttribute("fill-opacity", AB > 0 ? "0.78" : "0");
+          cellAB.className = baseCell + " bg-rose-100 text-rose-800 ring-2 ring-inset ring-rose-500";
+          fTitle.textContent = "公式：両方 (AかつB) ＝ A ＋ B − 少なくとも一方";
+          fExpr.textContent = `${A} ＋ ${B} − ${union} ＝ ${AB}人`;
+          fRes.textContent = `${AB}人 (${pct(AB)}%)`;
+        } else if (currentSet2Highlight === "xor") {
+          cA.setAttribute("fill-opacity", "0.52");
+          cB.setAttribute("fill-opacity", "0.52");
+          lens.setAttribute("fill", "#0f172a");
+          lens.setAttribute("fill-opacity", AB > 0 ? "0.82" : "0");
+          cellANotB.className = baseCell + " bg-amber-100 text-amber-900 ring-2 ring-inset ring-amber-500";
+          cellNotAB.className = baseCell + " bg-amber-100 text-amber-900 ring-2 ring-inset ring-amber-500";
+          fTitle.textContent = "公式：どちらか一方だけ ＝ (A−両方) ＋ (B−両方)";
+          fExpr.textContent = `(${A}−${AB}) ＋ (${B}−${AB}) ＝ ${aOnly} ＋ ${bOnly} ＝ ${xor}人`;
+          fRes.textContent = `${xor}人 (${pct(xor)}%)`;
+        } else if (currentSet2Highlight === "neither") {
+          cA.setAttribute("fill-opacity", "0.14");
+          cB.setAttribute("fill-opacity", "0.14");
+          lens.setAttribute("fill-opacity", "0.15");
+          neitherBg.setAttribute("fill-opacity", "0.22");
+          cellNeither.className = baseCell + " bg-amber-100 text-amber-900 ring-2 ring-inset ring-amber-500";
+          fTitle.textContent = "公式：どちらでもない（外側）＝ 全体 − 少なくとも一方";
+          fExpr.textContent = `${U} − (${A} ＋ ${B} − ${AB}) ＝ ${U} − ${union} ＝ ${neither}人`;
+          fRes.textContent = `${neither}人 (${pct(neither)}%)`;
+        } else {
+          fTitle.textContent = "公式：少なくとも一方 (AまたはB) ＝ A ＋ B − 両方";
+          fExpr.textContent = `${A} ＋ ${B} − ${AB} ＝ ${union}人 （外側: ${neither}人）`;
+          fRes.textContent = `一方 ${union}人 / 外側 ${neither}人`;
+        }
+      }
+
+      // --- ② 3集合ベン図＆包除原理 ---
+      function presetVenn3(name) {
+        const presets = {
+          cafe: { u: 200, abc: 10, ab: 20, bc: 10, ca: 15, a: 60, b: 35, c: 25 },
+          video: { u: 240, abc: 15, ab: 25, bc: 15, ca: 20, a: 60, b: 45, c: 30 },
+          sport: { u: 180, abc: 14, ab: 34, bc: 20, ca: 26, a: 28, b: 22, c: 16 },
+        };
+        const p = presets[name];
+        if (!p) return;
+        document.getElementById("s3-abc").value = p.abc;
+        document.getElementById("s3-ab").value = p.ab;
+        document.getElementById("s3-bc").value = p.bc;
+        document.getElementById("s3-ca").value = p.ca;
+        document.getElementById("s3-a").value = p.a;
+        document.getElementById("s3-b").value = p.b;
+        document.getElementById("s3-c").value = p.c;
+        document.getElementById("s3-u").value = p.u;
+        updateVenn3Sim();
+      }
+
+      function set3Highlight(mode) {
+        currentSet3Highlight = mode;
+        document.querySelectorAll(".hl3-btn").forEach((btn) => {
+          btn.className =
+            "hl3-btn px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold transition";
+        });
+        const active = document.getElementById(`hl3-${mode}`);
+        if (active) {
+          active.className =
+            "hl3-btn px-2.5 py-1 rounded-lg bg-slate-800 text-white font-bold transition shadow-xs";
+        }
+        updateVenn3Sim();
+      }
+
+      function updateVenn3Sim() {
+        const abc = parseInt(document.getElementById("s3-abc").value, 10);
+        const abOnly = parseInt(document.getElementById("s3-ab").value, 10);
+        const bcOnly = parseInt(document.getElementById("s3-bc").value, 10);
+        const caOnly = parseInt(document.getElementById("s3-ca").value, 10);
+        const aOnly = parseInt(document.getElementById("s3-a").value, 10);
+        const bOnly = parseInt(document.getElementById("s3-b").value, 10);
+        const cOnly = parseInt(document.getElementById("s3-c").value, 10);
+
+        const union3 = aOnly + bOnly + cOnly + abOnly + bcOnly + caOnly + abc;
+        const uSlider = document.getElementById("s3-u");
+        uSlider.min = Math.max(50, union3);
+        let U = parseInt(uSlider.value, 10);
+        if (U < union3) {
+          U = union3;
+          uSlider.value = U;
+        }
+        const outside = U - union3;
+
+        // スライダー値ラベル
+        document.getElementById("val-v3-abc").textContent = abc;
+        document.getElementById("val-v3-ab").textContent = abOnly;
+        document.getElementById("val-v3-bc").textContent = bcOnly;
+        document.getElementById("val-v3-ca").textContent = caOnly;
+        document.getElementById("val-v3-a").textContent = aOnly;
+        document.getElementById("val-v3-b").textContent = bOnly;
+        document.getElementById("val-v3-c").textContent = cOnly;
+        document.getElementById("val-v3-u").textContent = U;
+        document.getElementById("venn3-u-top").textContent = `全体 U = ${U}`;
+
+        // SVGテキスト更新
+        document.getElementById("v3-txt-a").textContent = aOnly;
+        document.getElementById("v3-txt-b").textContent = bOnly;
+        document.getElementById("v3-txt-c").textContent = cOnly;
+        document.getElementById("v3-txt-ab").textContent = abOnly;
+        document.getElementById("v3-txt-bc").textContent = bcOnly;
+        document.getElementById("v3-txt-ca").textContent = caOnly;
+        document.getElementById("v3-txt-abc").textContent = abc;
+        document.getElementById("v3-txt-outside").textContent = `外側: ${outside}`;
+
+        // 問題文換算
+        const nA = aOnly + abOnly + caOnly + abc;
+        const nB = bOnly + abOnly + bcOnly + abc;
+        const nC = cOnly + bcOnly + caOnly + abc;
+        const nAB = abOnly + abc;
+        const nBC = bcOnly + abc;
+        const nCA = caOnly + abc;
+
+        document.getElementById("v3-summary-line1").textContent =
+          `A=${nA}, B=${nB}, C=${nC}, 全体=${U}`;
+        document.getElementById("v3-summary-line2").textContent =
+          `A∩B=${nAB}, B∩C=${nBC}, C∩A=${nCA}, 全部=${abc}`;
+
+        // ハイライトバッジ強調
+        const badgeIds = {
+          a: "v3-badge-a",
+          b: "v3-badge-b",
+          c: "v3-badge-c",
+          ab: "v3-badge-ab",
+          bc: "v3-badge-bc",
+          ca: "v3-badge-ca",
+          abc: "v3-badge-abc",
+          outside: "v3-badge-outside",
+        };
+        const activeKeys = {
+          all: ["a", "b", "c", "ab", "bc", "ca", "abc", "outside"],
+          only1: ["a", "b", "c"],
+          only2: ["ab", "bc", "ca"],
+          only3: ["abc"],
+          union: ["a", "b", "c", "ab", "bc", "ca", "abc"],
+          outside: ["outside"],
+        }[currentSet3Highlight];
+
+        Object.entries(badgeIds).forEach(([k, id]) => {
+          const g = document.getElementById(id);
+          if (!g) return;
+          const isOn = activeKeys.includes(k);
+          g.setAttribute("opacity", isOn ? "1" : "0.25");
+          const rect = g.querySelector("rect");
+          if (rect) {
+            rect.setAttribute("stroke-width", isOn && currentSet3Highlight !== "all" ? "2.5" : "1.5");
+          }
+        });
+
+        // 式と結果表示
+        const tEl = document.getElementById("v3-formula-title");
+        const eEl = document.getElementById("v3-formula-expr");
+        const rEl = document.getElementById("v3-formula-result");
+
+        if (currentSet3Highlight === "only1") {
+          const res = aOnly + bOnly + cOnly;
+          tEl.textContent = "1種類だけ ＝ Aのみ ＋ Bのみ ＋ Cのみ";
+          eEl.textContent = `${aOnly} ＋ ${bOnly} ＋ ${cOnly} ＝ ${res}人`;
+          rEl.textContent = `${res}人`;
+        } else if (currentSet3Highlight === "only2") {
+          const res = abOnly + bcOnly + caOnly;
+          tEl.textContent = "ちょうど2つだけ ＝ (AB＋BC＋CA) − 3×全部";
+          eEl.textContent = `(${nAB}＋${nBC}＋${nCA}) − 3×${abc} ＝ ${res}人`;
+          rEl.textContent = `${res}人`;
+        } else if (currentSet3Highlight === "only3") {
+          tEl.textContent = "3つすべて (A∩B∩C)";
+          eEl.textContent = `中央重なり部分 ＝ ${abc}人`;
+          rEl.textContent = `${abc}人`;
+        } else if (currentSet3Highlight === "outside") {
+          tEl.textContent = "どれでもない（外側）＝ 全体 − 少なくとも1つ";
+          eEl.textContent = `${U} − ${union3} ＝ ${outside}人`;
+          rEl.textContent = `${outside}人`;
+        } else {
+          tEl.textContent = "包除原理：少なくとも1つ (A∪B∪C)";
+          eEl.textContent = `(${nA}＋${nB}＋${nC}) − (${nAB}＋${nBC}＋${nCA}) ＋ ${abc} ＝ ${union3}人`;
+          rEl.textContent = `${union3}人（外側 ${outside}人）`;
+        }
+      }
+
+      // --- ページ初期化 ---
+      window.addEventListener("DOMContentLoaded", () => {
+        onSet2Input("init");
+        updateVenn3Sim();
+        filterQuiz("all");
+      });
+    </script>
+  </body>
+</html>
