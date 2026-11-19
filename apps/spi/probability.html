@@ -1,0 +1,2298 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>確率の巻 〜同時・連続・余事象・くじ引き〜</title>
+
+    <!-- Tailwind CSS & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700;800&display=swap");
+      body {
+        font-family: "Noto Sans JP", sans-serif;
+      }
+      .font-mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+      /* 蛍光ペン風マーカー */
+      .marker-yellow {
+        background: #fef08a;
+        padding: 0 4px;
+        border-radius: 2px;
+        font-weight: 800;
+        color: #1e293b;
+      }
+      .marker-red {
+        color: #dc2626;
+        font-weight: 800;
+      }
+      /* モバイル横スクロールバー非表示用 */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      /* スムーズスクロール & 固定ヘッダー分の余白確保（見切れ防止） */
+      html {
+        scroll-behavior: smooth;
+      }
+      section[id] {
+        scroll-margin-top: 4.5rem;
+      }
+      @media (min-width: 640px) {
+        section[id] {
+          scroll-margin-top: 5.25rem;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between"
+  >
+    <!-- =========================================================
+       ヘッダー（スマホ対応・横スワイプナビ）
+       ========================================================= -->
+    <header
+      class="bg-gradient-to-r from-blue-600 via-sky-600 to-blue-700 text-white shadow-md sticky top-0 z-50"
+    >
+      <div
+        class="max-w-5xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-4"
+      >
+        <!-- タイトルとポータルへのリンク -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5 sm:gap-3">
+            <a
+              href="index.html"
+              class="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition flex items-center gap-1.5 shrink-0 border border-white/20"
+              title="ポータルへ戻る"
+            >
+              <i class="fa-solid fa-house"></i>
+              <span class="hidden sm:inline">ポータルへ</span>
+            </a>
+            <div>
+              <div class="flex items-center gap-2">
+                <span
+                  class="bg-yellow-400 text-slate-900 font-black text-[10px] px-2 py-0.5 rounded"
+                  >非言語</span
+                >
+                <span class="text-yellow-200 text-xs">
+                  <i class="fa-solid fa-star"></i
+                  ><i class="fa-solid fa-star"></i
+                  ><i class="fa-solid fa-star"></i>
+                  <span class="text-[10px] text-white/80 ml-0.5"
+                    >頻出度: 超重要</span
+                  >
+                </span>
+              </div>
+              <h1
+                class="font-black text-base sm:text-lg tracking-tight text-white leading-tight"
+              >
+                <span>確率の巻</span>
+                <span
+                  class="text-xs font-normal text-sky-100 whitespace-nowrap block sm:inline sm:ml-1.5"
+                  >〜同時・連続・余事象・くじ引き〜</span
+                >
+              </h1>
+            </div>
+          </div>
+
+          <!-- モバイル用ショートカット（クイズへ直行） -->
+          <a
+            href="#quiz"
+            class="sm:hidden text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 py-1.5 rounded-lg transition shadow shrink-0 flex items-center gap-1"
+          >
+            <i class="fa-solid fa-pen-to-square"></i> 実戦15問
+          </a>
+        </div>
+
+        <!-- セクション移動ナビゲーション（モバイル横スワイプ対応） -->
+        <nav
+          class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0 w-full sm:w-auto text-xs font-bold"
+        >
+          <a
+            href="index.html"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/10 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center flex items-center gap-1"
+          >
+            <i class="fa-solid fa-house text-[10px] text-yellow-300"></i>
+            <span>単元一覧</span>
+          </a>
+          <a
+            href="#formula"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center"
+          >
+            <span
+              class="text-[9px] sm:text-[10px] text-yellow-300 block leading-tight font-extrabold"
+              >まずはここから</span
+            >3大原則
+          </a>
+          <a
+            href="#concept"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center"
+          >
+            <span
+              class="text-[9px] sm:text-[10px] text-emerald-300 block leading-tight font-extrabold"
+              >図解＆本質</span
+            >考え方
+          </a>
+          <a
+            href="#unit-cheat-sheet"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition shadow-sm text-center"
+          >
+            <span
+              class="text-[9px] sm:text-[10px] text-red-600 block leading-tight font-black"
+              >ズバリ！</span
+            >即答のコツ
+          </a>
+          <a
+            href="#simulator"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center"
+          >
+            <span
+              class="text-[9px] sm:text-[10px] text-sky-200 block leading-tight font-extrabold"
+              >動く実験</span
+            >シミュレーター
+          </a>
+          <a
+            href="#patterns"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-white/15 hover:bg-white/25 text-white font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition text-center"
+          >
+            <span
+              class="text-[9px] sm:text-[10px] text-purple-300 block leading-tight font-extrabold"
+              >全5型</span
+            >解法まとめ
+          </a>
+          <a
+            href="#quiz"
+            class="whitespace-nowrap shrink-0 text-[11px] sm:text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition shadow-sm text-center hidden sm:flex items-center gap-1"
+          >
+            <i class="fa-solid fa-fire text-red-600"></i>
+            <span>実戦15問</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- =========================================================
+       メインコンテンツ
+       ========================================================= -->
+    <main
+      class="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-6 sm:space-y-8 flex-1 w-full"
+    >
+      <!-- 1. 【公式・基本ルールの確認】 -->
+      <section
+        id="formula"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200"
+      >
+        <div
+          class="text-sky-700 font-bold text-xs mb-1 flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-bookmark"></i> セクション 1：公式・3大原則
+        </div>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-3">
+          確率の基本定義と3大原則
+        </h2>
+
+        <!-- メイン公式強調ボックス -->
+        <div class="bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 border-2 border-sky-200 rounded-2xl p-4 sm:p-6 mb-4 shadow-xs">
+          <div class="text-center space-y-3">
+            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-sky-800 bg-sky-200/80 px-3 py-1 rounded-full">
+              <i class="fa-solid fa-sparkles text-amber-500"></i> SPI最重要！確率の根本ルール
+            </span>
+            
+            <!-- ビジュアル分数ブロック（フォント美化・直感分数デザイン） -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 py-2">
+              <div class="flex items-center gap-2 text-xl sm:text-2xl font-black text-slate-900">
+                <span>確率</span>
+                <span class="text-sky-600 font-mono text-2xl sm:text-3xl font-extrabold">P</span>
+                <span class="text-slate-400 font-light">＝</span>
+              </div>
+
+              <!-- 分数ビジュアルカード -->
+              <div class="inline-flex flex-col items-center min-w-[240px] sm:min-w-[280px]">
+                <!-- 分子（上） -->
+                <div class="w-full px-4 py-2 rounded-xl bg-purple-100 text-purple-900 font-bold text-sm sm:text-base border border-purple-200 shadow-2xs flex items-center justify-center gap-2 whitespace-nowrap">
+                  <i class="fa-solid fa-bullseye text-purple-600 text-xs"></i>
+                  <span>条件に合う場合の数</span>
+                  <span class="text-xs text-purple-700 font-normal">（目当ての数）</span>
+                </div>
+                <!-- 分数線 -->
+                <div class="w-full h-1 bg-slate-700 rounded-full my-1.5"></div>
+                <!-- 分母（下） -->
+                <div class="w-full px-4 py-2 rounded-xl bg-rose-100 text-rose-900 font-bold text-sm sm:text-base border border-rose-200 shadow-2xs flex items-center justify-center gap-2 whitespace-nowrap">
+                  <i class="fa-solid fa-globe text-red-600 text-xs"></i>
+                  <span>すべての場合の数</span>
+                  <span class="text-xs text-rose-700 font-normal">（全体の数）</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 直感ひとこと補足 -->
+            <p class="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto pt-1 leading-relaxed">
+              確率は常に <span class="font-mono font-bold text-slate-800">0 ≦ P ≦ 1</span>（0%〜100%）。<br class="hidden sm:inline">
+              公式の文字を覚える必要はありません！<strong class="text-slate-800 font-bold">「下（分母）＝全体の数」</strong>、<strong class="text-purple-700 font-bold">「上（分子）＝目当ての数」</strong> を数えて分数の形にするだけで解けます。
+            </p>
+          </div>
+        </div>
+
+        <!-- 3大原則カード -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
+          <!-- 原則1 -->
+          <div
+            class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5"
+          >
+            <div class="font-bold text-slate-800 flex items-center gap-1.5">
+              <span
+                class="w-5 h-5 rounded-full bg-blue-600 text-white font-black text-[11px] flex items-center justify-center"
+                >1</span
+              >
+              <span>積の法則（かつ・連続）</span>
+            </div>
+            <div
+              class="font-mono text-purple-700 font-bold text-xs bg-white p-2 rounded border border-slate-200"
+            >
+              P(A かつ B) ＝ P(A) × P(B)
+            </div>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              「続けて起こる」「同時に起こる」ときは<strong>確率を掛け算</strong>します（例：1回目も2回目も表）。
+            </p>
+          </div>
+
+          <!-- 原則2 -->
+          <div
+            class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5"
+          >
+            <div class="font-bold text-slate-800 flex items-center gap-1.5">
+              <span
+                class="w-5 h-5 rounded-full bg-emerald-600 text-white font-black text-[11px] flex items-center justify-center"
+                >2</span
+              >
+              <span>和の法則（または・排反）</span>
+            </div>
+            <div
+              class="font-mono text-emerald-700 font-bold text-xs bg-white p-2 rounded border border-slate-200"
+            >
+              P(A または B) ＝ P(A) ＋ P(B)
+            </div>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              「どちらか一方のみ起こる（同時には起こり得ない）」ときは<strong>確率を足し算</strong>します。
+            </p>
+          </div>
+
+          <!-- 原則3 -->
+          <div
+            class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5"
+          >
+            <div class="font-bold text-slate-800 flex items-center gap-1.5">
+              <span
+                class="w-5 h-5 rounded-full bg-rose-600 text-white font-black text-[11px] flex items-center justify-center"
+                >3</span
+              >
+              <span>余事象（少なくとも〜）</span>
+            </div>
+            <div
+              class="font-mono text-rose-700 font-bold text-xs bg-white p-2 rounded border border-slate-200"
+            >
+              P(A) ＝ 1 − P(Aが起こらない)
+            </div>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              「少なくとも1回は〜」の超頻出キーワードが出たら、<strong
+                >「1 − 全滅の確率」</strong
+              >で即答！
+            </p>
+          </div>
+        </div>
+
+        <!-- 頻出早見表（サイコロ・コイン・トランプの全事象） -->
+        <div class="mt-4 p-3.5 bg-sky-50/60 rounded-xl border border-sky-100">
+          <div
+            class="text-xs font-bold text-sky-900 mb-2 flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-table-list text-sky-600"></i>
+            <span>試験本番で暗記しておくべき「全事象の分母」早見表</span>
+          </div>
+          <div
+            class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs"
+          >
+            <div
+              class="bg-white p-2.5 rounded-lg border border-sky-200 shadow-2xs"
+            >
+              <div class="text-slate-400 text-[10px]">サイコロ2個</div>
+              <div
+                class="font-mono font-bold text-slate-800 text-xs sm:text-sm"
+              >
+                6 × 6 ＝ 36通り
+              </div>
+            </div>
+            <div
+              class="bg-white p-2.5 rounded-lg border border-sky-200 shadow-2xs"
+            >
+              <div class="text-slate-400 text-[10px]">コイン3枚</div>
+              <div
+                class="font-mono font-bold text-slate-800 text-xs sm:text-sm"
+              >
+                2³ ＝ 8通り
+              </div>
+            </div>
+            <div
+              class="bg-white p-2.5 rounded-lg border border-sky-200 shadow-2xs"
+            >
+              <div class="text-slate-400 text-[10px]">コイン4枚</div>
+              <div
+                class="font-mono font-bold text-slate-800 text-xs sm:text-sm"
+              >
+                2⁴ ＝ 16通り
+              </div>
+            </div>
+            <div
+              class="bg-white p-2.5 rounded-lg border border-sky-200 shadow-2xs"
+            >
+              <div class="text-slate-400 text-[10px]">トランプ（JOKER除）</div>
+              <div
+                class="font-mono font-bold text-slate-800 text-xs sm:text-sm"
+              >
+                計52枚（4種×13枚）
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. 【考え方の本質・図解】 -->
+      <section
+        id="concept"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200"
+      >
+        <div
+          class="text-sky-700 font-bold text-xs mb-1 flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-lightbulb text-amber-500"></i> セクション
+          2：考え方の本質・図解
+        </div>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">
+          直感で納得！確率がスッキリ解ける視覚的イメージ
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed">
+          公式を機械的に当てはめるのではなく、「全体の中でどの割合を占めているか」を頭の中に思い描くことで、SPI独特のひっかけ問題にも動じなくなります。
+        </p>
+
+        <!-- 3つのステップ図解 -->
+        <div class="space-y-3">
+          <!-- ステップ1 -->
+          <div
+            class="p-4 rounded-xl bg-amber-50/70 border border-amber-200 flex flex-col sm:flex-row sm:items-start gap-3"
+          >
+            <div
+              class="w-7 h-7 rounded-full bg-amber-500 text-white font-black text-xs flex items-center justify-center shrink-0"
+            >
+              1
+            </div>
+            <div class="space-y-1.5 flex-1">
+              <h3 class="font-bold text-slate-900 text-sm">
+                「同時に・続けて」はなぜ掛け算（積）なのか？
+              </h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                1つ目の選択肢が分岐したあとに、その<strong>それぞれの枝からさらに2つ目の選択肢が枝分かれ</strong>する樹形図の構造だからです。「1/2
+                のうちのさらに 1/3」＝ 分数の掛け算になります。
+              </p>
+              <div
+                class="p-2.5 bg-white rounded-lg border border-amber-200 text-xs font-mono text-slate-800 flex flex-wrap items-center gap-2"
+              >
+                <span class="text-amber-800 font-bold"
+                  >例: コイン表(1/2) かつ サイコロ偶数(3/6)</span
+                >
+                <span class="text-slate-400">➔</span>
+                <span class="font-bold text-purple-700"
+                  >1/2 × 1/2 ＝ 1/4（25%）</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- ステップ2 -->
+          <div
+            class="p-4 rounded-xl bg-sky-50/70 border border-sky-200 flex flex-col sm:flex-row sm:items-start gap-3"
+          >
+            <div
+              class="w-7 h-7 rounded-full bg-sky-600 text-white font-black text-xs flex items-center justify-center shrink-0"
+            >
+              2
+            </div>
+            <div class="space-y-1.5 flex-1">
+              <h3 class="font-bold text-slate-900 text-sm">
+                「戻す（復元）」と「戻さない（非復元）」の決定的な違い
+              </h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                袋から玉やカードを取り出すとき、戻さない場合は<strong>「全体の個数（分母）」と「対象の個数（分子）」の両方が1つ減る</strong>点に注意しましょう！
+              </p>
+              <div
+                class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono pt-1"
+              >
+                <div class="p-2 bg-white rounded-lg border border-sky-200">
+                  <span class="text-[11px] font-bold text-sky-800 block"
+                    >【戻す場合】（条件が変わらない）</span
+                  >
+                  <span class="text-slate-700"
+                    >1回目: 3/10 ➔ 2回目: 3/10 ＝ 9/100</span
+                  >
+                </div>
+                <div class="p-2 bg-white rounded-lg border border-red-200">
+                  <span class="text-[11px] font-bold text-red-800 block"
+                    >【戻さない場合】（分母も分子も−1）</span
+                  >
+                  <span class="text-red-700 font-bold"
+                    >1回目: 3/10 ➔ 2回目: 2/9 ＝ 6/90 ＝ 1/15</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ステップ3 -->
+          <div
+            class="p-4 rounded-xl bg-rose-50/70 border border-rose-200 flex flex-col sm:flex-row sm:items-start gap-3"
+          >
+            <div
+              class="w-7 h-7 rounded-full bg-rose-600 text-white font-black text-xs flex items-center justify-center shrink-0"
+            >
+              3
+            </div>
+            <div class="space-y-1.5 flex-1">
+              <h3 class="font-bold text-slate-900 text-sm">
+                余事象：「少なくとも1つ」は外側を削るイメージ
+              </h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                「少なくとも1つ当たる」とは、「1個当たり」「2個当たり」「3個当たり」の合計です。これを1つずつ数えるより、全体（100%=1）から<strong>唯一の仲間はずれである「全滅（0個当たり）」を削る</strong>ほうが10倍速く解けます！
+              </p>
+              <div
+                class="p-2.5 bg-white rounded-lg border border-rose-200 text-xs font-mono text-slate-800 flex flex-wrap items-center gap-2"
+              >
+                <span class="text-rose-800 font-bold"
+                  >全体(1) − すべてハズレ(ハズレ×ハズレ)</span
+                >
+                <span class="text-slate-400">➔</span>
+                <span class="font-bold text-rose-600"
+                  >一撃で「少なくとも1つ当たる確率」！</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. 【ズバリ！ 確率のコツ（即答テンプレート）】 -->
+      <section
+        id="unit-cheat-sheet"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-6 shadow-sm relative overflow-hidden"
+      >
+        <div
+          class="text-amber-800 font-bold text-xs mb-1 flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-bolt text-amber-500"></i> セクション 3：ズバリ！
+          【暗算＆即答のコツ】
+        </div>
+        <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-2">
+          SPI本番で1問40秒以内に即答するための3大時短テクニック
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed mb-4">
+          SPIのテストセンターでは1問あたり約1分しかありません。<strong class="text-rose-700 font-bold">難しい高校数学の公式（Cの組み合わせ計算など）は一切不要！</strong> 直感的な「分数のかけ算」と「引き算（余事象）」だけで全問解く裏ワザを整理しました。
+        </p>
+
+        <!-- 3大テクニックカード -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
+          <!-- コツ1 -->
+          <div
+            class="p-3.5 bg-white rounded-xl border border-amber-200 shadow-2xs space-y-2"
+          >
+            <span
+              class="font-bold text-amber-900 block flex items-center gap-1.5"
+            >
+              <i class="fa-solid fa-backward-fast text-amber-600"></i>
+              コツ①：「少なくとも」は逆から攻める！
+            </span>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              問題文に「少なくとも」の文字が見えた瞬間に、指を折って数えるのをやめ、<strong
+                class="text-red-600"
+                >「1 − 全滅」</strong
+              >の式をノートに書きましょう。
+            </p>
+            <div
+              class="p-2.5 bg-amber-50 rounded-lg border border-amber-200 font-mono text-amber-950 text-[11px] space-y-1"
+            >
+              <div class="font-bold text-amber-900">
+                【例：コイン3枚で少なくとも1枚表】
+              </div>
+              <div>全滅（すべて裏）＝ 1/2 × 1/2 × 1/2 ＝ 1/8</div>
+              <div class="font-bold text-red-600">
+                ➔ 1 − 1/8 ＝ 7/8（即答！）
+              </div>
+            </div>
+          </div>
+
+          <!-- コツ2 -->
+          <div
+            class="p-3.5 bg-white rounded-xl border border-amber-200 shadow-2xs space-y-2"
+          >
+            <span
+              class="font-bold text-sky-900 block flex items-center gap-1.5"
+            >
+              <i class="fa-solid fa-ticket text-sky-600"></i>
+              コツ②：くじ引きは「何番目でも確率は平等」！
+            </span>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              「5本中2本当たりのくじをAが引き、次にBが引く。Bが当たる確率は？」という問題は、<strong
+                class="text-sky-700"
+                >Aと同じ 2/5</strong
+              >
+              です！
+            </p>
+            <div
+              class="p-2.5 bg-sky-50 rounded-lg border border-sky-200 font-mono text-sky-950 text-[11px] space-y-1"
+            >
+              <div class="font-bold text-sky-900">【くじ引きの超定理】</div>
+              <div>
+                戻さずに順次引く場合、1人目も2人目も最後の人も当たる確率は完全に同一！
+              </div>
+              <div class="font-bold text-sky-700">
+                ➔ 計算不要で 2/5 と即答！
+              </div>
+            </div>
+          </div>
+
+          <!-- コツ3 -->
+          <div
+            class="p-3.5 bg-white rounded-xl border border-amber-200 shadow-2xs space-y-2"
+          >
+            <span
+              class="font-bold text-emerald-900 block flex items-center gap-1.5"
+            >
+              <i class="fa-solid fa-layer-group text-emerald-600"></i>
+              コツ③：玉の同時取り出しは「分数のかけ算」でOK！
+            </span>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              「袋から同時に2個取り出す」は、難しい組み合わせ公式を使わず「1個ずつ続けて取り出す（戻さない）」と考えれば分数のかけ算で一発解決！
+            </p>
+            <div
+              class="p-2.5 bg-emerald-50 rounded-lg border border-emerald-200 font-mono text-emerald-950 text-[11px] space-y-1"
+            >
+              <div class="font-bold text-emerald-900">
+                【例：10個中赤3個から2個取り出し】
+              </div>
+              <div>1個目赤(3/10) × 2個目赤(2/9)</div>
+              <div class="font-bold text-emerald-700">
+                ➔ 6/90 ＝ 1/15！（暗算10秒！）
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 難しいC公式を追放！直感ペア計算早見ミニカード -->
+        <div class="mt-4 p-3.5 bg-white rounded-xl border border-amber-300 shadow-2xs">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="px-2 py-0.5 rounded bg-amber-500 text-white font-black text-[10px]">かんたん暗算</span>
+            <h4 class="font-bold text-slate-800 text-xs sm:text-sm">
+              「〇人から2人選ぶ」も公式不要！【上を2つ掛けて ÷ 2】するだけ！
+            </h4>
+          </div>
+          <p class="text-xs text-slate-600 mb-2.5 leading-relaxed">
+            高校数学の組み合わせ公式「C」を覚える必要は一切ありません！「人数 × 1個減らした数 ÷ 2」で一瞬です。
+          </p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs font-mono">
+            <div class="p-2 bg-amber-50/70 rounded-lg border border-amber-200">
+              <span class="text-[10px] text-slate-500 block">4人から2人</span>
+              <span class="font-bold text-slate-800">4×3 ÷ 2 ＝ </span>
+              <span class="font-black text-amber-700">6通り</span>
+            </div>
+            <div class="p-2 bg-amber-50/70 rounded-lg border border-amber-200">
+              <span class="text-[10px] text-slate-500 block">5人から2人</span>
+              <span class="font-bold text-slate-800">5×4 ÷ 2 ＝ </span>
+              <span class="font-black text-amber-700">10通り</span>
+            </div>
+            <div class="p-2 bg-amber-50/70 rounded-lg border border-amber-200">
+              <span class="text-[10px] text-slate-500 block">6人から2人</span>
+              <span class="font-bold text-slate-800">6×5 ÷ 2 ＝ </span>
+              <span class="font-black text-amber-700">15通り</span>
+            </div>
+            <div class="p-2 bg-amber-50/70 rounded-lg border border-amber-200">
+              <span class="text-[10px] text-slate-500 block">7人から2人</span>
+              <span class="font-bold text-slate-800">7×6 ÷ 2 ＝ </span>
+              <span class="font-black text-amber-700">21通り</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. 【動くシミュレーター（サイコロマトリクス ＆ 玉取り出し）】 -->
+      <section
+        id="simulator"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200"
+      >
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2 mb-4"
+        >
+          <div>
+            <span
+              class="text-xs font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 flex items-center gap-1.5 w-fit"
+            >
+              <i class="fa-solid fa-sliders text-sky-600"></i> セクション
+              4：シミュレーター
+            </span>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 mt-1">
+              確率インタラクティブ・ビジュアル実験室
+            </h2>
+          </div>
+
+          <!-- モード切り替えタブ -->
+          <div
+            class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold"
+          >
+            <button
+              id="tab-sim-dice"
+              onclick="switchSimMode('dice')"
+              class="px-3 py-1.5 rounded-lg bg-white shadow-xs text-sky-700 font-black transition"
+            >
+              <i class="fa-solid fa-dice"></i> ① サイコロ2個マトリクス
+            </button>
+            <button
+              id="tab-sim-balls"
+              onclick="switchSimMode('balls')"
+              class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition"
+            >
+              <i class="fa-solid fa-circle-dot"></i> ② 玉取り出し実験
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= ① サイコロ2個マトリクス ================= -->
+        <div id="sim-section-dice" class="space-y-4">
+          <!-- 説明テキスト -->
+          <div
+            class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-center justify-between"
+          >
+            <div>
+              <strong>【サイコロ2個の全36通り】</strong>
+              条件を選ぶと、該当するマスがハイライトされ、確率がリアルタイムに計算されます。
+            </div>
+            <div
+              id="dice-stat-badge"
+              class="px-2.5 py-1 rounded bg-sky-600 text-white font-mono font-bold text-xs shrink-0 ml-2"
+            >
+              該当: 0 / 36 (0%)
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+            <!-- 左側: 6x6 グリッド盤面 -->
+            <div
+              class="md:col-span-7 bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-800 shadow-inner flex flex-col items-center"
+            >
+              <div
+                class="text-[11px] text-slate-400 font-bold mb-2 flex items-center gap-2"
+              >
+                <span class="text-sky-400"
+                  ><i class="fa-solid fa-arrow-right"></i>
+                  横：サイコロAの目</span
+                >
+                <span class="text-purple-400"
+                  ><i class="fa-solid fa-arrow-down"></i>
+                  縦：サイコロBの目</span
+                >
+              </div>
+
+              <!-- グリッドテーブル -->
+              <div
+                class="w-full max-w-[320px] aspect-square grid grid-cols-7 gap-1 text-center font-mono text-xs"
+              >
+                <!-- 空白角 -->
+                <div
+                  class="flex items-center justify-center font-bold text-slate-500 text-[10px]"
+                >
+                  A＼B
+                </div>
+                <!-- Aの目見出し (1〜6) -->
+                <div
+                  class="flex items-center justify-center font-bold text-sky-300 bg-slate-800/80 rounded"
+                >
+                  1
+                </div>
+                <div
+                  class="flex items-center justify-center font-bold text-sky-300 bg-slate-800/80 rounded"
+                >
+                  2
+                </div>
+                <div
+                  class="flex items-center justify-center font-bold text-sky-300 bg-slate-800/80 rounded"
+                >
+                  3
+                </div>
+                <div
+                  class="flex items-center justify-center font-bold text-sky-300 bg-slate-800/80 rounded"
+                >
+                  4
+                </div>
+                <div
+                  class="flex items-center justify-center font-bold text-sky-300 bg-slate-800/80 rounded"
+                >
+                  5
+                </div>
+                <div
+                  class="flex items-center justify-center font-bold text-sky-300 bg-slate-800/80 rounded"
+                >
+                  6
+                </div>
+
+                <!-- 6行分を動的生成 -->
+                <div id="dice-matrix-container" class="contents">
+                  <!-- JSで動的に36マス生成 -->
+                </div>
+              </div>
+
+              <div class="mt-3 text-[10px] text-slate-400 text-center">
+                ※マス内の数字は「目の合計値」を表示しています
+              </div>
+            </div>
+
+            <!-- 右側: 条件設定パネル -->
+            <div
+              class="md:col-span-5 p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-4"
+            >
+              <div
+                class="text-xs font-bold text-slate-700 border-b border-slate-200 pb-2 flex items-center justify-between"
+              >
+                <span
+                  ><i class="fa-solid fa-filter text-sky-600"></i>
+                  条件フィルターの選択</span
+                >
+                <button
+                  onclick="resetDiceFilter()"
+                  class="text-[10px] text-slate-500 hover:text-slate-800 underline"
+                >
+                  リセット
+                </button>
+              </div>
+
+              <!-- 条件ラジオボタン群 -->
+              <div class="space-y-2 text-xs">
+                <label
+                  class="flex items-center gap-2 p-2 rounded-lg bg-white border border-slate-200 cursor-pointer hover:bg-sky-50 transition"
+                >
+                  <input
+                    type="radio"
+                    name="dice-cond"
+                    value="sum"
+                    checked
+                    onchange="updateDiceSim()"
+                    class="accent-sky-600"
+                  />
+                  <span class="font-bold text-slate-800"
+                    >目の和（合計）を指定</span
+                  >
+                </label>
+
+                <!-- 和のスライダー -->
+                <div id="dice-sum-control" class="pl-6 space-y-1">
+                  <div class="flex justify-between font-mono font-bold text-xs">
+                    <span class="text-slate-600">合計値:</span>
+                    <span
+                      id="dice-sum-val"
+                      class="text-sky-700 font-black text-sm"
+                      >7</span
+                    >
+                  </div>
+                  <input
+                    type="range"
+                    id="dice-sum-slider"
+                    min="2"
+                    max="12"
+                    value="7"
+                    step="1"
+                    oninput="updateDiceSim()"
+                    class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600"
+                  />
+                  <div class="flex justify-between text-[9px] text-slate-400">
+                    <span>2 (最小)</span>
+                    <span class="text-sky-600 font-bold">7 (最多6通り)</span>
+                    <span>12 (最大)</span>
+                  </div>
+                </div>
+
+                <label
+                  class="flex items-center gap-2 p-2 rounded-lg bg-white border border-slate-200 cursor-pointer hover:bg-sky-50 transition"
+                >
+                  <input
+                    type="radio"
+                    name="dice-cond"
+                    value="prod-even"
+                    onchange="updateDiceSim()"
+                    class="accent-sky-600"
+                  />
+                  <span class="font-bold text-slate-800">目の積が「偶数」</span>
+                  <span class="text-[10px] text-amber-700 font-bold ml-auto"
+                    >余事象！</span
+                  >
+                </label>
+
+                <label
+                  class="flex items-center gap-2 p-2 rounded-lg bg-white border border-slate-200 cursor-pointer hover:bg-sky-50 transition"
+                >
+                  <input
+                    type="radio"
+                    name="dice-cond"
+                    value="same"
+                    onchange="updateDiceSim()"
+                    class="accent-sky-600"
+                  />
+                  <span class="font-bold text-slate-800">ゾロ目（同じ目）</span>
+                </label>
+
+                <label
+                  class="flex items-center gap-2 p-2 rounded-lg bg-white border border-slate-200 cursor-pointer hover:bg-sky-50 transition"
+                >
+                  <input
+                    type="radio"
+                    name="dice-cond"
+                    value="at-least-one-odd"
+                    onchange="updateDiceSim()"
+                    class="accent-sky-600"
+                  />
+                  <span class="font-bold text-slate-800"
+                    >少なくとも一方が「奇数」</span
+                  >
+                </label>
+              </div>
+
+              <!-- 計算結果ボックス -->
+              <div
+                class="p-3 bg-white rounded-xl border border-sky-200 space-y-1.5 shadow-2xs font-mono"
+              >
+                <div class="text-[11px] text-slate-500 font-bold">
+                  確率の計算結果：
+                </div>
+                <div id="dice-calc-formula" class="text-xs text-slate-700">
+                  6通り ÷ 36通り
+                </div>
+                <div
+                  class="flex items-baseline justify-between pt-1 border-t border-slate-100"
+                >
+                  <span class="text-xs font-bold text-slate-600"
+                    >確率 P ＝</span
+                  >
+                  <span
+                    id="dice-calc-prob"
+                    class="text-base sm:text-lg font-black text-red-600"
+                    >1/6 (約16.7%)</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= ② 玉取り出し実験 ================= -->
+        <div id="sim-section-balls" class="hidden space-y-4">
+          <!-- 説明テキスト -->
+          <div
+            class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700"
+          >
+            <strong>【玉の取り出しシミュレーション】</strong>
+            玉の個数とルール（戻す／戻さない）を変えて、確率の変化を観察できます。
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 左側: パラメータ設定 -->
+            <div
+              class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-4 text-xs"
+            >
+              <div
+                class="text-xs font-bold text-slate-700 border-b border-slate-200 pb-2"
+              >
+                <i class="fa-solid fa-gear text-sky-600"></i> 袋の中身と条件設定
+              </div>
+
+              <!-- 玉の数スライダー -->
+              <div class="space-y-3">
+                <div>
+                  <div class="flex justify-between font-bold mb-1">
+                    <span class="text-red-700"
+                      ><i class="fa-solid fa-circle text-red-500"></i>
+                      赤玉の個数:</span
+                    >
+                    <span class="font-mono text-red-700 font-black"
+                      ><span id="val-ball-red">3</span> 個</span
+                    >
+                  </div>
+                  <input
+                    type="range"
+                    id="slider-ball-red"
+                    min="1"
+                    max="10"
+                    value="3"
+                    oninput="updateBallsSim()"
+                    class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
+                  />
+                </div>
+
+                <div>
+                  <div class="flex justify-between font-bold mb-1">
+                    <span class="text-slate-700"
+                      ><i class="fa-solid fa-circle text-slate-400"></i>
+                      白玉の個数:</span
+                    >
+                    <span class="font-mono text-slate-700 font-black"
+                      ><span id="val-ball-white">7</span> 個</span
+                    >
+                  </div>
+                  <input
+                    type="range"
+                    id="slider-ball-white"
+                    min="1"
+                    max="10"
+                    value="7"
+                    oninput="updateBallsSim()"
+                    class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-600"
+                  />
+                </div>
+              </div>
+
+              <!-- ルール選択（戻す vs 戻さない） -->
+              <div class="pt-2 border-t border-slate-200 space-y-2">
+                <div class="font-bold text-slate-700">
+                  取り出し方のルール（2回取り出す）：
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    id="btn-rule-replace"
+                    onclick="setBallRule('replace')"
+                    class="py-2 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold transition text-center hover:bg-slate-100"
+                  >
+                    戻す（復元抽出）
+                  </button>
+                  <button
+                    id="btn-rule-noreplace"
+                    onclick="setBallRule('noreplace')"
+                    class="py-2 px-2.5 rounded-lg border-2 border-sky-600 bg-sky-50 text-sky-800 font-black transition text-center shadow-2xs"
+                  >
+                    戻さない（非復元）
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右側: 視覚表現 ＆ 計算結果 -->
+            <div
+              class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-3 font-mono"
+            >
+              <div>
+                <div
+                  class="text-xs font-bold text-slate-700 border-b border-slate-200 pb-2 mb-3"
+                >
+                  <i class="fa-solid fa-calculator text-emerald-600"></i>
+                  確率の計算比較（合計
+                  <span id="balls-total-count" class="text-sky-700 font-black"
+                    >10</span
+                  >
+                  個）
+                </div>
+
+                <!-- 袋のビジュアルアイコン一覧 -->
+                <div
+                  id="balls-visual-box"
+                  class="p-3 bg-white rounded-xl border border-slate-200 mb-3 flex flex-wrap gap-1.5 items-center justify-center min-h-[50px]"
+                >
+                  <!-- JSで動的に玉アイコン描画 -->
+                </div>
+
+                <!-- 結果1: 2個とも赤 -->
+                <div
+                  class="p-3 rounded-lg bg-white border border-slate-200 space-y-1 mb-2"
+                >
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold text-slate-800 font-sans"
+                      >① 2個とも赤玉である確率</span
+                    >
+                    <span
+                      id="prob-both-red-val"
+                      class="text-red-600 font-black text-sm"
+                      >1/15 (6.7%)</span
+                    >
+                  </div>
+                  <div
+                    id="prob-both-red-formula"
+                    class="text-[11px] text-slate-500"
+                  >
+                    (3/10) × (2/9) ＝ 6/90 ＝ 1/15
+                  </div>
+                </div>
+
+                <!-- 結果2: 少なくとも1個赤 -->
+                <div
+                  class="p-3 rounded-lg bg-white border border-slate-200 space-y-1"
+                >
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold text-slate-800 font-sans"
+                      >② 少なくとも1個赤玉である確率</span
+                    >
+                    <span
+                      id="prob-atleast-red-val"
+                      class="text-emerald-700 font-black text-sm"
+                      >8/15 (53.3%)</span
+                    >
+                  </div>
+                  <div
+                    id="prob-atleast-red-formula"
+                    class="text-[11px] text-slate-500"
+                  >
+                    1 − (白×白) ＝ 1 − (7/10 × 6/9) ＝ 1 − 7/15 ＝ 8/15
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-900 font-sans"
+              >
+                💡 <strong>気づき：</strong>「戻さない」場合、2回目は分母が
+                <span id="hint-denom" class="font-mono font-bold">9</span>
+                に減るため、確率の計算値が大きく変わります！
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. 【パターン整理・出題全5型完全攻略】 -->
+      <section
+        id="patterns"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200"
+      >
+        <div
+          class="text-sky-700 font-bold text-xs mb-1 flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-list-check"></i> セクション
+          5：まとめ（出題全5型完全攻略）
+        </div>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-3">
+          SPI確率 出題全5パターンの立式と速解ステップ
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm">
+          <!-- パターン 1 -->
+          <div
+            class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs space-y-2"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-6 h-6 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0"
+                  >1</span
+                >
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                  基本事象型（サイコロ・コイン・トランプ）
+                </h3>
+              </div>
+              <span
+                class="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 w-fit"
+                >基本・最頻出</span
+              >
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              サイコロ2個の和や積、コインの表裏など。全事象を分母に置き、条件に合う組み合わせを数え上げます。
+            </p>
+            <div
+              class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5"
+            >
+              <div
+                class="text-xs font-bold text-blue-700 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-bolt text-yellow-500"></i>
+                計算例：サイコロ2個の和が「9」
+              </div>
+              <div
+                class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed"
+              >
+                <span
+                  class="inline-flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <span>(3,6),(4,5),(5,4),(6,3)の4通り</span>
+                  <span class="text-slate-400 font-normal">➔</span>
+                </span>
+                <span class="inline-flex items-center whitespace-nowrap">
+                  <span
+                    class="bg-blue-50 text-blue-700 font-black px-2 py-0.5 rounded border border-blue-200 text-sm sm:text-lg"
+                    >4/36 ＝ 1/9！</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- パターン 2 -->
+          <div
+            class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs space-y-2"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-6 h-6 rounded-lg bg-rose-600 text-white font-bold text-xs flex items-center justify-center shrink-0"
+                  >2</span
+                >
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                  余事象型（「少なくとも〜」）
+                </h3>
+              </div>
+              <span
+                class="text-[11px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-100 w-fit"
+                >超頻出・時短ワザ</span
+              >
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              「少なくとも1回表が出る」「少なくとも1本当たりを引く」。直接計算せず「1
+              − 全滅確率」で一撃計算します。
+            </p>
+            <div
+              class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5"
+            >
+              <div
+                class="text-xs font-bold text-rose-700 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-bolt text-yellow-500"></i>
+                計算例：コイン4回で少なくとも1回表
+              </div>
+              <div
+                class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed"
+              >
+                <span
+                  class="inline-flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <span>すべて裏 ＝ (1/2)⁴ ＝ 1/16</span>
+                  <span class="text-slate-400 font-normal">➔</span>
+                </span>
+                <span class="inline-flex items-center whitespace-nowrap">
+                  <span
+                    class="bg-rose-50 text-red-600 font-black px-2 py-0.5 rounded border border-rose-200 text-sm sm:text-lg"
+                    >1 − 1/16 ＝ 15/16！</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- パターン 3 -->
+          <div
+            class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs space-y-2"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-6 h-6 rounded-lg bg-purple-600 text-white font-bold text-xs flex items-center justify-center shrink-0"
+                  >3</span
+                >
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                  非復元抽出型（玉・くじを戻さない）
+                </h3>
+              </div>
+              <span
+                class="text-[11px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-100 w-fit"
+                >注意・ミス多発</span
+              >
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              引いたものを戻さない問題。2回目以降は分母も分子も1ずつ減らして掛け算します。
+            </p>
+            <div
+              class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5"
+            >
+              <div
+                class="text-xs font-bold text-purple-700 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-bolt text-yellow-500"></i>
+                計算例：赤4個・白6個から続けて2個赤
+              </div>
+              <div
+                class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed"
+              >
+                <span
+                  class="inline-flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <span>(4/10) × (3/9) ＝ 12/90</span>
+                  <span class="text-slate-400 font-normal">➔</span>
+                </span>
+                <span class="inline-flex items-center whitespace-nowrap">
+                  <span
+                    class="bg-purple-50 text-purple-700 font-black px-2 py-0.5 rounded border border-purple-200 text-sm sm:text-lg"
+                    >約分して 2/15！</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- パターン 4 -->
+          <div
+            class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs space-y-2"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0"
+                  >4</span
+                >
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                  組み合わせ利用型（同時に複数個選ぶ）
+                </h3>
+              </div>
+              <span
+                class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 w-fit"
+                >代表選出・色別</span
+              >
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              男子m人、女子n人から代表を選ぶ等、順序に関係なく選ぶ問題。難しい公式Cを使わず、「目当てのペア数 ÷ 全体のペア数」または「分数のかけ算」で直感的に解けます。
+            </p>
+            <div
+              class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5"
+            >
+              <div
+                class="text-xs font-bold text-emerald-700 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-bolt text-yellow-500"></i>
+                計算例：男3・女2から代表2人が男女1人ずつ
+              </div>
+              <div
+                class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed"
+              >
+                <span
+                  class="inline-flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <span>(男3×女2) ÷ 全体ペア(5×4÷2=10)</span>
+                  <span class="text-slate-400 font-normal">➔</span>
+                </span>
+                <span class="inline-flex items-center whitespace-nowrap">
+                  <span
+                    class="bg-emerald-50 text-emerald-700 font-black px-2 py-0.5 rounded border border-emerald-200 text-sm sm:text-lg"
+                    >6/10 ＝ 3/5！</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- パターン 5 -->
+          <div
+            class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs space-y-2 md:col-span-2"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-200"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-6 h-6 rounded-lg bg-amber-600 text-white font-bold text-xs flex items-center justify-center shrink-0"
+                  >5</span
+                >
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                  独立試行・勝敗トーナメント・じゃんけん
+                </h3>
+              </div>
+              <span
+                class="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 w-fit"
+                >差がつく応用</span
+              >
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              3人のじゃんけん、各人の合格率、先に2勝した方が優勝するゲームなど、互いに影響しない独立試行の掛け算と排反事象の足し算。
+            </p>
+            <div
+              class="bg-white p-3 rounded-xl border border-slate-200 font-mono shadow-2xs space-y-1.5"
+            >
+              <div
+                class="text-xs font-bold text-amber-700 flex items-center gap-1"
+              >
+                <i class="fa-solid fa-bolt text-yellow-500"></i> 鉄則：
+              </div>
+              <div
+                class="text-xs sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-2 gap-y-1.5 leading-relaxed"
+              >
+                <span
+                  class="inline-flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <span>「勝つ確率 × 負ける確率」を掛け合わせ、</span>
+                  <span class="text-slate-400 font-normal">➔</span>
+                </span>
+                <span class="inline-flex items-center whitespace-nowrap">
+                  <span
+                    class="bg-amber-50 text-amber-800 font-black px-2 py-0.5 rounded border border-amber-200 text-sm sm:text-lg"
+                    >起こりうるパターンの数（掛け算の係数）を忘れずに掛ける！</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 要点ひとことバナー -->
+        <div
+          class="mt-4 p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl text-center shadow-sm"
+        >
+          <p class="text-xs sm:text-sm font-bold text-slate-800">
+            💡 迷ったら<span
+              class="marker-yellow text-sm sm:text-base inline-block my-0.5"
+              >「同時に・続けて＝掛け算」</span
+            >、<span
+              class="marker-yellow text-sm sm:text-base inline-block my-0.5"
+              >「または・別ルート＝足し算」</span
+            >、<span
+              class="marker-yellow text-sm sm:text-base inline-block my-0.5"
+              >「少なくとも＝1 − 全滅」</span
+            >の3本柱で必ず解けます！
+          </p>
+        </div>
+      </section>
+
+      <!-- 6. 【実戦練習: チャレンジ厳選15問（難易度別フィルター付き）】 -->
+      <section
+        id="quiz"
+        class="scroll-mt-20 sm:scroll-mt-24 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200"
+      >
+        <!-- クイズヘッダー -->
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 mb-4 gap-2"
+        >
+          <div>
+            <span
+              class="text-xs font-bold text-yellow-800 bg-yellow-100 px-2 py-0.5 rounded border border-yellow-200 flex items-center gap-1.5 w-fit"
+            >
+              <i class="fa-solid fa-fire text-red-500"></i> SPI本番完全攻略
+            </span>
+            <h2 class="text-base sm:text-xl font-bold text-slate-900 mt-0.5">
+              確率 実戦チャレンジ厳選15問
+            </h2>
+          </div>
+
+          <!-- 難易度切り替えタブ -->
+          <div
+            class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold self-start sm:self-auto overflow-x-auto no-scrollbar"
+          >
+            <button
+              id="filter-all"
+              onclick="filterQuiz('all')"
+              class="px-2.5 py-1 rounded-lg bg-white shadow-xs text-sky-700 font-black transition"
+            >
+              すべて (15)
+            </button>
+            <button
+              id="filter-easy"
+              onclick="filterQuiz('easy')"
+              class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition"
+            >
+              初級 ★☆☆ (5)
+            </button>
+            <button
+              id="filter-mid"
+              onclick="filterQuiz('mid')"
+              class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition"
+            >
+              中級 ★★☆ (5)
+            </button>
+            <button
+              id="filter-hard"
+              onclick="filterQuiz('hard')"
+              class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition"
+            >
+              上級 ★★★ (5)
+            </button>
+          </div>
+        </div>
+
+        <!-- 問題選択ミニナビゲーション（問題番号ボタン） -->
+        <div class="mb-4 pb-2 border-b border-slate-100">
+          <div
+            class="text-[11px] text-slate-500 font-bold mb-1.5 flex items-center justify-between"
+          >
+            <span>問題一覧（クリックでジャンプ）：</span>
+            <span id="quiz-progress-text" class="text-sky-700 font-mono"
+              >1 / 15問</span
+            >
+          </div>
+          <div id="quiz-num-bar" class="flex flex-wrap gap-1.5">
+            <!-- JSで動的にボタン生成 -->
+          </div>
+        </div>
+
+        <!-- クイズ表示エリア -->
+        <div id="quiz-container" class="space-y-4">
+          <!-- 問題文エリア -->
+          <div
+            class="p-4 rounded-xl bg-sky-50/50 border border-sky-100 space-y-2"
+          >
+            <div class="flex items-center justify-between">
+              <span
+                id="quiz-category"
+                class="text-[11px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded"
+                >初級 ★☆☆</span
+              >
+              <span id="quiz-diff-stars" class="text-xs text-amber-500"
+                ><i class="fa-solid fa-star"></i
+              ></span>
+            </div>
+            <p
+              id="quiz-question"
+              class="text-xs sm:text-base font-bold text-slate-800 leading-relaxed"
+            >
+              <!-- JSで動的に問題文が挿入されます -->
+            </p>
+          </div>
+
+          <!-- 選択肢ボタン（JSで動的生成） -->
+          <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- JSで動的にボタンが挿入されます -->
+          </div>
+
+          <!-- 解答・解説エリア（回答後に表示） -->
+          <div
+            id="quiz-feedback"
+            class="hidden p-4 sm:p-5 rounded-xl border transition-all space-y-3"
+          >
+            <div
+              id="quiz-result-title"
+              class="text-sm sm:text-base font-bold flex items-center gap-2"
+            ></div>
+
+            <!-- 解説エリア -->
+            <div
+              id="quiz-explanation"
+              class="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-2.5 border-t border-slate-200/60 pt-3"
+            >
+              <!-- JSで挿入 -->
+            </div>
+
+            <div
+              class="mt-4 flex items-center justify-between pt-2 border-t border-slate-200/60"
+            >
+              <button
+                onclick="prevQuiz()"
+                id="btn-prev-quiz"
+                class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-xs sm:text-sm flex items-center gap-1 shadow-xs"
+              >
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+                <span>前の問題</span>
+              </button>
+              <button
+                onclick="nextQuiz()"
+                id="btn-next-quiz"
+                class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg transition text-xs sm:text-sm flex items-center gap-1.5 shadow-sm"
+              >
+                <span>次の問題へ</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- =========================================================
+       フッター（全単元共通）
+       ========================================================= -->
+    <footer
+      class="bg-slate-900 text-slate-400 py-6 text-center text-xs mt-12 border-t border-slate-800"
+    >
+      <div class="max-w-5xl mx-auto px-4 space-y-2">
+        <div
+          class="flex items-center justify-center gap-2 text-white font-bold"
+        >
+          <a href="index.html" class="hover:text-yellow-300 transition"
+            >SPI直感攻略ナビ ポータル</a
+          >
+        </div>
+        <p class="text-slate-500 text-[11px]">© 2026 SPI直感攻略ナビ</p>
+      </div>
+    </footer>
+
+    <!-- =========================================================
+       JavaScript ロジック
+       ========================================================= -->
+    <script>
+      /* ---------------------------------------------------------
+       * クイズデータ（初級5問・中級5問・上級5問 ＝ 厳選15問）
+       * --------------------------------------------------------- */
+      const QUIZ_DATA = [
+        // === 初級 ★☆☆ (Q1〜Q5) ===
+        {
+          id: 1,
+          difficulty: "easy",
+          diffLabel: "初級 ★☆☆",
+          category: "パターン1: サイコロの出目の和",
+          question:
+            "大小2個のサイコロを同時に投げるとき、出た目の和が「8」になる確率はいくらか？",
+          options: ["1/9", "5/36", "1/6", "7/36"],
+          answerIndex: 1, // 5/36
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【即答テクニック】</strong><br>
+            ・サイコロ2個の全事象は <strong class="text-purple-700">6 × 6 ＝ 36通り</strong>！<br>
+            ・和が8になる組み合わせは、(2, 6), (3, 5), (4, 4), (5, 3), (6, 2) の <strong class="text-purple-700">5通り</strong>！<br>
+            ・確率 ＝ <strong class="text-red-600 font-black text-sm">5/36！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            💡 サイコロ2個の和の組み合わせ数は「7」が最多（6通り）。8は7より1離れているので 6 − 1 ＝ 5通り と瞬時に思い出せます。
+          </div>
+        `,
+        },
+        {
+          id: 2,
+          difficulty: "easy",
+          diffLabel: "初級 ★☆☆",
+          category: "パターン1: 基本事象（袋から1個）",
+          question:
+            "袋の中に赤玉が4個、白玉が6個、青玉が2個入っている。この袋から玉を1個取り出すとき、赤玉である確率はいくらか？",
+          options: ["1/6", "1/4", "1/3", "1/2"],
+          answerIndex: 2, // 1/3
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【ステップ計算】</strong><br>
+            1. <strong>全体の玉の個数（分母）</strong>: 4 ＋ 6 ＋ 2 ＝ 12個<br>
+            2. <strong>条件に合う赤玉の個数（分子）</strong>: 4個<br>
+            3. <strong>確率</strong>: 4 / 12 ＝ <strong class="text-red-600 font-black text-sm">1/3！</strong>
+          </div>
+        `,
+        },
+        {
+          id: 3,
+          difficulty: "easy",
+          diffLabel: "初級 ★☆☆",
+          category: "パターン1: コインの連続投げ（積の法則）",
+          question:
+            "表と裏が1/2ずつの確率で出る硬貨を3回続けて投げるとき、3回とも「表」が出る確率はいくらか？",
+          options: ["1/4", "1/6", "1/8", "1/16"],
+          answerIndex: 2, // 1/8
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【積の法則で即答】</strong><br>
+            ・1回目に表が出る確率 ＝ 1/2<br>
+            ・2回目に表が出る確率 ＝ 1/2<br>
+            ・3回目に表が出る確率 ＝ 1/2<br>
+            ・「続けて起こる」ので掛け算：(1/2) × (1/2) × (1/2) ＝ <strong class="text-red-600 font-black text-sm">1/8！</strong><br>
+            <span class="text-slate-500 text-xs">※全事象は 2³ ＝ 8通り。そのうち (表, 表, 表) は1通りのため 1/8。</span>
+          </div>
+        `,
+        },
+        {
+          id: 4,
+          difficulty: "easy",
+          diffLabel: "初級 ★☆☆",
+          category: "パターン3: くじ引きの公平性定理",
+          question:
+            "10本のくじの中に当たりが3本入っている。A君が先に1本引き、引いたくじを戻さずにB君が次に1本引くとき、B君が当たる確率はいくらか？",
+          options: ["1/5", "3/10", "1/3", "7/30"],
+          answerIndex: 1, // 3/10
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【即答テクニック：くじ引きは順番によらず全員平等！】</strong><br>
+            ・くじを戻さずに引く場合、1人目でも2人目でも最後の人でも、<strong class="text-purple-700">当たる確率は完全に同じ</strong>です！<br>
+            ・A君が当たる確率 ＝ 3/10 ➔ したがってB君が当たる確率も <strong class="text-red-600 font-black text-sm">3/10！</strong>（計算不要で即答）
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            📐 厳密計算でも確認：<br>
+            ① A当たり・B当たり: (3/10) × (2/9) ＝ 6/90<br>
+            ② Aハズレ・B当たり: (7/10) × (3/9) ＝ 21/90<br>
+            合計 ＝ 27/90 ＝ 3/10。ぴったり一致します！
+          </div>
+        `,
+        },
+        {
+          id: 5,
+          difficulty: "easy",
+          diffLabel: "初級 ★☆☆",
+          category: "パターン3: 非復元抽出（玉を戻さない）",
+          question:
+            "袋の中に赤玉が3個、白玉が7個入っている。この袋から玉を1個ずつ続けて2個取り出すとき、2個とも赤玉である確率はいくらか。ただし、取り出した玉は袋に戻さないものとする。",
+          options: ["1/15", "1/10", "3/25", "9/100"],
+          answerIndex: 0, // 1/15
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【ステップ計算】</strong><br>
+            1. <strong>1個目に赤玉を取り出す確率</strong>: 3 / 10<br>
+            2. <strong>2個目に赤玉を取り出す確率</strong>: 残りは赤2個・全体9個なので 2 / 9<br>
+            3. <strong>続けて取り出すので掛け算</strong>: (3/10) × (2/9) ＝ 6/90 ＝ <strong class="text-red-600 font-black text-sm">1/15！</strong>
+          </div>
+          <div class="text-[11px] text-amber-800 bg-amber-50 p-2 rounded border border-amber-200">
+            ⚠️ <strong>注意：</strong>玉を戻さないので、2回目の分母が「9」、分子が「2」に減ります。戻す場合（9/100）と混同しないようにしましょう！
+          </div>
+        `,
+        },
+
+        // === 中級 ★★☆ (Q6〜Q10) ===
+        {
+          id: 6,
+          difficulty: "mid",
+          diffLabel: "中級 ★★☆",
+          category: "パターン2: 余事象（コインの少なくとも）",
+          question:
+            "硬貨を4回続けて投げるとき、「少なくとも1回は表」が出る確率はいくらか？",
+          options: ["7/8", "11/16", "13/16", "15/16"],
+          answerIndex: 3, // 15/16
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【余事象で一撃暗算！】</strong><br>
+            ・「少なくとも1回表」の反対（余事象）は <strong class="text-purple-700">「4回ともすべて裏」</strong> です！<br>
+            ・すべて裏が出る確率 ＝ (1/2)⁴ ＝ 1/16<br>
+            ・求める確率 ＝ 1 − 1/16 ＝ <strong class="text-red-600 font-black text-sm">15/16！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            💡 表が1回、2回、3回、4回出る確率を足すより、裏4回の1パターンだけ引く方が圧倒的に速くミスも防げます！
+          </div>
+        `,
+        },
+        {
+          id: 7,
+          difficulty: "mid",
+          diffLabel: "中級 ★★☆",
+          category: "パターン2: サイコロの積が偶数（余事象）",
+          question:
+            "大小2個のサイコロを同時に投げるとき、出た目の積が「偶数」になる確率はいくらか？",
+          options: ["1/4", "1/2", "5/8", "3/4"],
+          answerIndex: 3, // 3/4
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【「積が偶数」は余事象の典型！】</strong><br>
+            ・かけ算の積が「奇数」になるのは、<strong>【奇数 × 奇数】のときだけ</strong>です！<br>
+            ・大が奇数（3/6=1/2）かつ 小が奇数（1/2）の確率 ＝ (1/2) × (1/2) ＝ 1/4<br>
+            ・積が偶数になる確率 ＝ 1 − 1/4 ＝ <strong class="text-red-600 font-black text-sm">3/4！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            ※偶数×偶数、偶数×奇数、奇数×偶数を個別に数えると 9+9+9=27通り ➔ 27/36 ＝ 3/4 ですが、余事象なら暗算10秒です！
+          </div>
+        `,
+        },
+        {
+          id: 8,
+          difficulty: "mid",
+          diffLabel: "中級 ★★☆",
+          category: "パターン4: 組み合わせ（男女代表選出）",
+          question:
+            "男子4人、女子3人の合計7人の中から無作為に2人の代表を選ぶとき、男子1人、女子1人が選ばれる確率はいくらか？",
+          options: ["2/7", "3/7", "4/7", "12/49"],
+          answerIndex: 2, // 4/7
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【解法①：直感ペア計算（公式C不要！）】</strong><br>
+            ・<strong>全体の2人ペア</strong>：7人から2人選ぶ ＝ (7 × 6) ÷ 2 ＝ <strong class="text-purple-700">21通り</strong><br>
+            ・<strong>男女ペアの数</strong>：男子4人 × 女子3人 ＝ <strong class="text-purple-700">12通り</strong><br>
+            ・確率 ＝ 12 / 21 ＝ 約分して <strong class="text-red-600 font-black text-sm">4/7！</strong>
+          </div>
+          <div class="bg-sky-50 p-2.5 rounded-lg border border-sky-200 text-sky-950 text-xs">
+            <strong>⚡【解法②：分数のかけ算で解く方法】</strong><br>
+            ・(1人目男・2人目女) ＝ (4/7) × (3/6) ＝ 12/42 ＝ 2/7<br>
+            ・(1人目女・2人目男) ＝ (3/7) × (4/6) ＝ 12/42 ＝ 2/7<br>
+            ・合計 ＝ 2/7 ＋ 2/7 ＝ <strong class="text-sky-800 font-black">4/7！</strong>
+          </div>
+        `,
+        },
+        {
+          id: 9,
+          difficulty: "mid",
+          diffLabel: "中級 ★★☆",
+          category: "パターン5: じゃんけんのあいこ",
+          question:
+            "A、B、Cの3人でじゃんけんを1回するとき、「あいこ」になる確率はいくらか？",
+          options: ["1/9", "2/9", "1/3", "4/9"],
+          answerIndex: 2, // 1/3
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【3人じゃんけんの思考整理】</strong><br>
+            ・3人の手の出し方の全事象：3³ ＝ <strong>27通り</strong><br>
+            ・あいこになるのは次の2パターン：<br>
+            　① <strong>3人全員が同じ手を出す</strong>（グー揃い、チョキ揃い、パー揃い）：3通り<br>
+            　② <strong>3人とも異なる手を出す</strong>（グー・チョキ・パーが1人ずつ）：3! ＝ 3 × 2 × 1 ＝ 6通り<br>
+            ・あいこの合計：3 ＋ 6 ＝ <strong>9通り</strong><br>
+            ・確率 ＝ 9 / 27 ＝ <strong class="text-red-600 font-black text-sm">1/3！</strong>
+          </div>
+        `,
+        },
+        {
+          id: 10,
+          difficulty: "mid",
+          diffLabel: "中級 ★★☆",
+          category: "パターン4: 排反事象の和（2個とも同色）",
+          question:
+            "袋の中に赤玉が5個、白玉が4個、青玉が1個入っている。この袋から同時に2個の玉を取り出すとき、2個とも「同じ色」である確率はいくらか？",
+          options: ["14/45", "16/45", "2/5", "1/2"],
+          answerIndex: 1, // 16/45
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【直感解法：分数のかけ算で一撃！（公式不要）】</strong><br>
+            「同時に2個」は「1個ずつ戻さずに続けて2個」と同じです！<br>
+            ① <strong>赤が2個出る確率</strong>：(5/10) × (4/9) ＝ 20/90<br>
+            ② <strong>白が2個出る確率</strong>：(4/10) × (3/9) ＝ 12/90<br>
+            ※青玉は1個しかないので2個出ることはありません。<br>
+            ・合計確率 ＝ 20/90 ＋ 12/90 ＝ 32/90 ＝ 約分して <strong class="text-red-600 font-black text-sm">16/45！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            📐 ペア計算でも確認：全体ペア (10×9)÷2 ＝ 45通り。赤ペア (5×4)÷2 ＝ 10通り、白ペア (4×3)÷2 ＝ 6通り。合計 (10＋6)/45 ＝ 16/45！
+          </div>
+        `,
+        },
+
+        // === 上級 ★★★ (Q11〜Q15) ===
+        {
+          id: 11,
+          difficulty: "hard",
+          diffLabel: "上級 ★★★",
+          category: "パターン5: 独立試行の連続（反復試行）",
+          question:
+            "3枚の硬貨を同時に投げる試行を2回行うとき、2回とも「表がちょうど2枚」出る確率はいくらか？",
+          options: ["9/64", "3/32", "1/8", "9/16"],
+          answerIndex: 0, // 9/64
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【2段階のステップ計算】</strong><br>
+            1. <strong>1回で「表2枚（裏1枚）」が出る確率</strong>：<br>
+            　・3枚のコインの出方は 2³ ＝ 8通り<br>
+            　・裏が出るのが1枚目・2枚目・3枚目の <strong class="text-purple-700">3通り</strong>（表表裏, 表裏表, 裏表表）<br>
+            　・確率 ＝ 3/8<br>
+            2. <strong>2回続けて成功させるので掛け算</strong>：<br>
+            　・(3/8) × (3/8) ＝ <strong class="text-red-600 font-black text-sm">9/64！</strong>
+          </div>
+        `,
+        },
+        {
+          id: 12,
+          difficulty: "hard",
+          diffLabel: "上級 ★★★",
+          category: "パターン2: 余事象（くじ3本引き）",
+          question:
+            "当たりが2本、ハズレが4本の合計6本からなるくじがある。同時に3本を引くとき、「少なくとも1本」は当たりが含まれる確率はいくらか？",
+          options: ["1/5", "3/5", "4/5", "9/10"],
+          answerIndex: 2, // 4/5
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【「少なくとも1本当たり」は 1 − 全滅 で一発！】</strong><br>
+            ・余事象（逆の事象）は <strong class="text-purple-700">「3本ともすべてハズレ」</strong> です！<br>
+            ・ハズレを3回続けて引く確率 ＝ 1回目ハズレ × 2回目ハズレ × 3回目ハズレ<br>
+            　➔ (4/6) × (3/5) × (2/4) ＝ 24/120 ＝ <strong class="text-purple-700">1/5</strong><br>
+            ・求める確率 ＝ 1 − 1/5 ＝ <strong class="text-red-600 font-black text-sm">4/5！</strong>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            💡 難しい組み合わせ計算（公式Cなど）は一切不要！「ハズレの分数を3つ掛けて1から引く」だけで誰でも暗算できます。
+          </div>
+        `,
+        },
+        {
+          id: 13,
+          difficulty: "hard",
+          diffLabel: "上級 ★★★",
+          category: "パターン5: 勝敗決定ゲーム（先に2勝）",
+          question:
+            "AチームとBチームが試合を行う。引き分けはなく、1回の試合でAが勝つ確率は2/3、Bが勝つ確率は1/3である。先に2勝したチームが優勝とするとき、「ちょうど第3戦目」でAが優勝する確率はいくらか？",
+          options: ["4/27", "8/27", "2/9", "4/9"],
+          answerIndex: 1, // 8/27
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【勝敗ゲームの超重要トラップ】</strong><br>
+            ・「ちょうど第3戦目でAが優勝」＝ <strong class="text-purple-700">第3戦目にAが勝って2勝目に到達する</strong> ことです！<br>
+            ・そのため、第1戦と第2戦の終了時点では <strong class="text-slate-900">「Aが1勝1敗」</strong> でなければなりません。<br>
+            　（※Aが2連勝したら第2戦で終わってしまい、第3戦は行われません！）<br>
+            ・第1戦・第2戦で1勝1敗になるのは「勝・負」または「負・勝」の <strong class="text-purple-700">2通り</strong>：<br>
+            　2 × (2/3) × (1/3) ＝ 4/9<br>
+            ・そして第3戦でAが勝つ確率（2/3）を掛ける：<br>
+            　(4/9) × (2/3) ＝ <strong class="text-red-600 font-black text-sm">8/27！</strong>
+          </div>
+        `,
+        },
+        {
+          id: 14,
+          difficulty: "hard",
+          diffLabel: "上級 ★★★",
+          category: "パターン5: 独立試行の「ちょうど2人合格」",
+          question:
+            "3人の受験生A、B、Cがある採用試験を受ける。それぞれの合格率はAが1/2、Bが2/3、Cが3/4である。このとき、「ちょうど2人だけ」が合格する確率はいくらか？",
+          options: ["1/4", "11/24", "1/2", "13/24"],
+          answerIndex: 1, // 11/24
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【3つの排反ケースを足し合わせる】</strong><br>
+            「ちょうど2人合格」＝「1人だけ不合格」です！<br>
+            各人の不合格率は、A: 1/2、B: 1/3、C: 1/4。<br>
+            ① <strong>Cだけ不合格（A・B合格）</strong>：(1/2) × (2/3) × (1/4) ＝ 2/24<br>
+            ② <strong>Bだけ不合格（A・C合格）</strong>：(1/2) × (1/3) × (3/4) ＝ 3/24<br>
+            ③ <strong>Aだけ不合格（B・C合格）</strong>：(1/2) × (2/3) × (3/4) ＝ 6/24<br>
+            ・合計 ＝ (2 ＋ 3 ＋ 6) / 24 ＝ <strong class="text-red-600 font-black text-sm">11/24！</strong>
+          </div>
+        `,
+        },
+        {
+          id: 15,
+          difficulty: "hard",
+          diffLabel: "上級 ★★★",
+          category: "パターン3: 条件指定の順番抽出",
+          question:
+            "白玉6個、黒玉4個が入った袋がある。この袋から玉を1個ずつ取り出して色を確認し、袋に戻さない。このとき、「3回目に取り出した玉が黒玉」である確率はいくらか？",
+          options: ["1/5", "2/5", "1/3", "4/15"],
+          answerIndex: 1, // 2/5
+          explanation: `
+          <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-purple-950 font-medium">
+            <strong>⚡【くじの公平性・対称性の本質！】</strong><br>
+            ・前の人が何を取り出したか言及されていない場合、<strong>何回目に取り出す玉であっても、その色が黒玉である確率は常に最初と同じ</strong>です！<br>
+            ・袋全体の黒玉の比率 ＝ 4 / (6 ＋ 4) ＝ 4/10 ＝ <strong class="text-red-600 font-black text-sm">2/5！</strong>（暗算3秒！）
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-700 font-mono text-[11px]">
+            📐 愚直に全4通り（白白黒、白黒黒、黒白黒、黒黒黒）を計算しても：<br>
+            (6/10×5/9×4/8) + (6/10×4/9×3/8) + (4/10×6/9×3/8) + (4/10×3/9×2/8)<br>
+            ＝ (120 + 72 + 72 + 24) / 720 ＝ 288 / 720 ＝ 2/5！<br>
+            知っていれば計算不要で即答できるSPI最大のサービス問題です。
+          </div>
+        `,
+        },
+      ];
+
+      // Q10の選択肢と正解インデックスの安全調整
+      QUIZ_DATA[9].options = ["14/45", "16/45", "2/5", "1/2"];
+      QUIZ_DATA[9].answerIndex = 1; // 16/45
+
+      /* ---------------------------------------------------------
+       * クイズエンジンの内部状態管理
+       * --------------------------------------------------------- */
+      let currentFilter = "all";
+      let filteredList = [];
+      let currentQuizIndexInFilter = 0;
+      let quizAnswered = false;
+      let answeredStatus = {}; // { [quizId]: { answered: bool, isCorrect: bool } }
+
+      function filterQuiz(filterType) {
+        currentFilter = filterType;
+
+        // タブボタンのスタイル更新
+        ["all", "easy", "mid", "hard"].forEach((type) => {
+          const btn = document.getElementById(`filter-${type}`);
+          if (!btn) return;
+          if (type === filterType) {
+            btn.className =
+              "px-2.5 py-1 rounded-lg bg-white shadow-xs text-sky-700 font-black transition";
+          } else {
+            btn.className =
+              "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+          }
+        });
+
+        if (filterType === "all") {
+          filteredList = [...QUIZ_DATA];
+        } else {
+          filteredList = QUIZ_DATA.filter((q) => q.difficulty === filterType);
+        }
+
+        currentQuizIndexInFilter = 0;
+        loadQuiz(0);
+      }
+
+      function renderNumBar() {
+        const bar = document.getElementById("quiz-num-bar");
+        if (!bar) return;
+        bar.innerHTML = "";
+
+        filteredList.forEach((q, idx) => {
+          const btn = document.createElement("button");
+          const isCurrent = idx === currentQuizIndexInFilter;
+          const st = answeredStatus[q.id];
+
+          let bgClass = "bg-slate-100 text-slate-700 border-slate-200";
+          if (st && st.answered) {
+            bgClass = st.isCorrect
+              ? "bg-emerald-500 text-white border-emerald-600"
+              : "bg-rose-500 text-white border-rose-600";
+          }
+          if (isCurrent) {
+            bgClass += " ring-2 ring-sky-500 ring-offset-1 font-black";
+          }
+
+          btn.className = `w-7 h-7 rounded-lg text-xs font-bold border transition flex items-center justify-center ${bgClass}`;
+          btn.textContent = q.id;
+          btn.onclick = () => loadQuiz(idx);
+          bar.appendChild(btn);
+        });
+      }
+
+      function loadQuiz(idx) {
+        currentQuizIndexInFilter = idx;
+        quizAnswered = false;
+        const data = filteredList[idx];
+
+        document.getElementById("quiz-progress-text").textContent =
+          `${idx + 1} / ${filteredList.length}問 (第${data.id}問)`;
+        document.getElementById("quiz-category").textContent =
+          `${data.diffLabel}｜${data.category}`;
+
+        const starsEl = document.getElementById("quiz-diff-stars");
+        if (data.difficulty === "easy")
+          starsEl.innerHTML =
+            '<i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>';
+        else if (data.difficulty === "mid")
+          starsEl.innerHTML =
+            '<i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>';
+        else
+          starsEl.innerHTML =
+            '<i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>';
+
+        document.getElementById("quiz-question").innerHTML = data.question;
+
+        const optsContainer = document.getElementById("quiz-options");
+        optsContainer.innerHTML = "";
+
+        data.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.className =
+            "quiz-opt-btn p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs sm:text-sm text-left transition shadow-xs flex items-center justify-between group";
+          btn.innerHTML = `
+          <span>${optText}</span>
+          <span class="w-5 h-5 rounded-full border border-slate-300 group-hover:border-sky-500 flex items-center justify-center text-[10px] text-transparent group-hover:text-sky-500">
+            ●
+          </span>
+        `;
+          btn.onclick = () => selectOption(optIdx);
+          optsContainer.appendChild(btn);
+        });
+
+        const feedback = document.getElementById("quiz-feedback");
+        feedback.classList.add("hidden");
+
+        document.getElementById("btn-prev-quiz").disabled = idx === 0;
+        document
+          .getElementById("btn-prev-quiz")
+          .classList.toggle("opacity-50", idx === 0);
+
+        renderNumBar();
+      }
+
+      function selectOption(selectedIdx) {
+        if (quizAnswered) return;
+        quizAnswered = true;
+
+        const data = filteredList[currentQuizIndexInFilter];
+        const isCorrect = selectedIdx === data.answerIndex;
+
+        answeredStatus[data.id] = {
+          answered: true,
+          isCorrect: isCorrect,
+        };
+
+        const optButtons = document.querySelectorAll(".quiz-opt-btn");
+        optButtons.forEach((btn, idx) => {
+          btn.disabled = true;
+          btn.classList.remove("hover:bg-slate-50");
+          if (idx === data.answerIndex) {
+            btn.classList.add(
+              "bg-emerald-50",
+              "border-emerald-500",
+              "text-emerald-900",
+            );
+            btn.innerHTML = `<span>${data.options[idx]}</span> <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> 正解</span>`;
+          } else if (idx === selectedIdx && !isCorrect) {
+            btn.classList.add("bg-rose-50", "border-rose-400", "text-rose-900");
+            btn.innerHTML = `<span>${data.options[idx]}</span> <span class="text-rose-500 font-bold"><i class="fa-solid fa-circle-xmark"></i> 不正解</span>`;
+          } else {
+            btn.classList.add("opacity-40");
+          }
+        });
+
+        const feedback = document.getElementById("quiz-feedback");
+        const titleEl = document.getElementById("quiz-result-title");
+        const expEl = document.getElementById("quiz-explanation");
+
+        if (isCorrect) {
+          feedback.className =
+            "p-4 sm:p-5 rounded-xl border border-emerald-300 bg-emerald-50/70 block space-y-3";
+          titleEl.className =
+            "text-sm sm:text-base font-bold flex items-center gap-2 text-emerald-800";
+          titleEl.innerHTML =
+            '<i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i> 正解です！確率の直感テクニックを完璧に使いこなせています！';
+        } else {
+          feedback.className =
+            "p-4 sm:p-5 rounded-xl border border-rose-300 bg-rose-50/70 block space-y-3";
+          titleEl.className =
+            "text-sm sm:text-base font-bold flex items-center gap-2 text-rose-800";
+          titleEl.innerHTML =
+            '<i class="fa-solid fa-circle-xmark text-rose-500 text-lg"></i> おしい！解説で立式の手順を確認しましょう';
+        }
+
+        expEl.innerHTML = data.explanation;
+        feedback.classList.remove("hidden");
+
+        renderNumBar();
+      }
+
+      function nextQuiz() {
+        if (currentQuizIndexInFilter < filteredList.length - 1) {
+          loadQuiz(currentQuizIndexInFilter + 1);
+        } else {
+          loadQuiz(0);
+        }
+      }
+
+      function prevQuiz() {
+        if (currentQuizIndexInFilter > 0) {
+          loadQuiz(currentQuizIndexInFilter - 1);
+        }
+      }
+
+      /* ---------------------------------------------------------
+       * シミュレーター実装（①サイコロマトリクス ＆ ②玉取り出し）
+       * --------------------------------------------------------- */
+      let currentSimMode = "dice";
+      let ballRule = "noreplace"; // 'replace' or 'noreplace'
+
+      function switchSimMode(mode) {
+        currentSimMode = mode;
+        const secDice = document.getElementById("sim-section-dice");
+        const secBalls = document.getElementById("sim-section-balls");
+        const tabDice = document.getElementById("tab-sim-dice");
+        const tabBalls = document.getElementById("tab-sim-balls");
+
+        if (mode === "dice") {
+          secDice.classList.remove("hidden");
+          secBalls.classList.add("hidden");
+          tabDice.className =
+            "px-3 py-1.5 rounded-lg bg-white shadow-xs text-sky-700 font-black transition";
+          tabBalls.className =
+            "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
+        } else {
+          secDice.classList.add("hidden");
+          secBalls.classList.remove("hidden");
+          tabDice.className =
+            "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
+          tabBalls.className =
+            "px-3 py-1.5 rounded-lg bg-white shadow-xs text-sky-700 font-black transition";
+          updateBallsSim();
+        }
+      }
+
+      // --- ① サイコロマトリクス ---
+      function initDiceMatrix() {
+        const container = document.getElementById("dice-matrix-container");
+        if (!container) return;
+        container.innerHTML = "";
+
+        for (let b = 1; b <= 6; b++) {
+          // 縦見出し（Bの目）
+          const rowHeader = document.createElement("div");
+          rowHeader.className =
+            "flex items-center justify-center font-bold text-purple-300 bg-slate-800/80 rounded";
+          rowHeader.textContent = b;
+          container.appendChild(rowHeader);
+
+          // 6マス
+          for (let a = 1; a <= 6; a++) {
+            const cell = document.createElement("div");
+            cell.id = `dice-cell-${a}-${b}`;
+            cell.className =
+              "dice-cell flex items-center justify-center rounded font-bold transition duration-150 bg-slate-800 text-slate-300 border border-slate-700/60";
+            cell.textContent = a + b; // 和を表示
+            container.appendChild(cell);
+          }
+        }
+        updateDiceSim();
+      }
+
+      function resetDiceFilter() {
+        const radio = document.querySelector(
+          'input[name="dice-cond"][value="sum"]',
+        );
+        if (radio) radio.checked = true;
+        const slider = document.getElementById("dice-sum-slider");
+        if (slider) slider.value = 7;
+        updateDiceSim();
+      }
+
+      function gcd(a, b) {
+        return b === 0 ? a : gcd(b, a % b);
+      }
+
+      function updateDiceSim() {
+        const selected =
+          document.querySelector('input[name="dice-cond"]:checked')?.value ||
+          "sum";
+        const sumSlider = document.getElementById("dice-sum-slider");
+        const targetSum = parseInt(sumSlider.value, 10);
+        document.getElementById("dice-sum-val").textContent = targetSum;
+
+        let hitCount = 0;
+
+        for (let b = 1; b <= 6; b++) {
+          for (let a = 1; a <= 6; a++) {
+            const cell = document.getElementById(`dice-cell-${a}-${b}`);
+            if (!cell) continue;
+
+            let isHit = false;
+            if (selected === "sum") {
+              isHit = a + b === targetSum;
+            } else if (selected === "prod-even") {
+              isHit = (a * b) % 2 === 0;
+            } else if (selected === "same") {
+              isHit = a === b;
+            } else if (selected === "at-least-one-odd") {
+              isHit = a % 2 !== 0 || b % 2 !== 0;
+            }
+
+            if (isHit) {
+              hitCount++;
+              cell.className =
+                "dice-cell flex items-center justify-center rounded font-black transition duration-150 bg-sky-500 text-white shadow-md scale-105 border border-sky-300";
+            } else {
+              cell.className =
+                "dice-cell flex items-center justify-center rounded font-normal transition duration-150 bg-slate-800 text-slate-500 border border-slate-800";
+            }
+          }
+        }
+
+        // 確率計算と表示
+        const g = gcd(hitCount, 36);
+        const reducedNum = hitCount / g;
+        const reducedDen = 36 / g;
+        const pct = ((hitCount / 36) * 100).toFixed(1);
+
+        document.getElementById("dice-stat-badge").textContent =
+          `該当: ${hitCount} / 36 (${pct}%)`;
+        document.getElementById("dice-calc-formula").textContent =
+          `${hitCount}通り ÷ 36通り`;
+        document.getElementById("dice-calc-prob").textContent =
+          `${reducedNum}/${reducedDen} (${pct}%)`;
+      }
+
+      // --- ② 玉取り出しシミュレーター ---
+      function setBallRule(rule) {
+        ballRule = rule;
+        const btnRep = document.getElementById("btn-rule-replace");
+        const btnNoRep = document.getElementById("btn-rule-noreplace");
+
+        if (rule === "replace") {
+          btnRep.className =
+            "py-2 px-2.5 rounded-lg border-2 border-sky-600 bg-sky-50 text-sky-800 font-black transition text-center shadow-2xs";
+          btnNoRep.className =
+            "py-2 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold transition text-center hover:bg-slate-100";
+        } else {
+          btnNoRep.className =
+            "py-2 px-2.5 rounded-lg border-2 border-sky-600 bg-sky-50 text-sky-800 font-black transition text-center shadow-2xs";
+          btnRep.className =
+            "py-2 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold transition text-center hover:bg-slate-100";
+        }
+        updateBallsSim();
+      }
+
+      function updateBallsSim() {
+        const r = parseInt(
+          document.getElementById("slider-ball-red").value,
+          10,
+        );
+        const w = parseInt(
+          document.getElementById("slider-ball-white").value,
+          10,
+        );
+        const total = r + w;
+
+        document.getElementById("val-ball-red").textContent = r;
+        document.getElementById("val-ball-white").textContent = w;
+        document.getElementById("balls-total-count").textContent = total;
+
+        // ビジュアル玉アイコン描画
+        const vBox = document.getElementById("balls-visual-box");
+        vBox.innerHTML = "";
+        for (let i = 0; i < r; i++) {
+          const dot = document.createElement("span");
+          dot.className =
+            "w-5 h-5 rounded-full bg-red-500 shadow-xs flex items-center justify-center text-[9px] text-white font-bold";
+          dot.textContent = "赤";
+          vBox.appendChild(dot);
+        }
+        for (let i = 0; i < w; i++) {
+          const dot = document.createElement("span");
+          dot.className =
+            "w-5 h-5 rounded-full bg-slate-300 border border-slate-400 shadow-xs flex items-center justify-center text-[9px] text-slate-700 font-bold";
+          dot.textContent = "白";
+          vBox.appendChild(dot);
+        }
+
+        // 確率計算
+        let probBothRedNum, probBothRedDen;
+        let probBothWhiteNum, probBothWhiteDen;
+
+        if (ballRule === "noreplace") {
+          // 非復元（戻さない）
+          document.getElementById("hint-denom").textContent = total - 1;
+          probBothRedNum = r * (r - 1);
+          probBothRedDen = total * (total - 1);
+          probBothWhiteNum = w * (w - 1);
+          probBothWhiteDen = total * (total - 1);
+
+          // 2個とも赤
+          const gRed = gcd(probBothRedNum, probBothRedDen);
+          const rNum = probBothRedNum / gRed;
+          const rDen = probBothRedDen / gRed;
+          const rPct = ((probBothRedNum / probBothRedDen) * 100).toFixed(1);
+          document.getElementById("prob-both-red-val").textContent =
+            `${rNum}/${rDen} (${rPct}%)`;
+          document.getElementById("prob-both-red-formula").textContent =
+            `(${r}/${total}) × (${r - 1}/${total - 1}) ＝ ${probBothRedNum}/${probBothRedDen} ＝ ${rNum}/${rDen}`;
+
+          // 少なくとも1個赤 ＝ 1 − (白×白)
+          const atLeastNum = probBothWhiteDen - probBothWhiteNum;
+          const atLeastDen = probBothWhiteDen;
+          const gAtLeast = gcd(atLeastNum, atLeastDen);
+          const aNum = atLeastNum / gAtLeast;
+          const aDen = atLeastDen / gAtLeast;
+          const aPct = ((atLeastNum / atLeastDen) * 100).toFixed(1);
+          document.getElementById("prob-atleast-red-val").textContent =
+            `${aNum}/${aDen} (${aPct}%)`;
+          document.getElementById("prob-atleast-red-formula").textContent =
+            `1 − (${w}/${total} × ${w - 1}/${total - 1}) ＝ 1 − ${probBothWhiteNum}/${probBothWhiteDen} ＝ ${aNum}/${aDen}`;
+        } else {
+          // 復元（戻す）
+          document.getElementById("hint-denom").textContent = total;
+          probBothRedNum = r * r;
+          probBothRedDen = total * total;
+          probBothWhiteNum = w * w;
+          probBothWhiteDen = total * total;
+
+          // 2個とも赤
+          const gRed = gcd(probBothRedNum, probBothRedDen);
+          const rNum = probBothRedNum / gRed;
+          const rDen = probBothRedDen / gRed;
+          const rPct = ((probBothRedNum / probBothRedDen) * 100).toFixed(1);
+          document.getElementById("prob-both-red-val").textContent =
+            `${rNum}/${rDen} (${rPct}%)`;
+          document.getElementById("prob-both-red-formula").textContent =
+            `(${r}/${total}) × (${r}/${total}) ＝ ${probBothRedNum}/${probBothRedDen} ＝ ${rNum}/${rDen}`;
+
+          // 少なくとも1個赤 ＝ 1 − (白×白)
+          const atLeastNum = probBothWhiteDen - probBothWhiteNum;
+          const atLeastDen = probBothWhiteDen;
+          const gAtLeast = gcd(atLeastNum, atLeastDen);
+          const aNum = atLeastNum / gAtLeast;
+          const aDen = atLeastDen / gAtLeast;
+          const aPct = ((atLeastNum / atLeastDen) * 100).toFixed(1);
+          document.getElementById("prob-atleast-red-val").textContent =
+            `${aNum}/${aDen} (${aPct}%)`;
+          document.getElementById("prob-atleast-red-formula").textContent =
+            `1 − (${w}/${total} × ${w}/${total}) ＝ 1 − ${probBothWhiteNum}/${probBothWhiteDen} ＝ ${aNum}/${aDen}`;
+        }
+      }
+
+      // --- ページ初期化 ---
+      window.addEventListener("DOMContentLoaded", () => {
+        initDiceMatrix();
+        filterQuiz("all");
+      });
+    </script>
+  </body>
+</html>
